@@ -1,20 +1,21 @@
+
 // backend/db.js
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise'); // Use the Promise-based version of mysql2
 
-const connection = mysql.createConnection({
+const db = mysql.createPool({
     host: 'localhost',
-    user: 'root',            
-    password: 'eimear',      
-    database: 'nis2_compliance' 
+    user: 'root',
+    password: 'eimear',
+    database: 'nis2_compliance'
 });
 
-connection.connect((err) => {
-    if (err) {
-        console.error('Error connecting to MySQL:', err);
-        return;
-    }
+db.getConnection()
+  .then(() => {
     console.log('Connected to MySQL database.');
-});
+  })
+  .catch((err) => {
+    console.error('Error connecting to MySQL:', err);
+  });
 
-module.exports = connection;
+module.exports = db;
 
