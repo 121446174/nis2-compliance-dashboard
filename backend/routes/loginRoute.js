@@ -1,15 +1,15 @@
-const express = require('express');
+const express = require('express'); // imports express
 const router = express.Router();
 const db = require('../db'); // Database connection
 
-router.post('/', async (req, res) => {
-  const { email, password } = req.body;
+router.post('/', async (req, res) => { // Post route to handle login requests
+  const { email, password } = req.body; // extract email and password
 
   try {
-    // Query the user by email and password
+    // SQL Query to search the user by email and password
     const [rows] = await db.query(
-      'SELECT * FROM user WHERE email = ? AND password = ?',
-      [email, password]
+      'SELECT * FROM user WHERE email = ? AND password = ?', // (?) to prevent SQL injection
+      [email, password] // return one user
     );
 
     if (rows.length === 0) {

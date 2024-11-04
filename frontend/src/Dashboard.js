@@ -1,6 +1,7 @@
+// Import necessary libraries and components
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Typography, Box, CircularProgress, Alert, Button } from '@mui/material';
+import { Typography, Box, CircularProgress, Alert, Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 
 function Dashboard() {
   const location = useLocation();
@@ -8,6 +9,7 @@ function Dashboard() {
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [helpOpen, setHelpOpen] = useState(false); // State for Help dialog
 
   // Extract userId from URL query params
   const queryParams = new URLSearchParams(location.search);
@@ -38,14 +40,47 @@ function Dashboard() {
     navigate('/login'); // Redirect to login page
   };
 
+  // Handlers for Help/Info dialog
+  const handleHelpOpen = () => setHelpOpen(true);
+  const handleHelpClose = () => setHelpOpen(false);
+
   return (
     <Box sx={{ maxWidth: 600, margin: 'auto', padding: 3 }}>
       {loading ? (
         <CircularProgress />
       ) : error ? (
         <Alert severity="error">{error}</Alert>
-      ) : (
+      ) : userData ? (
         <>
+          {/* Top-right control buttons - Only visible after successful login */}
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={handleHelpOpen}
+              sx={{ mr: 1 }}
+            >
+              Help
+            </Button>
+            <Button
+              variant="outlined"
+              color="secondary"
+              href="https://docs.google.com/forms/d/e/1FAIpQLSfZ7pXJVG5wyk4LSH0YF39rOsPq7rtbd5UHHAE7NxBhldptnQ/viewform?usp=sf_link"
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{ mr: 1 }}
+            >
+              Give Feedback
+            </Button>
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={handleLogout}
+            >
+              Logout
+            </Button>
+          </Box>
+
           <Typography variant="h4">Welcome, {userData?.name || 'User'}</Typography>
           <Typography variant="body1" sx={{ mt: 2 }}>
             Email: {userData?.email || 'No Email Provided'}
@@ -60,20 +95,31 @@ function Dashboard() {
             Sector: {userData?.sector || 'No Sector Provided'}
           </Typography>
 
-          {/* Logout Button */}
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={handleLogout}
-            sx={{ mt: 3 }}
-          >
-            Logout
-          </Button>
+          {/* Help Dialog */}
+          <Dialog open={helpOpen} onClose={handleHelpClose}>
+            <DialogTitle>How to Use the Dashboard</DialogTitle>
+            <DialogContent>
+              <Typography variant="body1">
+                This dashboard provides your compliance data, classification, and other key information related to NIS2 compliance.
+              </Typography>
+              <Typography variant="body2" sx={{ mt: 2 }}>
+                Use the navigation bar to access different sections like the compliance questionnaire, roadmap, and benchmarking tools.
+              </Typography>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleHelpClose} color="primary">
+                Close
+              </Button>
+            </DialogActions>
+          </Dialog>
         </>
+      ) : (
+        <Alert severity="warning">Please log in to access the dashboard.</Alert>
       )}
     </Box>
   );
 }
 
 export default Dashboard;
+
 

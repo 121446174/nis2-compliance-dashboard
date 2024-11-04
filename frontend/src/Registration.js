@@ -1,3 +1,5 @@
+// Source: Tutorialspoint How to Develop User Registration Form in React Js
+// https://www.tutorialspoint.com/how-to-develop-user-registration-form-in-react-j
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TextField, Button, Typography, MenuItem, Select, FormControl, InputLabel, Box, Alert, CircularProgress } from '@mui/material';
@@ -14,9 +16,12 @@ function Registration() {
     employeeCount: '',
     revenue: '',
   });
-  const [classification, setClassification] = useState(null);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [loading, setLoading] = useState(false);
+
+  // Original source: Custom-built registration form inspired by https://www.tutorialspoint.com/how-to-develop-user-registration-form-in-react-j
+// Modifications: Added sector classification logic for NIS2 compliance needs
+  const [classification, setClassification] = useState(null); // classification: store the classification results setClassification: allows you to update
+  const [errorMessage, setErrorMessage] = useState(''); // Stores any error messages, especially useful if registration fails.
+  const [loading, setLoading] = useState(false); // Tracks whether the registration process is in progress
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -31,6 +36,8 @@ function Registration() {
     setErrorMessage('');
     setLoading(true);
 
+    // As using Async/Await modified handling the submission of registration data to the backend server with 
+    // StackFlow - Proper Way to Make API Fetch 'POST' with Async/Await https://stackoverflow.com/questions/50046841/proper-way-to-make-api-fetch-post-with-async-await
     try {
       const response = await fetch('http://localhost:5000/register', {
         method: 'POST',
@@ -52,7 +59,7 @@ function Registration() {
     }
   };
 
-  // List of all sectors without categorization
+  // List of all sectors
   const sectors = [
     'Energy', 'Transport', 'Banking', 'Financial Market Infrastructure',
     'Drinking Water', 'Waste Water', 'Health', 'Digital Infrastructure',
@@ -61,6 +68,13 @@ function Registration() {
     'Foods', 'Manufacturing', 'Digital Providers', 'Research'
   ];
 
+// Source: Tutorialspoint How to Develop User Registration Form in React Js
+// https://www.tutorialspoint.com/how-to-develop-user-registration-form-in-react-j
+
+// Modifications: Added sector, employee count and revenue 
+// Form Structure with Material-UI**:
+  //  Inspired by an example of using `FormControl`, `InputLabel`, and `Select` with Material-UI components in dynamic forms.
+  // Source: *Material-UI Dropdown Example* at https://stackoverflow.com/questions/65927056/react-creating-dynamic-select-and-option-elements-with-material-ui.
   return (
     <Box sx={{ maxWidth: 400, margin: 'auto', padding: 3 }}>
       <Typography variant="h4" gutterBottom>Register Your Organisation</Typography>
@@ -122,7 +136,6 @@ function Registration() {
           required
           type="password"
         />
-
         <FormControl fullWidth margin="normal">
           <InputLabel>Sector</InputLabel>
           <Select

@@ -1,70 +1,82 @@
-# Getting Started with Create React App
+# NIS2 Compliance Dashboard
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project is a compliance management system for NIS2, providing a dashboard and tools to help organisations assess and manage cybersecurity compliance.
 
-## Available Scripts
+## Project Structure
 
-In the project directory, you can run:
+- **Backend**: Node.js and Express.js handle API requests and interact with the MySQL database.
+- **Frontend**: React.js provides the user interface, including registration, login, and compliance assessment forms.
+- **Database**: MySQL for storing user data, compliance classifications, and assessment responses.
 
-### `npm start`
+## Prerequisites
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **Node.js**: Ensure Node.js is installed for both frontend and backend dependencies.
+- **MySQL**: Set up MySQL and configure the database connection in `backend/db.js`.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Installation
 
-### `npm test`
+Clone the repository and install dependencies for both frontend and backend:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+git clone https://github.com/your-repo/nis2-compliance-dashboard.git
+cd nis2-compliance-dashboard
 
-### `npm run build`
+# Install backend dependencies
+cd backend
+npm install
+Runs the backend server at http://localhost:5000.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+# Install frontend dependencies
+cd ../frontend
+npm install
+Runs the React frontend at http://localhost:3000.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## References with Code Structure
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Backend
 
-### `npm run eject`
+#### Routes
+- **`Benchmarking.js`**: Handles compliance benchmarking routes and operations.
+- **`compliance.js`**: Contains routes for compliance-related data and actions.
+- **`loginRoute.js`**: Manages user authentication, including login requests.
+- **`registerRoute.js`**: Handles new user registration and initial compliance classification.
+- **`userRoute.js`**: Manages user-specific data retrieval.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+#### Database (`db.js`)
+- **MySQL Tutorial - Connecting to the MySQL Server from Node.js**  
+  Used as a guide for configuring MySQL with Node.js using a promise-based setup for improved asynchronous handling.  
+  Accessed on 2nd Oct 2024.  
+  Available at: [https://www.mysqltutorial.org/mysql-nodejs/connect/](https://www.mysqltutorial.org/mysql-nodejs/connect/)
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- **node-mysql2 Documentation**  
+  Guide for using `mysql2` with promise-based queries to establish an efficient and asynchronous database connection.  
+  Accessed on 2nd Oct 2024.  
+  Available at: [https://sidorares.github.io/node-mysql2/docs](https://sidorares.github.io/node-mysql2/docs)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+#### Server (`index.js`)
+- Entry point for the backend server, setting up middleware and initializing routes for API access.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Frontend
 
-## Learn More
+The frontend was created using [Create React App](https://reactjs.org/), following standard React best practices for setting up and managing the React environment.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- **Src/Assets**
+  - **`App.css`**: Contains styles for the overall layout and visual design of the application.
+  - **`App.js`**: Main component, sets up routing for different pages in the application.
+  - **`Dashboard.js`**: Displays user-specific compliance information and assessment scores.
+  - **`Index.css`**: Additional styles for the app.
+  - **`index.js`**: Entry point for the frontend React application.
+  - **`Login.js`**: Login form and validation logic.
+  - **`Navbar.js`**: Navigation bar for main routes.
+  
+-#### Registration Form
+- **Inspiration**: 
+  - User registration form structure and basic field setup were adapted from the Tutorialspoint article *"How to Develop User Registration Form in React Js"*.
+  - URL: [https://www.tutorialspoint.com/how-to-develop-user-registration-form-in-react-j](https://www.tutorialspoint.com/how-to-develop-user-registration-form-in-react-j)
+  
+- **Modifications**:
+  - Added fields (`Organisation`, `Role`, `Sector`, `Employee Count`, `Revenue`) to match NIS2 requirements.
+  - Dynamically generated sector dropdown with custom data and integrated classification logic based on project-specific rules.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
 
-### Code Splitting
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
