@@ -1,12 +1,15 @@
+// Own code inspired by previous router structures in this project and standard Express.js routing patterns
 const express = require('express'); // imports express
-const router = express.Router();
+const router = express.Router(); // new router 
 const db = require('../db'); // Database connection
-
+// 
 router.post('/', async (req, res) => { // Post route to handle login requests
   const { email, password } = req.body; // extract email and password
 
+  // SQL Query to search the user by email and password
+    // Source: ChatGPT generated structure, customised to include SQL injection prevention
   try {
-    // SQL Query to search the user by email and password
+
     const [rows] = await db.query(
       'SELECT * FROM user WHERE email = ? AND password = ?', // (?) to prevent SQL injection
       [email, password] // return one user

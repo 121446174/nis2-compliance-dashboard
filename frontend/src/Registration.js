@@ -1,4 +1,4 @@
-// Source: Tutorialspoint How to Develop User Registration Form in React Js
+// Inspired Source: Tutorialspoint How to Develop User Registration Form in React Js
 // https://www.tutorialspoint.com/how-to-develop-user-registration-form-in-react-j
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -17,7 +17,7 @@ function Registration() {
     revenue: '',
   });
 
-  // Original source: Custom-built registration form inspired by https://www.tutorialspoint.com/how-to-develop-user-registration-form-in-react-j
+
 // Modifications: Added sector classification logic for NIS2 compliance needs
   const [classification, setClassification] = useState(null); // classification: store the classification results setClassification: allows you to update
   const [errorMessage, setErrorMessage] = useState(''); // Stores any error messages, especially useful if registration fails.
@@ -36,7 +36,7 @@ function Registration() {
     setErrorMessage('');
     setLoading(true);
 
-    // As using Async/Await modified handling the submission of registration data to the backend server with 
+    // Inspired Source: As using Async/Await modified handling the submission of registration data to the backend server with 
     // StackFlow - Proper Way to Make API Fetch 'POST' with Async/Await https://stackoverflow.com/questions/50046841/proper-way-to-make-api-fetch-post-with-async-await
     try {
       const response = await fetch('http://localhost:5000/register', {
@@ -68,8 +68,6 @@ function Registration() {
     'Foods', 'Manufacturing', 'Digital Providers', 'Research'
   ];
 
-// Source: Tutorialspoint How to Develop User Registration Form in React Js
-// https://www.tutorialspoint.com/how-to-develop-user-registration-form-in-react-j
 
 // Modifications: Added sector, employee count and revenue 
 // Form Structure with Material-UI**:

@@ -1,21 +1,28 @@
+
+// Inspired Source: Adapted input handling and form structure from "Basic Login Form with useState"
+// https://dev.to/miracool/how-to-manage-user-authentication-with-react-js-3ic5
+//Inspired Source: "How to use UseState Hooks"
+//https://daveceddia.com/usestate-hook-examples/
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TextField, Button, Typography, Box, Alert, CircularProgress } from '@mui/material';
 
 function Login() {
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState({ email: '', password: '' });
-  const [errorMessage, setErrorMessage] = useState('');
+  const navigate = useNavigate(); // handle redirections after login
+  const [formData, setFormData] = useState({ email: '', password: '' }); //input values initally empty
+  const [errorMessage, setErrorMessage] = useState(''); // handling errors
   const [loading, setLoading] = useState(false);
 
+  // Function - Handle changes to the input fields by updating the formData state
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value,
+      [name]: value, //update field 
     });
   };
 
+ // Function - Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
@@ -25,7 +32,7 @@ function Login() {
         const response = await fetch('http://localhost:5000/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(formData),
+            body: JSON.stringify(formData), // send form data as JSON
         });
 
         // Check the response status

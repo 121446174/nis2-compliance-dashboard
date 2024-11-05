@@ -1,11 +1,15 @@
-import React, { useState } from 'react';
+// Inspired Sources: Combine an AppBar with a Drawer in Material UI - Stack Overflow
+// URL: https://stackoverflow.com/questions/48780908/combine-an-appbar-with-a-drawer-in-material-ui
+
+// Material UI AppBar Documentation for implementation details:
+// URL: https://mui.com/material-ui/react-app-bar/ React, { useState } from 'react'; // useState manage for small screens
 import { AppBar, Toolbar, Typography, Button, Box, Avatar, IconButton, Drawer, List, ListItem, ListItemText } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Link } from 'react-router-dom';
-import logo from './assets/compliNIS2.png'; // Make sure the logo path is correct
+import logo from './assets/compliNIS2.png'; 
 
 function Navbar() {
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false); // controls whether the sidebar is open/closed on small screen
 
   const handleDrawerToggle = () => {
     setDrawerOpen(!drawerOpen);
@@ -24,7 +28,7 @@ function Navbar() {
   return (
     <>
       {/* Top Navigation Bar */}
-      <AppBar position="static" sx={{ backgroundColor: '#0d47a1' }}>
+      <AppBar position="static" sx={{ backgroundColor: '#0d47a1' }}> 
         <Toolbar>
           {/* Logo and Title */}
           <Box display="flex" alignItems="center" sx={{ flexGrow: 1 }}>
@@ -34,7 +38,7 @@ function Navbar() {
             </Typography>
           </Box>
 
-          {/* Menu Button for Small Screens */}
+          {/* Menu Button for Small Screens - button opens the sidebar (drawer) sx hides it */}
           <IconButton
             color="inherit"
             edge="end"
@@ -44,7 +48,7 @@ function Navbar() {
             <MenuIcon />
           </IconButton>
 
-          {/* Navigation Links for Medium and Larger Screens */}
+          {/* Navigation Links for Medium and Larger Screens (Box) */}
           <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
             {menuItems.map((item) => (
               <Button

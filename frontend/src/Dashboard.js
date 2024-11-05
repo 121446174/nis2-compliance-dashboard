@@ -1,7 +1,8 @@
 // Import necessary libraries and components
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react'; //lifecycle
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Typography, Box, CircularProgress, Alert, Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+ 
 
 function Dashboard() {
   const location = useLocation();
@@ -12,6 +13,8 @@ function Dashboard() {
   const [helpOpen, setHelpOpen] = useState(false); // State for Help dialog
 
   // Extract userId from URL query params
+  // Reference: " How to use async functions in useEffect" 
+  // URL:https://devtrium.com/posts/async-functions-useeffect
   const queryParams = new URLSearchParams(location.search);
   const userId = queryParams.get('userId');
 
@@ -41,6 +44,7 @@ function Dashboard() {
   };
 
   // Handlers for Help/Info dialog
+  // Reference: https://dev.to/codewithmahadihasan/comprehensive-guide-to-handling-modals-in-react-46je
   const handleHelpOpen = () => setHelpOpen(true);
   const handleHelpClose = () => setHelpOpen(false);
 
@@ -52,7 +56,7 @@ function Dashboard() {
         <Alert severity="error">{error}</Alert>
       ) : userData ? (
         <>
-          {/* Top-right control buttons - Only visible after successful login */}
+          {/* Top-right control buttons - Only visible after successful login - https://mui.com/system/getting-started/the-sx-prop/*/}
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
             <Button
               variant="outlined"
@@ -70,7 +74,7 @@ function Dashboard() {
               rel="noopener noreferrer"
               sx={{ mr: 1 }}
             >
-              Give Feedback
+              Give Feedback {/* https://plainenglish.io/blog/embedding-google-forms-in-react-apps*/}
             </Button>
             <Button
               variant="contained"

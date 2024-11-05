@@ -1,3 +1,6 @@
+
+// Inspiration Source: https://expressjs.com/en/guide/routing.html
+// This router handles requests for user data based on userId
 const express = require('express');
 const router = express.Router();
 const db = require('../db'); // Import database connection

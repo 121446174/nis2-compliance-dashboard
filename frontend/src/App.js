@@ -1,4 +1,5 @@
-// https://stackoverflow.com/questions/68384258/how-to-import-route-router-and-switch-correctly
+// Source: Stack Overflow - How to import "Route, Router and Switch" correctly in React
+// URL: https://stackoverflow.com/questions/68384258/how-to-import-route-router-and-switch-correctly
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './Navbar'; 

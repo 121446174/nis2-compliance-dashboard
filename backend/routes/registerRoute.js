@@ -1,3 +1,4 @@
+// Inspired source: https://expressjs.com/en/guide/routing.html
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
@@ -14,7 +15,7 @@ router.post('/', async (req, res) => {
     employeeCount
   } = req.body;
 
-  console.log("Received registration data:", req.body);
+  console.log("Received registration data:", req.body); //debugging
 
   try {
     // Insert user data into the `user` table
