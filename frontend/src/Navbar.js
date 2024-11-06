@@ -3,6 +3,7 @@
 
 // Material UI AppBar Documentation for implementation details:
 // URL: https://mui.com/material-ui/react-app-bar/ React, { useState } from 'react'; // useState manage for small screens
+import React, { useState } from 'react';
 import { AppBar, Toolbar, Typography, Button, Box, Avatar, IconButton, Drawer, List, ListItem, ListItemText } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Link } from 'react-router-dom';
