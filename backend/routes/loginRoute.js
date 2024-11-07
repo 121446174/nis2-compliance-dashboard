@@ -1,27 +1,34 @@
 // Own code inspired by previous router structures in this project and standard Express.js routing patterns
-const express = require('express'); // imports express
-const router = express.Router(); // new router 
-const db = require('../db'); // Database connection
-// 
-router.post('/', async (req, res) => { // Post route to handle login requests
-  const { email, password } = req.body; // extract email and password
+const express = require('express');
+const router = express.Router();
+const db = require('../db');
 
-  // SQL Query to search the user by email and password
-    // Source: ChatGPT generated structure, customised to include SQL injection prevention
+router.post('/', async (req, res) => {
+  const { email, password } = req.body;
+
   try {
-
-    const [rows] = await db.query(
-      'SELECT * FROM user WHERE email = ? AND password = ?', // (?) to prevent SQL injection
-      [email, password] // return one user
+    // Query the user by email and password
+    const [userRows] = await db.query(
+      'SELECT * FROM user WHERE email = ? AND password = ?',
+      [email, password]
     );
 
-    if (rows.length === 0) {
-      // No user found with the provided credentials
+    if (userRows.length === 0) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    // User found, return a success message (in real applications, return a token for security)
-    const user = rows[0];
+    const user = userRows[0];
+
+    // Check the compliance classification
+    const [classificationRows] = await db.query(
+      'SELECT classification FROM compliance_assessment WHERE user_id = ?',
+      [user.User_ID]
+    );
+
+    if (classificationRows.length === 0 || classificationRows[0].classification === 'Out of Scope') {
+      return res.status(403).json({ error: 'Access denied for Out of Scope users' });
+    }
+
     res.status(200).json({ message: 'Login successful', userId: user.User_ID });
   } catch (error) {
     console.error('Error during login:', error);

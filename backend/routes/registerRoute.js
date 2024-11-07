@@ -9,23 +9,15 @@ router.post('/', async (req, res) => {
     email,
     password,
     sector,
-    organisation = "Not Provided", // Default to "Not Provided" if organisation is not provided
-    role = "Not Provided",          // Default to "Not Provided" if role is not provided
+    organisation = "Not Provided",
+    role = "Not Provided",
     revenue,
     employeeCount
   } = req.body;
 
-  console.log("Received registration data:", req.body); //debugging
+  console.log("Received registration data:", req.body);
 
   try {
-    // Insert user data into the `user` table
-    const [userResult] = await db.query(
-      'INSERT INTO user (name, email, password, sector, organisation, role) VALUES (?, ?, ?, ?, ?, ?)',
-      [username, email, password, sector, organisation, role]
-    );
-
-    const userId = userResult.insertId;
-
     // Determine classification based on business rules
     let classification = 'Out of Scope';
     const regulatedSectors = [
@@ -50,13 +42,24 @@ router.post('/', async (req, res) => {
 
     console.log(`Classification determined: ${classification}`);
 
-    // Only save to `compliance_assessment` if classification is "Essential" or "Important"
-    if (classification !== 'Out of Scope') {
-      await db.query(
-        'INSERT INTO compliance_assessment (user_id, classification) VALUES (?, ?)',
-        [userId, classification]
-      );
+    // Prevent registration for "Out of Scope" users
+    if (classification === 'Out of Scope') {
+      return res.status(403).json({ error: 'Registration not allowed for Out of Scope users' });
     }
+
+    // Insert user data into the `user` table only if classification is valid
+    const [userResult] = await db.query(
+      'INSERT INTO user (name, email, password, sector, organisation, role) VALUES (?, ?, ?, ?, ?, ?)',
+      [username, email, password, sector, organisation, role]
+    );
+
+    const userId = userResult.insertId;
+
+    // Save classification in `compliance_assessment` table
+    await db.query(
+      'INSERT INTO compliance_assessment (user_id, classification) VALUES (?, ?)',
+      [userId, classification]
+    );
 
     res.status(201).json({ message: 'Registration successful', classification });
   } catch (error) {
@@ -66,6 +69,7 @@ router.post('/', async (req, res) => {
 });
 
 module.exports = router;
+
 
 
 
