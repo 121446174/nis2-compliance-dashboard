@@ -59,6 +59,10 @@ function Registration() {
     }
   };
 
+  // Inspired Source: Material UI AppBar Documentation for implementation details
+// URL: https://mui.com/material-ui/react-app-bar/
+// Modifications: Adapted the AppBar and Toolbar layout and responsive design for screen size adjustments
+
   // List of all sectors
   const sectors = [
     'Energy', 'Transport', 'Banking', 'Financial Market Infrastructure',
@@ -68,11 +72,6 @@ function Registration() {
     'Foods', 'Manufacturing', 'Digital Providers', 'Research'
   ];
 
-
-// Modifications: Added sector, employee count and revenue 
-// Form Structure with Material-UI**:
-  //  Inspired by an example of using `FormControl`, `InputLabel`, and `Select` with Material-UI components in dynamic forms.
-  // Source: *Material-UI Dropdown Example* at https://stackoverflow.com/questions/65927056/react-creating-dynamic-select-and-option-elements-with-material-ui.
   return (
     <Box sx={{ maxWidth: 400, margin: 'auto', padding: 3 }}>
       <Typography variant="h4" gutterBottom>Register Your Organisation</Typography>

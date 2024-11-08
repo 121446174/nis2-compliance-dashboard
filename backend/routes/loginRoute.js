@@ -1,4 +1,4 @@
-// Own code inspired by previous router structures in this project and standard Express.js routing patterns
+// Code inspired by previous router structures in this project and standard Express.js routing patterns
 const express = require('express');
 const router = express.Router();
 const db = require('../db');

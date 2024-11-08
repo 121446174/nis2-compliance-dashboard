@@ -26,8 +26,7 @@ npm install
 cd ../frontend
 npm install
 # Runs the React frontend at http://localhost:3000.
-Code Structure and References
-This project was developed by integrating various online resources, modified as needed to fit project requirements. Approximately 88% of the code was developed independently, with 10% of code adapted from online resources (marked as "Inspired Source") and 2% of ChatGPT usage, primarily for error resolution.
+
 
 ### References 
 
@@ -39,6 +38,7 @@ Inspired Source: Express CORS Middleware Documentation
 Purpose: Implementing cors middleware to allow communication between frontend and backend without cross-origin restrictions.
 URL: https://expressjs.com/en/resources/middleware/cors.html
 Routes
+
 # loginRoute.js: 
 Manages user authentication, processing login requests.
 Reference: Own code inspired by other routers.

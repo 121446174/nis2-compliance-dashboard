@@ -1,4 +1,4 @@
-// Import necessary libraries and components
+// Imports of necessary libraries and components
 import React, { useEffect, useState } from 'react'; //lifecycle
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Typography, Box, CircularProgress, Alert, Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
@@ -12,12 +12,15 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [helpOpen, setHelpOpen] = useState(false); // State for Help dialog
 
-  // Extract userId from URL query params
+  
   // Reference: " How to use async functions in useEffect" 
   // URL:https://devtrium.com/posts/async-functions-useeffect
-  const queryParams = new URLSearchParams(location.search);
+  
+  // Extract userId from URL query params
+  const queryParams = new URLSearchParams(location.search); // Modification: Using URLSearchParams to extract userId from query string
   const userId = queryParams.get('userId');
 
+  
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -30,14 +33,15 @@ function Dashboard() {
         console.log('Fetched user data:', data); // Debugging log to verify data structure
         setUserData(data);
       } catch (error) {
-        setError(error.message);
+        setError(error.message); // Modification: Set error state in case of fetch failure
       } finally {
-        setLoading(false);
+        setLoading(false); // Modification: Turn off loading spinner once fetch completes
       }
     };
 
     fetchUserData();
-  }, [userId]);
+  }, [userId]); // Modification: Added dependency on userId to refetch if userId changes
+
 
   const handleLogout = () => {
     navigate('/login'); // Redirect to login page
@@ -45,6 +49,7 @@ function Dashboard() {
 
   // Handlers for Help/Info dialog
   // Reference: https://dev.to/codewithmahadihasan/comprehensive-guide-to-handling-modals-in-react-46je
+  
   const handleHelpOpen = () => setHelpOpen(true);
   const handleHelpClose = () => setHelpOpen(false);
 

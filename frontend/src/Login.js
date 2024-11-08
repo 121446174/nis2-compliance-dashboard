@@ -1,17 +1,21 @@
 
-// Inspired Source: Adapted input handling and form structure from "Basic Login Form with useState"
+// Inspired Source: "Basic Login Form with useState" 
 // https://dev.to/miracool/how-to-manage-user-authentication-with-react-js-3ic5
-//Inspired Source: "How to use UseState Hooks"
-//https://daveceddia.com/usestate-hook-examples/
+// Modifications: Adapted form submission structure, error handling, and login redirection.
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TextField, Button, Typography, Box, Alert, CircularProgress } from '@mui/material';
 
+// Inspired Source: "How to use useState Hooks"
+// https://daveceddia.com/usestate-hook-examples/
+// Modifications: Used useState to manage multiple form fields in a single object and handle input changes.
+
 function Login() {
-  const navigate = useNavigate(); // handle redirections after login
-  const [formData, setFormData] = useState({ email: '', password: '' }); //input values initally empty
-  const [errorMessage, setErrorMessage] = useState(''); // handling errors
-  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate(); //Modification: handle redirections after login
+  const [formData, setFormData] = useState({ email: '', password: '' }); // Modifciation: input values initally empty
+  const [errorMessage, setErrorMessage] = useState(''); // Modification: handling errors
+  const [loading, setLoading] = useState(false); // Modifications: Tracks loading state during API request.
 
   // Function - Handle changes to the input fields by updating the formData state
   const handleChange = (e) => {

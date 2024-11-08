@@ -1,8 +1,7 @@
 // Inspired Sources: Combine an AppBar with a Drawer in Material UI - Stack Overflow
 // URL: https://stackoverflow.com/questions/48780908/combine-an-appbar-with-a-drawer-in-material-ui
 
-// Material UI AppBar Documentation for implementation details:
-// URL: https://mui.com/material-ui/react-app-bar/ React, { useState } from 'react'; // useState manage for small screens
+
 import React, { useState } from 'react';
 import { AppBar, Toolbar, Typography, Button, Box, Avatar, IconButton, Drawer, List, ListItem, ListItemText } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -25,7 +24,9 @@ function Navbar() {
     { text: 'Benchmarking', path: '/benchmarking' },
     { text: 'Incident Reports', path: '/incident-reports' },
   ];
-
+  
+// Material UI AppBar Documentation for implementation details:
+// URL: https://mui.com/material-ui/react-app-bar/ React, { useState } from 'react'; // useState manage for small screens
   return (
     <>
       {/* Top Navigation Bar */}

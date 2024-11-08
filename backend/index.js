@@ -1,4 +1,8 @@
-// Reference: https://expressjs.com/en/resources/middleware/cors.html
+
+// Reference: CORS Middleware Documentation for enabling cross-origin requests
+// URL: https://expressjs.com/en/resources/middleware/cors.html
+// Modifications: Applied CORS to allow cross-origin requests from frontend, making it accessible for all routes
+
 const express = require('express');
 const cors = require('cors'); // frontend to make requests to your backend.
 const bodyParser = require('body-parser'); //parses incoming JSON request data (accessible)
