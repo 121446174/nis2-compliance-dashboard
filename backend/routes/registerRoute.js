@@ -1,4 +1,7 @@
-// Inspired source: https://expressjs.com/en/guide/routing.html
+// Reference: Express Routing Guide for modular route setup
+// URL: https://expressjs.com/en/guide/routing.html
+// Modifications: Added classification logic and database queries to handle user registration and compliance classification
+
 const express = require('express');
 const router = express.Router();
 const db = require('../db');

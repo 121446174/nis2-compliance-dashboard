@@ -41,7 +41,12 @@ Routes
 
 # loginRoute.js: 
 Manages user authentication, processing login requests.
-Reference: Own code inspired by other routers.
+Inspired Source: Express Routing Documentation
+Purpose: Setting up routing structure for efficient request handling.
+URL: https://expressjs.com/en/guide/routing.html
+
+Chatgpt Prompt: "After verifying credentials, I also need it to check if the user’s compliance classification allows them access"
+
 
 # registerRoute.js: 
 Handles new user registration, including initial compliance classification.
@@ -54,6 +59,10 @@ userRoute.js: Handles user data retrieval.
 Inspired Source: Express Routing Documentation
 Purpose: Setting up routing structure for efficient request handling.
 URL: https://expressjs.com/en/guide/routing.html
+
+Chatgpt Prompt: "Include logic to classify the user as 'Essential,' 'Important,' or 'Out of Scope' based on business rules, specifically" 
+
+"My current system is storing 'Out of Scope' customers - how can i fix it to only allow storage in the database if the user qualifies as 'Essential' or 'Important."
 
 # Database (db.js)
 Source: MySQL Tutorial - Connecting to the MySQL Server from Node.js

@@ -1,4 +1,7 @@
-// Code inspired by previous router structures in this project and standard Express.js routing patterns
+// Reference: Express Routing Guide for setting up modular route handlers
+// URL: https://expressjs.com/en/guide/routing.html
+// Modifications: Added compliance classification check and conditional access control
+
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
