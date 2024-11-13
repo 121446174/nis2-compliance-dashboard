@@ -4,75 +4,69 @@
 
 const express = require('express');
 const router = express.Router();
-const db = require('../db');
+const db = require('../db'); // Database connection
 
 router.post('/', async (req, res) => {
   const {
-    username,
-    email,
-    password,
-    sector,
-    organisation = "Not Provided",
-    role = "Not Provided",
-    revenue,
-    employeeCount
+    username,          // Name of the user
+    email,             // Email of the user
+    password,          // Password of the user
+    sector,            // Name of the sector (will be mapped to Sector_ID)
+    organisation = "Not Provided", // Organisation (optional, with default)
+    role = "Not Provided",          // Role (optional, with default)
+    revenue,           // Revenue range, such as "10-50"
+    employeeCount      // Employee count range, such as ">250"
   } = req.body;
 
   console.log("Received registration data:", req.body);
 
   try {
-    // Determine classification based on business rules
-    let classification = 'Out of Scope';
-    const regulatedSectors = [
-      'energy', 'transport', 'banking', 'financial market infrastructure',
-      'drinking water', 'waste water', 'health', 'digital infrastructure',
-      'ict - service management b2b', 'public administration', 'space',
-      'postal & courier services', 'waste management', 'chemicals', 
-      'foods', 'manufacturing', 'digital providers', 'research'
-    ];
-
-    const isRegulated = regulatedSectors.includes(sector.toLowerCase());
-    console.log(`Sector: ${sector}, isRegulated: ${isRegulated}`);
-    
-    // Classification logic based on employeeCount and revenue
-    if (isRegulated) {
-      if (employeeCount === '>250' || revenue === '>50') {
-        classification = 'Essential';
-      } else if (employeeCount === '50-249' && revenue === '10-50') {
-        classification = 'Important';
-      }
+    // Step 1: Fetch Sector_ID dynamically based on sector name
+    const [sectorResult] = await db.query('SELECT Sector_ID FROM sector WHERE Sector_Name = ?', [sector]);
+    if (sectorResult.length === 0) {
+      return res.status(400).json({ error: 'Invalid sector selected' });
     }
+    const sectorId = sectorResult[0].Sector_ID;
 
-    console.log(`Classification determined: ${classification}`);
-
-    // Prevent registration for "Out of Scope" users
-    if (classification === 'Out of Scope') {
-      return res.status(403).json({ error: 'Registration not allowed for Out of Scope users' });
-    }
-
-    // Insert user data into the `user` table only if classification is valid
+    // Step 2: Insert user data into the `user` table, including Organisation, Role, and Password
     const [userResult] = await db.query(
-      'INSERT INTO user (name, email, password, sector, organisation, role) VALUES (?, ?, ?, ?, ?, ?)',
-      [username, email, password, sector, organisation, role]
+      'INSERT INTO user (name, email, password, sector_id, organisation, role, sector) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [username, email, password, sectorId, organisation, role, sector]
     );
-
     const userId = userResult.insertId;
+    console.log("User inserted with ID:", userId); // Log user insertion success
 
-    // Save classification in `compliance_assessment` table
-    await db.query(
-      'INSERT INTO compliance_assessment (user_id, classification) VALUES (?, ?)',
-      [userId, classification]
-    );
+    // Step 3: Classification logic (you may need to adjust or remove this section based on your project's requirements)
+    let classification = 'Out of Scope';
+
+    // Fetch employee and revenue ranges from the database
+    const [employeeRanges] = await db.query('SELECT Employee_Range FROM employee_count');
+    const [revenueRanges] = await db.query('SELECT Revenue_Range FROM revenue');
+
+    // Define classification criteria based on dynamic ranges
+    const essentialEmployeeRange = employeeRanges.find(range => range.Employee_Range === '>250');
+    const importantEmployeeRange = employeeRanges.find(range => range.Employee_Range === '50-249');
+    const essentialRevenueRange = revenueRanges.find(range => range.Revenue_Range === '>50');
+    const importantRevenueRange = revenueRanges.find(range => range.Revenue_Range === '10-50');
+
+    // Classify as "Essential" or "Important" based on dynamic database ranges
+    if ((employeeCount === essentialEmployeeRange.Employee_Range) || (revenue === essentialRevenueRange.Revenue_Range)) {
+      classification = 'Essential';
+    } else if ((employeeCount === importantEmployeeRange.Employee_Range) && (revenue === importantRevenueRange.Revenue_Range)) {
+      classification = 'Important';
+    }
+
+    // Step 4: Insert classification into `compliance_assessment` if applicable
+    if (classification !== 'Out of Scope') {
+      await db.query('INSERT INTO compliance_assessment (user_id, classification) VALUES (?, ?)', [userId, classification]);
+      console.log("Compliance assessment added for user"); // Log compliance assessment addition
+    }
 
     res.status(201).json({ message: 'Registration successful', classification });
   } catch (error) {
-    console.error('Error during registration:', error);
+    console.error('Error during registration:', error); // Log error details
     res.status(500).json({ error: 'Error during registration' });
   }
 });
 
 module.exports = router;
-
-
-
-
