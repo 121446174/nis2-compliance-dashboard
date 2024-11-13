@@ -28,7 +28,8 @@ router.get('/employee-count', async (req, res) => {
     res.status(500).json({ error: 'An error occurred while fetching employee counts' });
   }
 });
-
+// Inspired Source: https://www.freecodecamp.org/news/javascript-fetch-api-for-beginners/
+//Modified to suit my project (Revenue, Employee Number, Revenue)
 // Route to fetch revenue options
 router.get('/revenue', async (req, res) => {
   try {

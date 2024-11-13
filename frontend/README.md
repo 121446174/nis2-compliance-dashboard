@@ -45,6 +45,9 @@ Inspired Source: Express Routing Documentation
 Purpose: Setting up routing structure for efficient request handling.
 URL: https://expressjs.com/en/guide/routing.html
 
+Inpired Source: Fetch API for beginners
+URL: https://www.freecodecamp.org/news/javascript-fetch-api-for-beginners/
+
 Chatgpt Prompt: "After verifying credentials, I also need it to check if the user’s compliance classification allows them access"
 
 
@@ -59,6 +62,10 @@ userRoute.js: Handles user data retrieval.
 Inspired Source: Express Routing Documentation
 Purpose: Setting up routing structure for efficient request handling.
 URL: https://expressjs.com/en/guide/routing.html
+
+Inspired Source: Node.js Connect Mysql with Node app
+Purpose: Fix so data fetching from the database 
+URL: https://www.geeksforgeeks.org/node-js-connect-mysql-with-node-app/
 
 Chatgpt Prompt: "Include logic to classify the user as 'Essential,' 'Important,' or 'Out of Scope' based on business rules, specifically" 
 
@@ -125,6 +132,12 @@ Styling and Assets
 "Login and Registration Form using React + Node + MySQL | Login and Sign Up Form with Validation"
 Source: YouTube tutorial provided insights into setting up the structure for the login form, including handling user input and validation processes.
 URL: https://www.youtube.com/watch?v=F53MPHqOmYI
+
+Inspired Source: Handling Async in React useEffect
+Purpose:  Following the recommended structure, async calls are defined as inner functions within `useEffect`, ensuring that the hook itself does not return a promise, which can lead to unexpected bugs in React.
+Inspired by the example of using `Bugsnag` for error notification, we structured error handling with `try-catch` blocks to capture and log errors.
+URL: https://www.benmvp.com/blog/successfully-using-async-functions-useeffect-react/
+
 
  # App.css: Contains styles for the layout and design, based on default Create React App styling.
 

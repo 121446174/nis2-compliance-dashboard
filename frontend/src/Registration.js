@@ -1,6 +1,6 @@
 // Inspired Source: Tutorialspoint How to Develop User Registration Form in React Js
 // https://www.tutorialspoint.com/how-to-develop-user-registration-form-in-react-j
-// Registration.js
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TextField, Button, Typography, MenuItem, Select, FormControl, InputLabel, Box, Alert, CircularProgress } from '@mui/material';
@@ -26,6 +26,8 @@ function Registration() {
   const [employeeCounts, setEmployeeCounts] = useState([]);
   const [revenues, setRevenues] = useState([]);
 
+  // Inspired Source:  "Handling Async in React useEffect"  https://www.benmvp.com/blog/successfully-using-async-functions-useeffect-react/ 
+    // Using an inner async function within useEffect, as recommended, to avoid making useEffect async.
   useEffect(() => {
     const fetchSectors = async () => {
       try {
