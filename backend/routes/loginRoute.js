@@ -4,10 +4,10 @@
 
 const express = require('express');
 const router = express.Router();
-const db = require('../db');
-const jwt = require('jsonwebtoken'); // Ensure JWT library is installed and imported
+const db = require('../db'); // Import database connection
+const jwt = require('jsonwebtoken'); // Import JWT library
 
-//Login route
+// Login route
 router.post('/', async (req, res) => {
   const { email, password } = req.body;
 
@@ -44,7 +44,7 @@ router.post('/', async (req, res) => {
       { expiresIn: '1h' }
     );
 
-    res.status(200).json({ message: 'Login successful', token });
+    res.status(200).json({ message: 'Login successful', token, userId: user.User_ID, classificationType: classificationRows[0].classification });
   } catch (error) {
     console.error('Error during login:', error.message);
     res.status(500).json({ error: 'An error occurred during login' });

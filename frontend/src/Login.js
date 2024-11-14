@@ -2,62 +2,61 @@
 // https://dev.to/miracool/how-to-manage-user-authentication-with-react-js-3ic5
 // Modifications: Adapted form submission structure, error handling, and login redirection.
 
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TextField, Button, Typography, Box, Alert, CircularProgress } from '@mui/material';
+import { UserContext } from './UserContext';
+
 
 // Inspired Source: "How to use useState Hooks"
 // https://daveceddia.com/usestate-hook-examples/
 // Modifications: Used useState to manage multiple form fields in a single object and handle input changes.
 
 function Login() {
-  const navigate = useNavigate(); //Modification: handle redirections after login
-  const [formData, setFormData] = useState({ email: '', password: '' }); // Modifciation: input values initally empty
-  const [errorMessage, setErrorMessage] = useState(''); // Modification: handling errors
-  const [loading, setLoading] = useState(false); // Modifications: Tracks loading state during API request.
+  const navigate = useNavigate();
+  const { login } = useContext(UserContext); // Use login function from UserContext
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [errorMessage, setErrorMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  // Function - Handle changes to the input fields by updating the formData state
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({...formData, [name]: value, //update field 
-    });
+    setFormData({ ...formData, [name]: value });
   };
 
- // Function - Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
     setLoading(true);
 
     try {
-        const response = await fetch('http://localhost:5000/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(formData), // send form data as JSON
-        });
+      const response = await fetch('http://localhost:5000/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
 
-        const data = await response.json();
-        setLoading(false);
-  
-        if (response.ok && data.token) {
-          localStorage.setItem('token', data.token); // Store the token
-          navigate('/dashboard'); // Redirect to dashboard after successful login
-        } else {
-          setErrorMessage(data.error || 'Login failed');
-        }
-      } catch (error) {
-        setLoading(false);
-        console.error('Error in login request:', error);
-        setErrorMessage('An error occurred during login');
+      const data = await response.json();
+      setLoading(false);
+
+      if (response.ok && data.token) {
+        localStorage.setItem('token', data.token); // Store the token
+        login(data.userId, data.classificationType); // Store user info in context
+        navigate('/dashboard'); // Redirect to dashboard after successful login
+      } else {
+        setErrorMessage(data.error || 'Login failed');
       }
-    };
-
+    } catch (error) {
+      setLoading(false);
+      console.error('Error in login request:', error);
+      setErrorMessage('An error occurred during login');
+    }
+  };
 
   return (
     <Box sx={{ maxWidth: 400, margin: 'auto', padding: 3 }}>
       <Typography variant="h4" gutterBottom>Login</Typography>
       <form onSubmit={handleSubmit}>
-
         <TextField
           label="Email"
           name="email"
@@ -104,7 +103,3 @@ function Login() {
 }
 
 export default Login;
-
-
-
-
