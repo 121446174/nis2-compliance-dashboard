@@ -7,6 +7,7 @@ import Navbar from './Navbar';
 import Registration from './Registration';
 import Login from './Login';
 import Dashboard from './Dashboard';
+import Questionnaire from './Questionnaire'; // Import the Questionnaire component
 
 function App() {
   return (
@@ -16,12 +17,14 @@ function App() {
         <Route path="/" element={<Registration />} />
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/questionnaire" element={<Questionnaire />} /> 
       </Routes>
     </Router>
   );
 }
 
 export default App;
+
 
 
 

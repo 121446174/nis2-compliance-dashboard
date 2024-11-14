@@ -1,4 +1,3 @@
-
 // Inspired Source: "Basic Login Form with useState" 
 // https://dev.to/miracool/how-to-manage-user-authentication-with-react-js-3ic5
 // Modifications: Adapted form submission structure, error handling, and login redirection.
@@ -20,9 +19,7 @@ function Login() {
   // Function - Handle changes to the input fields by updating the formData state
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value, //update field 
+    setFormData({...formData, [name]: value, //update field 
     });
   };
 
@@ -39,30 +36,22 @@ function Login() {
             body: JSON.stringify(formData), // send form data as JSON
         });
 
-        // Check the response status
-        console.log('Response status:', response.status);
-
         const data = await response.json();
         setLoading(false);
-
-        // Log the full response to check its contents
-        console.log('Login response data:', data);
-
-        if (response.ok && data.userId) {
-            console.log('User ID received:', data.userId); // Check user ID before redirecting
-            // Redirect to dashboard after successful login
-            navigate(`/dashboard?userId=${data.userId}`);
+  
+        if (response.ok && data.token) {
+          localStorage.setItem('token', data.token); // Store the token
+          navigate('/dashboard'); // Redirect to dashboard after successful login
         } else {
-            // Log any error message received from the server
-            console.log('Login error:', data.error || 'Login failed');
-            setErrorMessage(data.error || 'Login failed');
+          setErrorMessage(data.error || 'Login failed');
         }
-    } catch (error) {
+      } catch (error) {
         setLoading(false);
         console.error('Error in login request:', error);
         setErrorMessage('An error occurred during login');
-    }
-  };
+      }
+    };
+
 
   return (
     <Box sx={{ maxWidth: 400, margin: 'auto', padding: 3 }}>

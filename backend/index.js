@@ -2,7 +2,7 @@
 // Reference: CORS Middleware Documentation for enabling cross-origin requests
 // URL: https://expressjs.com/en/resources/middleware/cors.html
 // Modifications: Applied CORS to allow cross-origin requests from frontend, making it accessible for all routes
-
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors'); // frontend to make requests to your backend.
 const bodyParser = require('body-parser'); //parses incoming JSON request data (accessible)
@@ -10,6 +10,8 @@ const complianceRoutes = require('./routes/compliance');
 const registerRoute = require('./routes/registerRoute'); 
 const loginRoute = require('./routes/loginRoute'); // Import login route
 const userRoute = require('./routes/userRoute');
+const questionnaireRoute = require('./routes/questionnaireRoute'); // Import questionnaire route
+
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -28,6 +30,7 @@ app.use('/api/compliance', complianceRoutes);
 app.use('/register', registerRoute); 
 app.use('/login', loginRoute); // Add the login route
 app.use('/user', userRoute);
+app.use('/api/questionnaire', questionnaireRoute); // Mount questionnaire route
 
 // Start the server - verify server running
 app.listen(port, () => {

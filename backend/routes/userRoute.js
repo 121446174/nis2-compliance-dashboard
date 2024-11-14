@@ -1,13 +1,14 @@
-
 // Reference: Express Routing Guide for setting up modular route handlers
 // URL: https://expressjs.com/en/guide/routing.html
 // Modifications: Used Express router to handle HTTP GET requests for fetching user data based on userId.
 
+
 const express = require('express');
 const router = express.Router();
 const db = require('../db'); // Import database connection
+const auth = require('../middleware/auth'); // Import the auth middleware
 
-// Route to fetch sectors
+// Route to fetch sectors (no auth needed if this information is public)
 router.get('/sectors', async (req, res) => {
   try {
     const [sectors] = await db.query('SELECT Sector_Name FROM sector');
@@ -18,7 +19,7 @@ router.get('/sectors', async (req, res) => {
   }
 });
 
-// Route to fetch employee count options
+// Route to fetch employee count options (no auth needed if this information is public)
 router.get('/employee-count', async (req, res) => {
   try {
     const [employeeCounts] = await db.query('SELECT Employee_Range FROM employee_count');
@@ -28,9 +29,8 @@ router.get('/employee-count', async (req, res) => {
     res.status(500).json({ error: 'An error occurred while fetching employee counts' });
   }
 });
-// Inspired Source: https://www.freecodecamp.org/news/javascript-fetch-api-for-beginners/
-//Modified to suit my project (Revenue, Employee Number, Revenue)
-// Route to fetch revenue options
+
+// Route to fetch revenue options (no auth needed if this information is public)
 router.get('/revenue', async (req, res) => {
   try {
     const [revenues] = await db.query('SELECT Revenue_Range FROM revenue');
@@ -41,8 +41,8 @@ router.get('/revenue', async (req, res) => {
   }
 });
 
-// Route to get user data by userId
-router.get('/:userId', async (req, res) => {
+// Protected route to get user data by userId (requires authentication)
+router.get('/:userId', auth, async (req, res) => {
   const userId = req.params.userId;
   try {
     const [rows] = await db.query(
@@ -60,3 +60,4 @@ router.get('/:userId', async (req, res) => {
 });
 
 module.exports = router;
+
