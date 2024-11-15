@@ -1,17 +1,20 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Typography, Box, CircularProgress, Alert, Select, MenuItem, TextField, Button } from '@mui/material';
+import { Typography, Box, CircularProgress, Alert, Button, Select, MenuItem } from '@mui/material';
 import { UserContext } from './UserContext';
+import { useNavigate } from 'react-router-dom';
 
 function Questionnaire() {
     const { userId, classificationType } = useContext(UserContext);
     const [categories, setCategories] = useState([]);
     const [questions, setQuestions] = useState([]);
-    const [categoryId, setCategoryId] = useState(null);
     const [responses, setResponses] = useState({});
+    const [categoryId, setCategoryId] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [completedCategories, setCompletedCategories] = useState(new Set());
+    const navigate = useNavigate();
 
-    // Fetch categories
+    // Fetch categories on load
     useEffect(() => {
         const fetchCategories = async () => {
             try {
@@ -25,7 +28,7 @@ function Questionnaire() {
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.error || 'Failed to load categories');
                 setCategories(data);
-                setCategoryId(data[0]?.Category_ID || null); // Set first category as default
+                setCategoryId(data[0]?.Category_ID || null);
             } catch (error) {
                 console.error(error);
                 setError('Failed to load categories');
@@ -34,10 +37,9 @@ function Questionnaire() {
         fetchCategories();
     }, [classificationType]);
 
-    // Fetch questions
+    // Fetch questions based on selected category
     useEffect(() => {
         if (!categoryId) return;
-        
         const fetchQuestions = async () => {
             try {
                 const token = localStorage.getItem('token');
@@ -50,7 +52,6 @@ function Questionnaire() {
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.error || 'Failed to load questions');
                 setQuestions(data);
-                setResponses({}); // Reset responses for the new category
                 setLoading(false);
             } catch (error) {
                 console.error(error);
@@ -60,20 +61,28 @@ function Questionnaire() {
         fetchQuestions();
     }, [classificationType, categoryId]);
 
-    // Handle response change
     const handleResponseChange = (questionId, value) => {
         setResponses(prev => ({ ...prev, [questionId]: value }));
     };
 
-    // Submit answers
-    const handleSubmit = async () => {
-        try {
-            const token = localStorage.getItem('token');
-            const answers = Object.entries(responses).map(([questionId, response]) => ({
-                questionId: parseInt(questionId, 10),
-                response
-            }));
+    const allQuestionsAnsweredForCategory = () => {
+        return questions.every(question => responses[question.Question_ID] !== undefined);
+    };
 
+    const handleSubmitCategory = async () => {
+        if (!allQuestionsAnsweredForCategory()) {
+            setError('Please answer all questions in this category before submitting.');
+            return;
+        }
+
+        // Save responses for the current category
+        const token = localStorage.getItem('token');
+        const answers = questions.map((question) => ({
+            questionId: question.Question_ID,
+            response: responses[question.Question_ID]
+        }));
+
+        try {
             const response = await fetch(`http://localhost:5000/api/questionnaire/submit-answers`, {
                 method: 'POST',
                 headers: {
@@ -84,12 +93,28 @@ function Questionnaire() {
             });
 
             const data = await response.json();
-            if (!response.ok) throw new Error(data.error || 'Failed to submit answers');
-            alert('Responses saved successfully');
+            if (!response.ok) throw new Error(data.error || 'Failed to save responses');
+            
+            alert('Responses for this category saved successfully');
+
+            // Mark category as completed
+            setCompletedCategories((prev) => new Set(prev).add(categoryId));
         } catch (error) {
             console.error(error);
-            setError('Failed to submit responses');
+            setError('Failed to save responses');
         }
+    };
+
+    const allCategoriesCompleted = () => {
+        return categories.length > 0 && completedCategories.size === categories.length;
+    };
+
+    const handleNext = () => {
+        if (!allCategoriesCompleted()) {
+            setError('Please complete all categories before proceeding.');
+            return;
+        }
+        navigate('/sector-specific');
     };
 
     if (loading) return <CircularProgress />;
@@ -98,56 +123,47 @@ function Questionnaire() {
     return (
         <Box sx={{ maxWidth: 700, margin: 'auto', padding: 3 }}>
             <Typography variant="h4" gutterBottom>{classificationType} Sector Compliance Questionnaire</Typography>
-
-            {/* Category Selector */}
             <Select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} fullWidth sx={{ mb: 3 }}>
                 {categories.map(category => (
                     <MenuItem key={category.Category_ID} value={category.Category_ID}>
-                        {category.Category_Name}
+                        {category.Category_Name} {completedCategories.has(category.Category_ID) ? '✅' : ''}
                     </MenuItem>
                 ))}
             </Select>
-
-            {/* Render Questions and Input Fields */}
             {questions.map(question => (
                 <Box key={question.Question_ID} sx={{ mb: 2 }}>
                     <Typography>{question.Question_Text}</Typography>
-                    {question.Answer_Type === 'yes_no' && (
-                        <Select
-                            value={responses[question.Question_ID] || ''}
-                            onChange={(e) => handleResponseChange(question.Question_ID, e.target.value)}
-                            fullWidth
-                        >
-                            <MenuItem value="yes">Yes</MenuItem>
-                            <MenuItem value="no">No</MenuItem>
-                        </Select>
-                    )}
-                    {question.Answer_Type === 'text' && (
-                        <TextField
-                            value={responses[question.Question_ID] || ''}
-                            onChange={(e) => handleResponseChange(question.Question_ID, e.target.value)}
-                            fullWidth
-                            multiline
-                            rows={3}
-                        />
-                    )}
-                    {question.Answer_Type === 'numeric' && (
-                        <TextField
-                            type="number"
-                            value={responses[question.Question_ID] || ''}
-                            onChange={(e) => handleResponseChange(question.Question_ID, e.target.value)}
-                            fullWidth
-                        />
-                    )}
+                    <Select
+                        value={responses[question.Question_ID] || ''}
+                        onChange={(e) => handleResponseChange(question.Question_ID, e.target.value)}
+                        fullWidth
+                    >
+                        <MenuItem value="yes">Yes</MenuItem>
+                        <MenuItem value="no">No</MenuItem>
+                    </Select>
                 </Box>
             ))}
-
-            {/* Submit Button */}
-            <Button variant="contained" color="primary" onClick={handleSubmit} sx={{ mt: 3 }}>
-                Submit Responses
+            <Button
+                variant="contained"
+                color="primary"
+                onClick={handleSubmitCategory}
+                sx={{ mt: 3 }}
+            >
+                Submit Category
+            </Button>
+            <Button
+                variant="contained"
+                color="secondary"
+                onClick={handleNext}
+                disabled={!allCategoriesCompleted()} // Disable "Next" until all categories are completed
+                sx={{ mt: 3, ml: 2 }}
+            >
+                Next
             </Button>
         </Box>
     );
 }
 
 export default Questionnaire;
+  
+
