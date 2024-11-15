@@ -1,5 +1,3 @@
-// routes/questionnaireRoute.js
-
 const express = require('express');
 const db = require('../db'); // Database connection module
 const auth = require('../middleware/auth'); // Auth middleware
@@ -10,21 +8,44 @@ const router = express.Router();
 router.get('/questions', auth, async (req, res) => {
     const { classificationType, categoryId } = req.query;
 
-    if (!classificationType || !categoryId) {
-        return res.status(400).json({ error: 'Missing classificationType or categoryId' });
+    if (!classificationType) {
+        return res.status(400).json({ error: 'Missing classificationType' });
     }
 
     try {
-        const [results] = await db.query(
-            `SELECT * FROM questions 
-             WHERE Classification_Type = ? AND Category_ID = ? 
-             ORDER BY Question_ID`,
-            [classificationType, categoryId]
-        );
-        res.json(results);
+        const query = `
+            SELECT * FROM questions 
+            WHERE Classification_Type = ? 
+            ${categoryId ? 'AND Category_ID = ?' : ''}
+            ORDER BY Question_ID
+        `;
+        const queryParams = categoryId ? [classificationType, categoryId] : [classificationType];
+
+        const [questions] = await db.query(query, queryParams);
+        res.json(questions);
     } catch (err) {
         console.error('Error fetching questions:', err);
         res.status(500).json({ error: 'An error occurred while fetching questions' });
+    }
+});
+
+// Route to fetch categories based on classification
+router.get('/categories', auth, async (req, res) => {
+    const { classificationType } = req.query;
+
+    if (!classificationType) {
+        return res.status(400).json({ error: 'Missing classificationType' });
+    }
+
+    try {
+        const [categories] = await db.query(
+            `SELECT * FROM categories WHERE Classification_Type = ? ORDER BY Category_ID`,
+            [classificationType]
+        );
+        res.json(categories);
+    } catch (err) {
+        console.error('Error fetching categories:', err);
+        res.status(500).json({ error: 'An error occurred while fetching categories' });
     }
 });
 
@@ -45,7 +66,7 @@ router.post('/submit-answers', auth, async (req, res) => {
             let query, queryValues;
 
             if (answerType === 'yes_no') {
-                const responseValue = (typeof answer.response === 'string' && answer.response.toLowerCase() === 'yes') ? 1 : 0;
+                const responseValue = answer.response.toLowerCase() === 'yes' ? 1 : 0;
                 query = 'INSERT INTO responses (User_ID, Question_ID, Answer, Category_ID) VALUES (?, ?, ?, ?)';
                 queryValues = [userId, answer.questionId, responseValue, categoryId];
             } else if (answerType === 'text') {
@@ -59,9 +80,6 @@ router.post('/submit-answers', auth, async (req, res) => {
                 const responseValue = parseInt(answer.response, 10);
                 query = 'INSERT INTO responses (User_ID, Question_ID, Answer, Category_ID) VALUES (?, ?, ?, ?)';
                 queryValues = [userId, answer.questionId, responseValue, categoryId];
-            } else {
-                console.error(`Unknown answer type for question ${answer.questionId}`);
-                throw new Error(`Unsupported answer type for question ID: ${answer.questionId}`);
             }
 
             return db.query(query, queryValues);
@@ -75,13 +93,9 @@ router.post('/submit-answers', auth, async (req, res) => {
     }
 });
 
-// Helper function to map multiple-choice answers to scores
+// Helper function for multiple choice scoring
 function mapChoiceToScore(choice) {
-    const scoreMap = {
-        "High": 3,
-        "Medium": 2,
-        "Low": 1
-    };
+    const scoreMap = { "High": 3, "Medium": 2, "Low": 1 };
     return scoreMap[choice] || 0;
 }
 
