@@ -32,6 +32,8 @@ function Questionnaire() {
             } catch (error) {
                 console.error(error);
                 setError('Failed to load categories');
+            } finally {
+                setLoading(false);
             }
         };
         fetchCategories();
@@ -75,7 +77,6 @@ function Questionnaire() {
             return;
         }
 
-        // Save responses for the current category
         const token = localStorage.getItem('token');
         const answers = questions.map((question) => ({
             questionId: question.Question_ID,
@@ -109,12 +110,13 @@ function Questionnaire() {
         return categories.length > 0 && completedCategories.size === categories.length;
     };
 
+    // Handle navigating to the dashboard
     const handleNext = () => {
         if (!allCategoriesCompleted()) {
             setError('Please complete all categories before proceeding.');
             return;
         }
-        navigate('/sector-specific');
+        navigate('/dashboard'); // Redirect to the dashboard
     };
 
     if (loading) return <CircularProgress />;
@@ -151,7 +153,7 @@ function Questionnaire() {
             >
                 Submit Category
             </Button>
-            <Button
+             <Button
                 variant="contained"
                 color="secondary"
                 onClick={handleNext}
@@ -165,5 +167,6 @@ function Questionnaire() {
 }
 
 export default Questionnaire;
+
   
 
