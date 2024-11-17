@@ -6,7 +6,7 @@ function CompletionSummary() {
     const navigate = useNavigate();
 
     const handleNavigate = () => {
-        navigate('/dashboard'); // Navigate back to the dashboard or wherever you'd like
+        navigate('/dashboard'); 
     };
 
     return (

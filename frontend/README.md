@@ -97,13 +97,35 @@ Inspired Source: Devtrium - Async Functions in useEffect
 Purpose: Implementing asynchronous data fetching with useEffect to update user data.
 URL: https://devtrium.com/posts/async-functions-useeffect
 
-Source: Dev - Handling Modals in React
-Purpose: Structuring openModal and closeModal handlers using useState for dialog control.
-URL: https://dev.to/codewithmahadihasan/comprehensive-guide-to-handling-modals-in-react-46je
-
 Source: PlainEnglish.io - Embedding Google Forms in React Apps
 Purpose: Embedded Google Forms for feedback collection.
 URL: https://plainenglish.io/blog/embedding-google-forms-in-react-apps
+
+Inspired Source: JWT Decode - npm documentation
+URL: https://www.npmjs.com/package/jwt-decode
+Purpose: Decoding JWT tokens to extract user-specific data (e.g., userId).
+
+# questionnaireRoute.js
+
+Inspired Source: Mozilla Developer Network (MDN)
+Route to fetch questions and categorires.
+Purpose: Inspired by MDN's tutorial on routes in Express. Handles fetching data from a database based on query parameters.This route fetches categories based on the classification type and handles database interactions effectively.
+URL: https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs/routes
+
+
+Route to submit answers
+
+Purpose: Based on a combination of custom Node.js/Express practices and form handling for questionnaire submission. This route handles multiple response types and saves answers into a database.
+Source: ChatGPT - Node.js/Express Questionnaire Submission Route
+Prompt: 
+"I need a Node.js/Express route that handles questionnaire submissions. It should:
+Accept userId, an array of answers, and categoryId in the request body.
+Validate answers dynamically based on the Answer_Type of each question (yes_no, text, multiple_choice, numeric).
+Include helper logic for scoring multiple-choice answers and handle database inserts accordingly."
+
+
+Purpose: Uses JavaScript’s map() method to process multiple choice answers into numerical scores based on predefined values.
+URL: Array.map() - MDN (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)
 
 # Login.js: 
 Manages user login and authentication.
@@ -155,3 +177,27 @@ Purpose: Setup and configuration of routing and rendering in index.js.
 URL: https://stackoverflow.com/questions/68384258/how-to-import-route-router-and-switch-correctly
 
 # This is a test change to verify GitHub connection
+
+# Questionnaire.js
+Handles the main compliance questionnaire interface, including fetching categories, questions, and submitting user responses.
+
+Inspired Source: Using the Fetch API - MDN Web Docs
+URL: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+Purpose: To fetch data from backend APIs for categories, questions, and submitting responses.
+
+Inspired Source: React JS Node JS Express Add and Fetch Data
+URL: https://www.youtube.com/watch?v=_77ie-arQs4
+Purpose: Integrated the logic for question fetching using category IDs - using useEffect 
+
+Material-UI (MUI) Components
+URL: https://mui.com/material-ui/all-components/
+Purpose: Used Typography, Box, Select, MenuItem, and Button to build responsive and accessible UI components. Added logic to conditionally disable buttons based on questionnaire progress.
+
+Inspired Source:JWT Token Documentation
+URL:JWT Decode - npm
+Purpose:  Authentication using tokens stored in local storage, for session logic.
+
+# UserContext
+Inspired Source: Using Context API in React
+URL: https://www.taniarascia.com/using-context-api-in-react/
+Purpose: Demonstrates the usage of React Context with functional components for managing global state.

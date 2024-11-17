@@ -1,4 +1,9 @@
 // Dashboard.js
+// Enhanced from Iteration 1 using JWT token
+// Inspired Source: JWT Decode - npm documentation
+// URL: https://www.npmjs.com/package/jwt-decode
+// Purpose: Decoding JWT tokens to extract user-specific data (e.g., userId).
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';  // Use named import
@@ -10,6 +15,7 @@ function Dashboard() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [helpOpen, setHelpOpen] = useState(false); // Help dialog state
+
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -54,7 +60,9 @@ function Dashboard() {
     navigate('/login');
   };
 
-  // Handlers for Help dialog
+  
+  // Handlers for Help/Info dialog
+  // Reference: https://dev.to/codewithmahadihasan/comprehensive-guide-to-handling-modals-in-react-46je
   const handleHelpOpen = () => setHelpOpen(true);
   const handleHelpClose = () => setHelpOpen(false);
 
@@ -66,7 +74,7 @@ function Dashboard() {
         <Alert severity="error">{error}</Alert>
       ) : userData ? (
         <>
-          {/* Top-right control buttons */}
+          {/* Top-right control buttons - https://mui.com/system/getting-started/the-sx-prop/*/}
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
             <Button
               variant="outlined"

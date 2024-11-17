@@ -26,7 +26,7 @@ function Registration() {
   const [employeeCounts, setEmployeeCounts] = useState([]);
   const [revenues, setRevenues] = useState([]);
 
-  // Inspired Source:  "Handling Async in React useEffect"  https://www.benmvp.com/blog/successfully-using-async-functions-useeffect-react/ 
+  // Inspired Source: "Handling Async in React useEffect"  https://www.benmvp.com/blog/successfully-using-async-functions-useeffect-react/ 
     // Using an inner async function within useEffect, as recommended, to avoid making useEffect async.
   useEffect(() => {
     const fetchSectors = async () => {

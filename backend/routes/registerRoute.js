@@ -45,7 +45,7 @@ router.post('/', async (req, res) => {
     const [employeeRanges] = await db.query('SELECT Employee_Range FROM employee_count');
     const [revenueRanges] = await db.query('SELECT Revenue_Range FROM revenue');
 
-    // Define classification criteria based on dynamic ranges
+    // Define classification criteria based on ranges
     const essentialEmployeeRange = employeeRanges.find(range => range.Employee_Range === '>250');
     const importantEmployeeRange = employeeRanges.find(range => range.Employee_Range === '50-249');
     const essentialRevenueRange = revenueRanges.find(range => range.Revenue_Range === '>50');
@@ -58,10 +58,10 @@ router.post('/', async (req, res) => {
       classification = 'Important';
     }
 
-    // Insert classification into `compliance_assessment` if applicable
+    // Insert classification into `compliance_assessment` 
     if (classification !== 'Out of Scope') {
       await db.query('INSERT INTO compliance_assessment (user_id, classification) VALUES (?, ?)', [userId, classification]);
-      console.log("Compliance assessment added for user"); // Log compliance assessment addition
+      console.log("Compliance assessment added for user"); 
     }
 
     res.status(201).json({ message: 'Registration successful', classification });

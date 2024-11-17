@@ -1,10 +1,12 @@
 const express = require('express');
-const db = require('../db'); // Database connection module
-const auth = require('../middleware/auth'); // Auth middleware
+const db = require('../db'); 
+const auth = require('../middleware/auth'); 
 
 const router = express.Router();
 
 // Route to fetch questions based on classification and category
+// Inspired Source: Mozilla Developer Network (MDN)
+// URL: Express Tutorial Part 4: Routes and Controllers
 router.get('/questions', auth, async (req, res) => {
     const { classificationType, categoryId } = req.query;
 
@@ -50,6 +52,8 @@ router.get('/categories', auth, async (req, res) => {
 });
 
 // Route to submit answers
+// Inspired Source: ChatGPT, Node.js/Express Questionnaire Submission Route
+// Prompt in READMEFILE
 router.post('/submit-answers', auth, async (req, res) => {
     const { userId, answers, categoryId } = req.body;
 
@@ -94,6 +98,9 @@ router.post('/submit-answers', auth, async (req, res) => {
 });
 
 // Helper function for multiple choice scoring
+// Inpsired Source: Working with objects
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
+// Modifications -  Created a scoreMap object for predefined choices.
 function mapChoiceToScore(choice) {
     const scoreMap = { "High": 3, "Medium": 2, "Low": 1 };
     return scoreMap[choice] || 0;

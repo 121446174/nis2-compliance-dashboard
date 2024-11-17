@@ -28,7 +28,8 @@ function Login() {
     e.preventDefault();
     setErrorMessage('');
     setLoading(true);
-
+    
+// login endpoint with the user’s email and password.
     try {
       const response = await fetch('http://localhost:5000/login', {
         method: 'POST',

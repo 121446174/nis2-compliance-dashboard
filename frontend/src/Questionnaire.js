@@ -1,3 +1,10 @@
+// Reference: Using the Fetch API - MDN Web Docs
+// URL: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+// Modifications to suit my project requirments such as
+// Added headers for authentication.
+// Implemented custom error handling.
+//Built dynamic URLs to handle multiple categories
+
 import React, { useEffect, useState, useContext } from 'react';
 import { Typography, Box, CircularProgress, Alert, Button, Select, MenuItem } from '@mui/material';
 import { UserContext } from './UserContext';
@@ -11,20 +18,25 @@ function Questionnaire() {
     const [categoryId, setCategoryId] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [completedCategories, setCompletedCategories] = useState(new Set());
+    const [completedCategories, setCompletedCategories] = useState(new Set());  // for tracking if categories completed  
     const navigate = useNavigate();
 
-    // Fetch categories on load
+// Inspired Source: React JS Node JS Express Add and Fetch all data from mysql database
+// https://www.youtube.com/watch?v=_77ie-arQs4
+
+   // Fetch categories using the user's classification type.
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const token = localStorage.getItem('token');
+                const token = localStorage.getItem('token'); // JWT Inspired Source: https://www.npmjs.com/package/jwt-decode
                 const response = await fetch(`http://localhost:5000/api/questionnaire/categories?classificationType=${classificationType}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     }
-                });
+                }); 
+
+                // Process categories and set initial category.
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.error || 'Failed to load categories');
                 setCategories(data);
@@ -32,8 +44,6 @@ function Questionnaire() {
             } catch (error) {
                 console.error(error);
                 setError('Failed to load categories');
-            } finally {
-                setLoading(false);
             }
         };
         fetchCategories();
@@ -77,12 +87,15 @@ function Questionnaire() {
             return;
         }
 
+        // Save responses for the current category
         const token = localStorage.getItem('token');
         const answers = questions.map((question) => ({
             questionId: question.Question_ID,
             response: responses[question.Question_ID]
         }));
 
+        // Inspired Source: Using the Fetch API
+        // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
         try {
             const response = await fetch(`http://localhost:5000/api/questionnaire/submit-answers`, {
                 method: 'POST',
@@ -95,7 +108,7 @@ function Questionnaire() {
 
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || 'Failed to save responses');
-            
+
             alert('Responses for this category saved successfully');
 
             // Mark category as completed
@@ -110,13 +123,65 @@ function Questionnaire() {
         return categories.length > 0 && completedCategories.size === categories.length;
     };
 
-    // Handle navigating to the dashboard
     const handleNext = () => {
         if (!allCategoriesCompleted()) {
             setError('Please complete all categories before proceeding.');
             return;
         }
-        navigate('/dashboard'); // Redirect to the dashboard
+        navigate('/dashboard'); // Redirect to the dashboard after questionnaire
+    };
+
+    // Own code using the MUI components 
+// https://mui.com/material-ui/all-components/
+
+// input based on question type from DB 'Answer_Type' 
+    const renderInputForAnswerType = (question) => {
+        const { Answer_Type, Question_ID } = question;
+
+        switch (Answer_Type) {
+            case 'yes_no':
+                return (
+                    <Select
+                        value={responses[Question_ID] || ''}
+                        onChange={(e) => handleResponseChange(Question_ID, e.target.value)}
+                        fullWidth
+                    >
+                        <MenuItem value="yes">Yes</MenuItem>
+                        <MenuItem value="no">No</MenuItem>
+                    </Select>
+                );
+            case 'text':
+                return (
+                    <textarea
+                        value={responses[Question_ID] || ''}
+                        onChange={(e) => handleResponseChange(Question_ID, e.target.value)}
+                        style={{ width: '100%', padding: '8px', marginTop: '8px' }}
+                    />
+                );
+            case 'numeric':
+                return (
+                    <input
+                        type="number"
+                        value={responses[Question_ID] || ''}
+                        onChange={(e) => handleResponseChange(Question_ID, parseFloat(e.target.value))}
+                        style={{ width: '100%', padding: '8px', marginTop: '8px' }}
+                    />
+                );
+            case 'multiple_choice':
+                return (
+                    <Select
+                        value={responses[Question_ID] || ''}
+                        onChange={(e) => handleResponseChange(Question_ID, e.target.value)}
+                        fullWidth
+                    >
+                        <MenuItem value="High">High</MenuItem>
+                        <MenuItem value="Medium">Medium</MenuItem>
+                        <MenuItem value="Low">Low</MenuItem>
+                    </Select>
+                );
+            default:
+                return null;
+        }
     };
 
     if (loading) return <CircularProgress />;
@@ -135,14 +200,7 @@ function Questionnaire() {
             {questions.map(question => (
                 <Box key={question.Question_ID} sx={{ mb: 2 }}>
                     <Typography>{question.Question_Text}</Typography>
-                    <Select
-                        value={responses[question.Question_ID] || ''}
-                        onChange={(e) => handleResponseChange(question.Question_ID, e.target.value)}
-                        fullWidth
-                    >
-                        <MenuItem value="yes">Yes</MenuItem>
-                        <MenuItem value="no">No</MenuItem>
-                    </Select>
+                    {renderInputForAnswerType(question)}
                 </Box>
             ))}
             <Button
@@ -153,7 +211,7 @@ function Questionnaire() {
             >
                 Submit Category
             </Button>
-             <Button
+            <Button
                 variant="contained"
                 color="secondary"
                 onClick={handleNext}
@@ -167,6 +225,3 @@ function Questionnaire() {
 }
 
 export default Questionnaire;
-
-  
-

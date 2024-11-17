@@ -2,12 +2,12 @@
 // URL: https://expressjs.com/en/guide/routing.html
 // Modifications: Used Express router to handle HTTP GET requests for fetching user data based on userId.
 
-
 const express = require('express');
 const router = express.Router();
 const db = require('../db'); // Import database connection
 const auth = require('../middleware/auth'); // Import the auth middleware
 
+// 
 // Route to fetch sectors (no auth needed if this information is public)
 router.get('/sectors', async (req, res) => {
   try {
