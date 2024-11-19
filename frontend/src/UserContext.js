@@ -10,7 +10,7 @@ export const UserContext = createContext();
 export const UserProvider = ({ children }) => {
   const [userId, setUserId] = useState(null);
   const [classificationType, setClassificationType] = useState(null);
-  const [sectorId, setSectorId] = useState(null); // New state for Sector_ID
+  const [sectorId, setSectorId] = useState(null); 
 
   // Load from localStorage when the app starts
   useEffect(() => {
@@ -26,7 +26,7 @@ export const UserProvider = ({ children }) => {
   const login = (id, type, sector) => {
     setUserId(id);
     setClassificationType(type);
-    setSectorId(sector); // store new user info
+    setSectorId(sector); 
 
     localStorage.setItem('userId', id);
     localStorage.setItem('classificationType', type);

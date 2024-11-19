@@ -10,7 +10,7 @@ router.post('/', async (req, res) => {
   const {
     username,          
     email,             
-    password,          
+    password,           
     sector,            
     organisation = "Not Provided", 
     role = "Not Provided",          

@@ -201,3 +201,8 @@ Purpose:  Authentication using tokens stored in local storage, for session logic
 Inspired Source: Using Context API in React
 URL: https://www.taniarascia.com/using-context-api-in-react/
 Purpose: Demonstrates the usage of React Context with functional components for managing global state.
+
+Database
+
+I created the database using my own knowledge and query guidance using MySQL's provdied tutorials 
+URL = https://dev.mysql.com/doc/mysql-tutorial-excerpt/5.7/en/example-auto-increment.html
