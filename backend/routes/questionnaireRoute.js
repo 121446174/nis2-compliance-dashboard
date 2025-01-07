@@ -63,24 +63,28 @@ router.post('/submit-answers', auth, async (req, res) => {
 
     try {
         const [questionData] = await db.query('SELECT * FROM questions');
-        const questionMap = Object.fromEntries(questionData.map(q => [q.Question_ID, q.Answer_Type]));
+        const questionMap = Object.fromEntries(questionData.map((q) => [q.Question_ID, q.Answer_Type]));
 
-        const answerPromises = answers.map(answer => {
+        const answerPromises = answers.map((answer) => {
             const answerType = questionMap[answer.questionId];
             let query, queryValues;
 
             if (answerType === 'yes_no') {
-                const responseValue = answer.response.toLowerCase() === 'yes' ? 1 : 0;
+                // Updated logic for Yes = 0, No = 1
+                const responseValue = answer.response === "0" ? 0 : 1; // Explicitly check for "0" or "1"
                 query = 'INSERT INTO responses (User_ID, Question_ID, Answer, Category_ID) VALUES (?, ?, ?, ?)';
                 queryValues = [userId, answer.questionId, responseValue, categoryId];
             } else if (answerType === 'text') {
+                // Handle text answers
                 query = 'INSERT INTO responses (User_ID, Question_ID, Text_Answer, Category_ID) VALUES (?, ?, ?, ?)';
                 queryValues = [userId, answer.questionId, answer.response, categoryId];
             } else if (answerType === 'multiple_choice') {
+                // Handle multiple-choice answers
                 const responseValue = mapChoiceToScore(answer.response);
                 query = 'INSERT INTO responses (User_ID, Question_ID, Answer, Category_ID) VALUES (?, ?, ?, ?)';
                 queryValues = [userId, answer.questionId, responseValue, categoryId];
             } else if (answerType === 'numeric') {
+                // Handle numeric answers
                 const responseValue = parseInt(answer.response, 10);
                 query = 'INSERT INTO responses (User_ID, Question_ID, Answer, Category_ID) VALUES (?, ?, ?, ?)';
                 queryValues = [userId, answer.questionId, responseValue, categoryId];
@@ -102,7 +106,7 @@ router.post('/submit-answers', auth, async (req, res) => {
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
 // Modifications -  Created a scoreMap object for predefined choices.
 function mapChoiceToScore(choice) {
-    const scoreMap = { "High": 3, "Medium": 2, "Low": 1 };
+    const scoreMap = { High: 3, Medium: 2, Low: 1 };
     return scoreMap[choice] || 0;
 }
 

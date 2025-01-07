@@ -6,9 +6,27 @@
 //Built dynamic URLs to handle multiple categories
 
 import React, { useEffect, useState, useContext } from 'react';
-import { Typography, Box, CircularProgress, Alert, Button, Select, MenuItem } from '@mui/material';
+import {
+    Typography,
+    Box,
+    Card,
+    CardContent,
+    Button,
+    CircularProgress,
+    Alert,
+    Stepper,
+    Step,
+    StepLabel,
+    Select,
+    MenuItem,
+    FormControl,
+    RadioGroup,
+    FormControlLabel,
+    Radio,
+} from '@mui/material';
 import { UserContext } from './UserContext';
-import { useNavigate } from 'react-router-dom';
+import './Questionnaire.css';
+
 
 function Questionnaire() {
     const { userId, classificationType } = useContext(UserContext);
@@ -18,25 +36,23 @@ function Questionnaire() {
     const [categoryId, setCategoryId] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [completedCategories, setCompletedCategories] = useState(new Set());  // for tracking if categories completed  
-    const navigate = useNavigate();
+    const [completedCategories, setCompletedCategories] = useState(new Set());
 
-// Inspired Source: React JS Node JS Express Add and Fetch all data from mysql database
-// https://www.youtube.com/watch?v=_77ie-arQs4
-
-   // Fetch categories using the user's classification type.
+    // Fetch categories
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const token = localStorage.getItem('token'); // JWT Inspired Source: https://www.npmjs.com/package/jwt-decode
-                const response = await fetch(`http://localhost:5000/api/questionnaire/categories?classificationType=${classificationType}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
+                const token = localStorage.getItem('token');
+                const response = await fetch(
+                    `http://localhost:5000/api/questionnaire/categories?classificationType=${classificationType}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        },
                     }
-                }); 
+                );
 
-                // Process categories and set initial category.
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.error || 'Failed to load categories');
                 setCategories(data);
@@ -49,18 +65,23 @@ function Questionnaire() {
         fetchCategories();
     }, [classificationType]);
 
-    // Fetch questions based on selected category
+    // Fetch questions
     useEffect(() => {
         if (!categoryId) return;
+
         const fetchQuestions = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch(`http://localhost:5000/api/questionnaire/questions?classificationType=${classificationType}&categoryId=${categoryId}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
+                const response = await fetch(
+                    `http://localhost:5000/api/questionnaire/questions?classificationType=${classificationType}&categoryId=${categoryId}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        },
                     }
-                });
+                );
+
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.error || 'Failed to load questions');
                 setQuestions(data);
@@ -74,151 +95,165 @@ function Questionnaire() {
     }, [classificationType, categoryId]);
 
     const handleResponseChange = (questionId, value) => {
-        setResponses(prev => ({ ...prev, [questionId]: value }));
-    };
-
-    const allQuestionsAnsweredForCategory = () => {
-        return questions.every(question => responses[question.Question_ID] !== undefined);
+        setResponses((prev) => ({ ...prev, [questionId]: value }));
     };
 
     const handleSubmitCategory = async () => {
-        if (!allQuestionsAnsweredForCategory()) {
-            setError('Please answer all questions in this category before submitting.');
+        if (!questions.every((q) => responses[q.Question_ID] !== undefined)) {
+            setError('Please answer all questions before submitting.');
             return;
         }
 
-        // Save responses for the current category
-        const token = localStorage.getItem('token');
-        const answers = questions.map((question) => ({
-            questionId: question.Question_ID,
-            response: responses[question.Question_ID]
-        }));
-
-        // Inspired Source: Using the Fetch API
-        // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
         try {
-            const response = await fetch(`http://localhost:5000/api/questionnaire/submit-answers`, {
+            const token = localStorage.getItem('token');
+            const answers = questions.map((q) => ({
+                questionId: q.Question_ID,
+                response: responses[q.Question_ID],
+            }));
+
+            const response = await fetch('http://localhost:5000/api/questionnaire/submit-answers', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ userId, answers, categoryId })
+                body: JSON.stringify({ userId, answers, categoryId }),
             });
 
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || 'Failed to save responses');
 
-            alert('Responses for this category saved successfully');
-
-            // Mark category as completed
+            alert('Responses saved successfully');
             setCompletedCategories((prev) => new Set(prev).add(categoryId));
         } catch (error) {
             console.error(error);
-            setError('Failed to save responses');
+            setError('Failed to save responses.');
         }
     };
 
-    const allCategoriesCompleted = () => {
-        return categories.length > 0 && completedCategories.size === categories.length;
-    };
+    const renderYesNoInput = (question) => (
+        <FormControl>
+            <RadioGroup
+                row
+                value={responses[question.Question_ID] || ''} // Controlled component
+                onChange={(e) => handleResponseChange(question.Question_ID, e.target.value)}
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                }}
+            >
+                <FormControlLabel
+                    value="0"
+                    control={<Radio />}
+                    label="Yes"
+                    sx={{
+                        '& .MuiRadio-root': {
+                            color: '#0d47a1', // Default color
+                        },
+                        '& .Mui-checked': {
+                            color: '#0d47a1', // Checked color
+                        },
+                    }}
+                />
+                <FormControlLabel
+                    value="1"
+                    control={<Radio />}
+                    label="No"
+                    sx={{
+                        '& .MuiRadio-root': {
+                            color: '#d32f2f', // Default color
+                        },
+                        '& .Mui-checked': {
+                            color: '#d32f2f', // Checked color
+                        },
+                    }}
+                />
+            </RadioGroup>
+        </FormControl>
+    );
+    
 
-    const handleNext = () => {
-        if (!allCategoriesCompleted()) {
-            setError('Please complete all categories before proceeding.');
-            return;
-        }
-        navigate('/dashboard'); // Redirect to the dashboard after questionnaire
-    };
-
-    // Own code using the MUI components 
-// https://mui.com/material-ui/all-components/
-
-// input based on question type from DB 'Answer_Type' 
     const renderInputForAnswerType = (question) => {
-        const { Answer_Type, Question_ID } = question;
-
-        switch (Answer_Type) {
+        switch (question.Answer_Type) {
             case 'yes_no':
-                return (
-                    <Select
-                        value={responses[Question_ID] || ''}
-                        onChange={(e) => handleResponseChange(Question_ID, e.target.value)}
-                        fullWidth
-                    >
-                        <MenuItem value="yes">Yes</MenuItem>
-                        <MenuItem value="no">No</MenuItem>
-                    </Select>
-                );
+                return renderYesNoInput(question); // Use updated radio button logic for Yes/No
             case 'text':
                 return (
                     <textarea
-                        value={responses[Question_ID] || ''}
-                        onChange={(e) => handleResponseChange(Question_ID, e.target.value)}
-                        style={{ width: '100%', padding: '8px', marginTop: '8px' }}
-                    />
-                );
-            case 'numeric':
-                return (
-                    <input
-                        type="number"
-                        value={responses[Question_ID] || ''}
-                        onChange={(e) => handleResponseChange(Question_ID, parseFloat(e.target.value))}
-                        style={{ width: '100%', padding: '8px', marginTop: '8px' }}
+                        value={responses[question.Question_ID] || ''}
+                        onChange={(e) => handleResponseChange(question.Question_ID, e.target.value)}
+                        placeholder="Type your answer here..."
+                        className="text-input"
                     />
                 );
             case 'multiple_choice':
                 return (
                     <Select
-                        value={responses[Question_ID] || ''}
-                        onChange={(e) => handleResponseChange(Question_ID, e.target.value)}
+                        value={responses[question.Question_ID] || ''}
+                        onChange={(e) => handleResponseChange(question.Question_ID, e.target.value)}
                         fullWidth
+                        sx={{ marginTop: '10px', padding: '8px', backgroundColor: '#f5f5f5' }}
                     >
-                        <MenuItem value="High">High</MenuItem>
-                        <MenuItem value="Medium">Medium</MenuItem>
-                        <MenuItem value="Low">Low</MenuItem>
+                        <MenuItem value={1}>Low</MenuItem>
+                        <MenuItem value={2}>Medium</MenuItem>
+                        <MenuItem value={3}>High</MenuItem>
                     </Select>
                 );
             default:
                 return null;
         }
     };
+    
 
     if (loading) return <CircularProgress />;
     if (error) return <Alert severity="error">{error}</Alert>;
 
     return (
-        <Box sx={{ maxWidth: 700, margin: 'auto', padding: 3 }}>
-            <Typography variant="h4" gutterBottom>{classificationType} Sector Compliance Questionnaire</Typography>
-            <Select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} fullWidth sx={{ mb: 3 }}>
-                {categories.map(category => (
+        <Box className="questionnaire-container">
+            {/* Progress Tracker */}
+            <Stepper activeStep={categories.findIndex((c) => c.Category_ID === categoryId)} alternativeLabel>
+                {categories.map((category) => (
+                    <Step key={category.Category_ID}>
+                        <StepLabel>{category.Category_Name}</StepLabel>
+                    </Step>
+                ))}
+            </Stepper>
+
+            <Typography variant="h4" className="questionnaire-title">
+                {classificationType} Sector Compliance Questionnaire
+            </Typography>
+
+            <Select
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+                fullWidth
+                className="category-selector"
+                sx={{ mb: 3 }}
+            >
+                {categories.map((category) => (
                     <MenuItem key={category.Category_ID} value={category.Category_ID}>
-                        {category.Category_Name} {completedCategories.has(category.Category_ID) ? '✅' : ''}
+                        {category.Category_Name}
                     </MenuItem>
                 ))}
             </Select>
-            {questions.map(question => (
-                <Box key={question.Question_ID} sx={{ mb: 2 }}>
-                    <Typography>{question.Question_Text}</Typography>
-                    {renderInputForAnswerType(question)}
-                </Box>
+
+            {questions.map((question) => (
+                <Card key={question.Question_ID} className="question-card">
+                    <CardContent>
+                        <Typography variant="h6">{question.Question_Text}</Typography>
+                        {renderInputForAnswerType(question)}
+                    </CardContent>
+                </Card>
             ))}
+
             <Button
                 variant="contained"
                 color="primary"
                 onClick={handleSubmitCategory}
+                disabled={questions.some((q) => responses[q.Question_ID] === undefined)}
                 sx={{ mt: 3 }}
             >
                 Submit Category
-            </Button>
-            <Button
-                variant="contained"
-                color="secondary"
-                onClick={handleNext}
-                disabled={!allCategoriesCompleted()} // Disable "Next" until all categories are completed
-                sx={{ mt: 3, ml: 2 }}
-            >
-                Next
             </Button>
         </Box>
     );

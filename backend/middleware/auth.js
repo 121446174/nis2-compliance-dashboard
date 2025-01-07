@@ -1,4 +1,5 @@
-// middleware/auth.js
+// Inspired Reference = https://www.digitalocean.com/community/tutorials/nodejs-jwt-expressjs
+
 const jwt = require('jsonwebtoken');
 
 module.exports = function (req, res, next) {

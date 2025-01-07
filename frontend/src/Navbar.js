@@ -30,7 +30,7 @@ function Navbar() {
   return (
     <>
       {/* Top Navigation Bar */}
-      <AppBar position="static" sx={{ backgroundColor: '#0d47a1' }}> 
+      <AppBar position="static" sx={{ backgroundColor: '#1976d2', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)' }}>
         <Toolbar>
           {/* Logo and Title */}
           <Box display="flex" alignItems="center" sx={{ flexGrow: 1 }}>
@@ -53,18 +53,24 @@ function Navbar() {
           {/* Navigation Links for Medium and Larger Screens (Box) */}
           <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
             {menuItems.map((item) => (
-              <Button
-                key={item.text}
-                color="inherit"
-                component={Link}
-                to={item.path}
-                sx={{
-                  mx: 1,
-                  '&:hover': { backgroundColor: '#1e88e5', color: '#ffffff' },
-                }}
-              >
-                {item.text}
-              </Button>
+            <Button
+            key={item.text}
+            color="inherit"
+            component={Link}
+            to={item.path}
+            sx={{
+              mx: 1,
+              fontWeight: 'bold',
+              '&:hover': {
+                backgroundColor: '#1565c0',
+                color: '#ffffff',
+                borderRadius: 2,
+              },
+            }}
+          >
+            {item.text}
+          </Button>
+          
             ))}
           </Box>
         </Toolbar>
