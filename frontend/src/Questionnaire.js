@@ -186,24 +186,30 @@ function Questionnaire() {
                         className="text-input"
                     />
                 );
-            case 'multiple_choice':
-                return (
-                    <Select
-                        value={responses[question.Question_ID] || ''}
-                        onChange={(e) => handleResponseChange(question.Question_ID, e.target.value)}
-                        fullWidth
-                        sx={{ marginTop: '10px', padding: '8px', backgroundColor: '#f5f5f5' }}
-                    >
-                        <MenuItem value={1}>Low</MenuItem>
-                        <MenuItem value={2}>Medium</MenuItem>
-                        <MenuItem value={3}>High</MenuItem>
-                    </Select>
-                );
-            default:
-                return null;
-        }
-    };
+                case 'multiple_choice':
+    // Parse MCQ_Options safely, default to an empty array if not present
+    const options = Array.isArray(question.MCQ_Options)
+        ? question.MCQ_Options
+        : JSON.parse(question.MCQ_Options || '[]');
+    return (
+        <Select
+            value={responses[question.Question_ID] || ''}
+            onChange={(e) => handleResponseChange(question.Question_ID, e.target.value)}
+            fullWidth
+            sx={{ marginTop: '10px', padding: '8px', backgroundColor: '#f5f5f5' }}
+        >
+            {options.map((option, index) => (
+                <MenuItem key={index} value={option}>
+                    {option}
+                </MenuItem>
+            ))}
+        </Select>
+    );
     
+    default:
+        return null;
+}
+};
 
     if (loading) return <CircularProgress />;
     if (error) return <Alert severity="error">{error}</Alert>;
