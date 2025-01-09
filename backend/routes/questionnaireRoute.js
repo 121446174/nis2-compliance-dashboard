@@ -7,27 +7,60 @@ const router = express.Router();
 // Route to fetch questions based on classification and category
 // Inspired Source: Mozilla Developer Network (MDN)
 // URL: Express Tutorial Part 4: Routes and Controllers
+// questionnaireRoute.js
 router.get('/questions', auth, async (req, res) => {
-    const { classificationType, categoryId } = req.query;
+    const { classificationType, categoryId, sectorId } = req.query;
 
-    if (!classificationType) {
-        return res.status(400).json({ error: 'Missing classificationType' });
+    if (!classificationType || !sectorId) {
+        return res.status(400).json({ error: 'Missing classificationType or sectorId' });
     }
 
     try {
-        const query = `
-            SELECT * FROM questions 
-            WHERE Classification_Type = ? 
+        // Query for essential and important questions
+        const essentialAndImportantQuery = `
+            SELECT * 
+            FROM questions
+            WHERE Classification_Type IN ('Essential', 'Important')
+            AND Is_Mandatory = 1
             ${categoryId ? 'AND Category_ID = ?' : ''}
-            ORDER BY Question_ID
         `;
-        const queryParams = categoryId ? [classificationType, categoryId] : [classificationType];
 
-        const [questions] = await db.query(query, queryParams);
-        res.json(questions);
+        // Query for sector-specific questions
+        const sectorSpecificQuery = `
+            SELECT * 
+            FROM questions
+            WHERE Classification_Type = 'Sector-Specific'
+            AND Sector_ID = ?
+            ${categoryId ? 'AND Category_ID = ?' : ''}
+        `;
+
+        const queryParams = [];
+        if (categoryId) {
+            queryParams.push(categoryId);
+        }
+
+        // Execute both queries
+        const [essentialAndImportantQuestions] = await db.query(
+            essentialAndImportantQuery,
+            categoryId ? queryParams : []
+        );
+
+        const [sectorSpecificQuestions] = await db.query(
+            sectorSpecificQuery,
+            categoryId ? [sectorId, ...queryParams] : [sectorId]
+        );
+
+        // Combine results
+        const allQuestions = [
+            ...essentialAndImportantQuestions,
+            ...sectorSpecificQuestions,
+        ];
+
+        // Respond with all questions
+        res.json(allQuestions);
     } catch (err) {
         console.error('Error fetching questions:', err);
-        res.status(500).json({ error: 'An error occurred while fetching questions' });
+        res.status(500).json({ error: 'Error fetching questions' });
     }
 });
 
@@ -52,8 +85,6 @@ router.get('/categories', auth, async (req, res) => {
 });
 
 // Route to submit answers
-// Inspired Source: ChatGPT, Node.js/Express Questionnaire Submission Route
-// Prompt in READMEFILE
 router.post('/submit-answers', auth, async (req, res) => {
     const { userId, answers, categoryId } = req.body;
 
@@ -70,21 +101,17 @@ router.post('/submit-answers', auth, async (req, res) => {
             let query, queryValues;
 
             if (answerType === 'yes_no') {
-                // Updated logic for Yes = 0, No = 1
-                const responseValue = answer.response === "0" ? 0 : 1; // Explicitly check for "0" or "1"
+                const responseValue = answer.response === "0" ? 0 : 1; // Yes = 0, No = 1
                 query = 'INSERT INTO responses (User_ID, Question_ID, Answer, Category_ID) VALUES (?, ?, ?, ?)';
                 queryValues = [userId, answer.questionId, responseValue, categoryId];
             } else if (answerType === 'text') {
-                // Handle text answers
                 query = 'INSERT INTO responses (User_ID, Question_ID, Text_Answer, Category_ID) VALUES (?, ?, ?, ?)';
                 queryValues = [userId, answer.questionId, answer.response, categoryId];
             } else if (answerType === 'multiple_choice') {
-                // Handle multiple-choice answers
                 const responseValue = mapChoiceToScore(answer.response);
                 query = 'INSERT INTO responses (User_ID, Question_ID, Answer, Category_ID) VALUES (?, ?, ?, ?)';
                 queryValues = [userId, answer.questionId, responseValue, categoryId];
             } else if (answerType === 'numeric') {
-                // Handle numeric answers
                 const responseValue = parseInt(answer.response, 10);
                 query = 'INSERT INTO responses (User_ID, Question_ID, Answer, Category_ID) VALUES (?, ?, ?, ?)';
                 queryValues = [userId, answer.questionId, responseValue, categoryId];
@@ -102,9 +129,6 @@ router.post('/submit-answers', auth, async (req, res) => {
 });
 
 // Helper function for multiple choice scoring
-// Inpsired Source: Working with objects
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
-// Modifications -  Created a scoreMap object for predefined choices.
 function mapChoiceToScore(choice) {
     const scoreMap = { High: 3, Medium: 2, Low: 1 };
     return scoreMap[choice] || 0;

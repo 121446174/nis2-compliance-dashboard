@@ -10,28 +10,23 @@ export const UserContext = createContext();
 export const UserProvider = ({ children }) => {
   const [userId, setUserId] = useState(null);
   const [classificationType, setClassificationType] = useState(null);
-  const [sectorId, setSectorId] = useState(null); 
+  const [sectorId, setSectorId] = useState(null);
 
-  // Load from localStorage when the app starts
   useEffect(() => {
-    const storedUserId = localStorage.getItem('userId'); // load from localStorage
-    const storedClassificationType = localStorage.getItem('classificationType');
-    const storedSectorId = localStorage.getItem('sectorId'); // Load Sector_ID from localStorage
-
-    if (storedUserId) setUserId(storedUserId); // if loaded stored in setUserid state
-    if (storedClassificationType) setClassificationType(storedClassificationType);
+    const storedSectorId = localStorage.getItem('sectorId');
     if (storedSectorId) setSectorId(storedSectorId);
   }, []);
-
+  
   const login = (id, type, sector) => {
     setUserId(id);
     setClassificationType(type);
-    setSectorId(sector); 
-
+    setSectorId(sector);
+  
     localStorage.setItem('userId', id);
     localStorage.setItem('classificationType', type);
-    localStorage.setItem('sectorId', sector); // Store Sector_ID in localStorage
+    localStorage.setItem('sectorId', sector); // Ensure sectorId is saved here
   };
+  
 
   return (
     <UserContext.Provider value={{ userId, classificationType, sectorId, login }}>

@@ -42,7 +42,7 @@ function Login() {
 
       if (response.ok && data.token) {
         localStorage.setItem('token', data.token); // Store the token
-        login(data.userId, data.classificationType); // Store user info in context
+        login(data.userId, data.classificationType, data.sectorId); // Pass sectorId to context
         navigate('/dashboard'); // Redirect to dashboard after successful login
       } else {
         setErrorMessage(data.error || 'Login failed');

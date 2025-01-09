@@ -23,7 +23,7 @@ router.post('/', async (req, res) => {
 
     const user = userRows[0];
 
-    // Check the compliance classification
+    // Check classification...
     const [classificationRows] = await db.query(
       'SELECT classification FROM compliance_assessment WHERE user_id = ?',
       [user.User_ID]
@@ -32,6 +32,10 @@ router.post('/', async (req, res) => {
     if (classificationRows.length === 0 || classificationRows[0].classification === 'Out of Scope') {
       return res.status(403).json({ error: 'Access denied for Out of Scope users' });
     }
+
+    // Retrieve sectorId for the user
+    // (If your DB column is "sector_id", you can just use user.sector_id)
+    const sectorId = user.sector_id; // or user.Sector_ID
 
     // Generate JWT token
     if (!process.env.JWT_SECRET) {
@@ -44,11 +48,18 @@ router.post('/', async (req, res) => {
       { expiresIn: '1h' }
     );
 
-    res.status(200).json({ message: 'Login successful', token, userId: user.User_ID, classificationType: classificationRows[0].classification });
+    res.status(200).json({
+      message: 'Login successful',
+      token,
+      userId: user.User_ID,
+      classificationType: classificationRows[0].classification,
+      sectorId // <--- Return the sector ID to the frontend
+    });
   } catch (error) {
     console.error('Error during login:', error.message);
     res.status(500).json({ error: 'An error occurred during login' });
   }
 });
+
 
 module.exports = router;
