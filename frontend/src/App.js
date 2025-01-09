@@ -11,7 +11,6 @@ import Dashboard from './Dashboard';
 import Questionnaire from './Questionnaire';
 import { UserProvider } from './UserContext';
 import SectorSpecificQuestions from './SectorSpecificQuestions';
-import CompletionSummary from './CompletionSummary';
 
 function App() {
   return (
@@ -23,7 +22,6 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/questionnaire" element={<Questionnaire />} />
-          <Route path="/completion-summary" element={<CompletionSummary />} />
           <Route path="/sector-specific" element={<SectorSpecificQuestions />} /> 
         </Routes>
       </Router>

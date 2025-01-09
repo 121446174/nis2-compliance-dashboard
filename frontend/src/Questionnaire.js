@@ -110,20 +110,18 @@ function Questionnaire() {
     };
 
     const handleSubmitCategory = async () => {
-        const allQuestions = [...questions, ...sectorSpecific];
-
-        if (!allQuestions.every((q) => responses[q.Question_ID] !== undefined)) {
+        if (!questions.every((q) => responses[q.Question_ID] !== undefined)) {
             setError('Please answer all questions before submitting.');
             return;
         }
-
+    
         try {
             const token = localStorage.getItem('token');
-            const answers = allQuestions.map((q) => ({
+            const answers = questions.map((q) => ({
                 questionId: q.Question_ID,
                 response: responses[q.Question_ID],
             }));
-
+    
             const response = await fetch('http://localhost:5000/api/questionnaire/submit-answers', {
                 method: 'POST',
                 headers: {
@@ -132,17 +130,31 @@ function Questionnaire() {
                 },
                 body: JSON.stringify({ userId, answers, categoryId }),
             });
-
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.error || 'Failed to save responses');
-
-            alert('Responses saved successfully');
-            setCompletedCategories((prev) => new Set(prev).add(categoryId));
+    
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('API Error:', errorData.error);
+                throw new Error(errorData.error || 'Failed to save responses');
+            }
+    
+            alert('Category responses saved successfully');
+            setCompletedCategories((prev) => {
+                const updatedCategories = new Set(prev);
+                updatedCategories.add(categoryId);
+    
+                // Redirect to sector-specific questions if all categories are completed
+                if (updatedCategories.size === categories.length) {
+                    window.location.href = '/sector-specific'; // Ensure route is defined in React Router
+                }
+    
+                return updatedCategories;
+            });
         } catch (error) {
-            console.error(error);
+            console.error('Failed to save responses:', error);
             setError('Failed to save responses.');
         }
     };
+    
 
     const renderYesNoInput = (question) => (
         <FormControl>
@@ -265,3 +277,4 @@ function Questionnaire() {
 }
 
 export default Questionnaire;
+
