@@ -12,6 +12,7 @@ router.get('/sector-specific', auth, async (req, res) => {
     console.log('Resolved Sector ID:', resolvedSectorId); // Log sectorId being used
 
     if (!resolvedSectorId) {
+        console.error('Sector ID is missing for the user');
         return res.status(400).json({ error: 'Sector ID is missing for the user' });
     }
 
@@ -27,9 +28,10 @@ router.get('/sector-specific', auth, async (req, res) => {
         console.log('Fetched Sector Questions:', sectorQuestions); // Log results from DB
 
         if (sectorQuestions.length === 0) {
+            console.warn('No sector-specific questions found for the given sector.');
             return res.status(404).json([]); // Respond with empty array if no questions
         }
-
+        console.log('Sending Sector-Specific Questions:', sectorQuestions); // Log response
         res.status(200).json(sectorQuestions);
     } catch (err) {
         console.error('Error fetching sector-specific questions:', err); // Log any errors
@@ -48,6 +50,7 @@ router.post('/submit-sector-answers', auth, async (req, res) => {
     }
 
     try {
+        // Fetch all question metadata
         const [questionData] = await db.query('SELECT * FROM questions');
         const questionMap = Object.fromEntries(questionData.map((q) => [q.Question_ID, q.Answer_Type]));
 
@@ -56,13 +59,18 @@ router.post('/submit-sector-answers', auth, async (req, res) => {
             let query, queryValues;
 
             if (answerType === 'yes_no') {
+                const responseValue = answer.response === "0" ? 0 : 1; // Yes = 0, No = 1
                 query = 'INSERT INTO responses (User_ID, Question_ID, Answer) VALUES (?, ?, ?)';
-                queryValues = [userId, answer.questionId, answer.response];
+                queryValues = [userId, answer.questionId, responseValue];
             } else if (answerType === 'text') {
                 query = 'INSERT INTO responses (User_ID, Question_ID, Text_Answer) VALUES (?, ?, ?)';
                 queryValues = [userId, answer.questionId, answer.response];
             } else if (answerType === 'multiple_choice') {
                 const responseValue = mapChoiceToScore(answer.response);
+                query = 'INSERT INTO responses (User_ID, Question_ID, Answer) VALUES (?, ?, ?)';
+                queryValues = [userId, answer.questionId, responseValue];
+            } else if (answerType === 'numeric') {
+                const responseValue = parseInt(answer.response, 10);
                 query = 'INSERT INTO responses (User_ID, Question_ID, Answer) VALUES (?, ?, ?)';
                 queryValues = [userId, answer.questionId, responseValue];
             }

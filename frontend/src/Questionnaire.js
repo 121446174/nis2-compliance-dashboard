@@ -27,8 +27,10 @@ import {
 import { UserContext } from './UserContext';
 import {jwtDecode } from 'jwt-decode';
 import './Questionnaire.css';
+import { useNavigate } from 'react-router-dom';
 
 function Questionnaire() {
+    const navigate = useNavigate();
     const { userId, classificationType, sectorId: userSectorId } = useContext(UserContext);
 
     const [categories, setCategories] = useState([]);
@@ -164,7 +166,8 @@ function Questionnaire() {
                 updated.add(categoryId);
 
                 if (updated.size === categories.length) {
-                    setShowSectorSpecific(true);
+                    console.log('All categories completed. Navigating to sector-specific questions.');
+                    navigate('/sector-specific'); // Redirect to the SectorSpecificQuestions page
                 }
 
                 return updated;
@@ -222,22 +225,6 @@ function Questionnaire() {
 
     if (loading) return <CircularProgress />;
     if (error) return <Alert severity="error">{error}</Alert>;
-
-    if (showSectorSpecific) {
-        return (
-            <Box>
-                <Typography variant="h5">Sector-Specific Questions</Typography>
-                {sectorSpecific.map((question) => (
-                    <Card key={question.Question_ID} className="question-card">
-                        <CardContent>
-                            <Typography variant="h6">{question.Question_Text}</Typography>
-                            {renderInputForAnswerType(question)}
-                        </CardContent>
-                    </Card>
-                ))}
-            </Box>
-        );
-    }
 
     return (
         <Box className="questionnaire-container">
