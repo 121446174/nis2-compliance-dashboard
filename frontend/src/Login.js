@@ -28,30 +28,37 @@ function Login() {
     e.preventDefault();
     setErrorMessage('');
     setLoading(true);
-    
-// login endpoint with the user’s email and password.
+  
     try {
       const response = await fetch('http://localhost:5000/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
-
+  
       const data = await response.json();
-      setLoading(false);
-
+      console.log('Login API Response:', data);
+  
       if (response.ok && data.token) {
-        localStorage.setItem('token', data.token); // Store the token
-        login(data.userId, data.classificationType, data.sectorId); // Pass sectorId to context
-        navigate('/dashboard'); // Redirect to dashboard after successful login
+        // Store token and update UserContext
+        localStorage.setItem('token', data.token);
+        login(data.userId, data.classificationType, data.sectorId); // Ensure sectorId is passed here
+        console.log('After Login - UserContext Sector ID:', data.sectorId);
+  
+        // Redirect to dashboard
+        navigate('/dashboard');
       } else {
         setErrorMessage(data.error || 'Login failed');
       }
     } catch (error) {
-      setLoading(false);
-      console.error('Error in login request:', error);
+      console.error('Error in login request:', error.message);
       setErrorMessage('An error occurred during login');
+    } finally {
+      setLoading(false);
     }
+  
+  
+
   };
 
   return (

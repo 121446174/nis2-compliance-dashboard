@@ -1,43 +1,45 @@
-const express = require('express'); 
-const db = require('../db'); 
-const auth = require('../middleware/auth'); 
+const express = require('express');
+const db = require('../db');
+const auth = require('../middleware/auth');
 
 const router = express.Router();
 
+/// Route to fetch sector-specific questions
 router.get('/sector-specific', auth, async (req, res) => {
     const { sectorId } = req.query;
-    const userId = req.user.id; // Assuming auth middleware provides req.user
+    const resolvedSectorId = sectorId || req.user.sectorId;
+
+    console.log('Resolved Sector ID:', resolvedSectorId); // Log sectorId being used
+
+    if (!resolvedSectorId) {
+        return res.status(400).json({ error: 'Sector ID is missing for the user' });
+    }
 
     try {
-        let resolvedSectorId = sectorId;
+        const sectorQuery = `
+            SELECT *
+            FROM questions
+            WHERE Classification_Type = 'Sector-Specific'
+            AND Sector_ID = ?;
+        `;
+        const [sectorQuestions] = await db.query(sectorQuery, [resolvedSectorId]);
 
-        // If sectorId is missing, fetch it from the user table
-        if (!sectorId) {
-            const [userSector] = await db.query(
-                'SELECT Sector_ID FROM user WHERE User_ID = ?',
-                [userId]
-            );
+        console.log('Fetched Sector Questions:', sectorQuestions); // Log results from DB
 
-            if (!userSector || !userSector.Sector_ID) {
-                return res.status(400).json({ error: 'Sector ID is missing for the user' });
-            }
-
-            resolvedSectorId = userSector.Sector_ID;
+        if (sectorQuestions.length === 0) {
+            return res.status(404).json([]); // Respond with empty array if no questions
         }
 
-        // Fetch sector-specific questions using the resolved sectorId
-        const [questions] = await db.query(
-            'SELECT * FROM questions WHERE Classification_Type = "Sector-Specific" AND Sector_ID = ?',
-            [resolvedSectorId]
-        );
-
-        res.json(questions);
+        res.status(200).json(sectorQuestions);
     } catch (err) {
-        console.error('Error fetching sector-specific questions:', err);
-        res.status(500).json({ error: 'Error fetching sector-specific questions' });
+        console.error('Error fetching sector-specific questions:', err); // Log any errors
+        res.status(500).json({ error: 'Failed to fetch sector-specific questions' });
     }
 });
 
+
+
+// Route to submit sector-specific answers
 router.post('/submit-sector-answers', auth, async (req, res) => {
     const { userId, answers } = req.body;
 
@@ -46,9 +48,25 @@ router.post('/submit-sector-answers', auth, async (req, res) => {
     }
 
     try {
+        const [questionData] = await db.query('SELECT * FROM questions');
+        const questionMap = Object.fromEntries(questionData.map((q) => [q.Question_ID, q.Answer_Type]));
+
         const answerPromises = answers.map((answer) => {
-            const query = 'INSERT INTO responses (User_ID, Question_ID, Answer) VALUES (?, ?, ?)';
-            const queryValues = [userId, answer.questionId, answer.response];
+            const answerType = questionMap[answer.questionId];
+            let query, queryValues;
+
+            if (answerType === 'yes_no') {
+                query = 'INSERT INTO responses (User_ID, Question_ID, Answer) VALUES (?, ?, ?)';
+                queryValues = [userId, answer.questionId, answer.response];
+            } else if (answerType === 'text') {
+                query = 'INSERT INTO responses (User_ID, Question_ID, Text_Answer) VALUES (?, ?, ?)';
+                queryValues = [userId, answer.questionId, answer.response];
+            } else if (answerType === 'multiple_choice') {
+                const responseValue = mapChoiceToScore(answer.response);
+                query = 'INSERT INTO responses (User_ID, Question_ID, Answer) VALUES (?, ?, ?)';
+                queryValues = [userId, answer.questionId, responseValue];
+            }
+
             return db.query(query, queryValues);
         });
 
@@ -56,9 +74,14 @@ router.post('/submit-sector-answers', auth, async (req, res) => {
         res.json({ success: true, message: 'Sector-specific answers saved successfully' });
     } catch (err) {
         console.error('Error saving sector-specific answers:', err);
-        res.status(500).json({ error: 'Error saving sector-specific answers' });
+        res.status(500).json({ error: 'An error occurred while saving sector-specific answers' });
     }
 });
 
+// Helper function for multiple choice scoring
+function mapChoiceToScore(choice) {
+    const scoreMap = { High: 3, Medium: 2, Low: 1 };
+    return scoreMap[choice] || 0;
+}
 
 module.exports = router;

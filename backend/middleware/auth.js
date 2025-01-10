@@ -1,16 +1,15 @@
-// Inspired Reference = https://www.digitalocean.com/community/tutorials/nodejs-jwt-expressjs
-
 const jwt = require('jsonwebtoken');
 
 module.exports = function (req, res, next) {
     const authHeader = req.headers['authorization'];
 
-    // Check for the presence of the Authorization header
+    // Check if the Authorization header is present
+    console.log('Authorization Header:', authHeader); // Log the header for debugging
+
     if (!authHeader) {
         return res.status(401).json({ message: 'Access denied. No token provided.' });
     }
 
-    // Ensure the header contains "Bearer <token>"
     const parts = authHeader.split(' ');
     if (parts.length !== 2 || parts[0] !== 'Bearer') {
         return res.status(401).json({ message: 'Invalid authorization format. Expected "Bearer <token>".' });
@@ -19,19 +18,17 @@ module.exports = function (req, res, next) {
     const token = parts[1];
 
     try {
-        // Check for missing JWT_SECRET
         if (!process.env.JWT_SECRET) {
             throw new Error('JWT_SECRET is not defined in the environment variables.');
         }
 
-        // Verify the token
+        // Verify the token and log the result
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-        // Attach the decoded token payload to the request
-        req.user = decoded;
+        console.log('Decoded Token:', decoded); // Log the decoded token
+        req.user = decoded; // Attach the user data
         next();
     } catch (error) {
-        console.error('Token verification failed:', error.message);
+        console.error('Token verification failed:', error.message); // Log the error
         res.status(400).json({ message: 'Invalid token.' });
     }
 };

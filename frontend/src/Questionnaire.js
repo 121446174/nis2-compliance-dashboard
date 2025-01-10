@@ -23,23 +23,42 @@ import {
     RadioGroup,
     FormControlLabel,
     Radio,
-    Divider,
 } from '@mui/material';
 import { UserContext } from './UserContext';
+import {jwtDecode } from 'jwt-decode';
 import './Questionnaire.css';
 
 function Questionnaire() {
-    const { userId, classificationType, sectorId } = useContext(UserContext);
+    const { userId, classificationType, sectorId: userSectorId } = useContext(UserContext);
+
     const [categories, setCategories] = useState([]);
     const [questions, setQuestions] = useState([]);
     const [sectorSpecific, setSectorSpecific] = useState([]);
     const [responses, setResponses] = useState({});
     const [categoryId, setCategoryId] = useState(null);
+    const [completedCategories, setCompletedCategories] = useState(new Set());
+    const [showSectorSpecific, setShowSectorSpecific] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [completedCategories, setCompletedCategories] = useState(new Set());
 
-    // Fetch categories
+    useEffect(() => {
+        if (!classificationType || !userSectorId) {
+            console.warn('Questionnaire.js - Missing classificationType or sectorId. Falling back to token.');
+
+            const token = localStorage.getItem('token');
+            if (token) {
+                const decodedToken = jwtDecode(token);
+                console.log('Questionnaire.js - Retrieved values from token:', decodedToken);
+
+                // Ensure fallback for classificationType and userSectorId
+                if (!classificationType) console.log('Fallback classificationType:', decodedToken.classification);
+                if (!userSectorId) console.log('Fallback sectorId:', decodedToken.sectorId);
+            } else {
+                console.error('Questionnaire.js - Missing token and required data. Cannot proceed.');
+            }
+        }
+    }, [classificationType, userSectorId]);
+
     useEffect(() => {
         const fetchCategories = async () => {
             try {
@@ -58,9 +77,9 @@ function Questionnaire() {
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.error || 'Failed to load categories');
                 setCategories(data);
-                setCategoryId(data[0]?.Category_ID || null); // Select first category by default
-            } catch (error) {
-                console.error(error);
+                setCategoryId(data[0]?.Category_ID || null);
+            } catch (err) {
+                console.error(err);
                 setError('Failed to load categories');
             } finally {
                 setLoading(false);
@@ -69,7 +88,6 @@ function Questionnaire() {
         fetchCategories();
     }, [classificationType]);
 
-    // Fetch questions
     useEffect(() => {
         const fetchQuestions = async () => {
             if (!categoryId) return;
@@ -77,8 +95,12 @@ function Questionnaire() {
             try {
                 setLoading(true);
                 const token = localStorage.getItem('token');
+                const resolvedSectorId = userSectorId || jwtDecode(token).sectorId;
+
+                console.log('Resolved Sector ID for API Call:', resolvedSectorId);
+
                 const response = await fetch(
-                    `http://localhost:5000/api/questionnaire/questions?classificationType=${classificationType}&sectorId=${sectorId}&categoryId=${categoryId}`,
+                    `http://localhost:5000/api/questionnaire/questions?classificationType=${classificationType}&sectorId=${resolvedSectorId}&categoryId=${categoryId}`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,
@@ -91,19 +113,17 @@ function Questionnaire() {
                 if (!response.ok) throw new Error(data.error || 'Failed to load questions');
 
                 const sectorSpecificQuestions = data.filter((q) => q.Classification_Type === 'Sector-Specific');
-                const generalQuestions = data.filter((q) => q.Classification_Type !== 'Sector-Specific');
-
-                setQuestions(generalQuestions);
+                setQuestions(data.filter((q) => q.Classification_Type !== 'Sector-Specific'));
                 setSectorSpecific(sectorSpecificQuestions);
-            } catch (error) {
-                console.error(error);
+            } catch (err) {
+                console.error(err);
                 setError('Failed to load questions');
             } finally {
                 setLoading(false);
             }
         };
         fetchQuestions();
-    }, [classificationType, categoryId, sectorId]);
+    }, [classificationType, categoryId, userSectorId]);
 
     const handleResponseChange = (questionId, value) => {
         setResponses((prev) => ({ ...prev, [questionId]: value }));
@@ -114,14 +134,14 @@ function Questionnaire() {
             setError('Please answer all questions before submitting.');
             return;
         }
-    
+
         try {
             const token = localStorage.getItem('token');
             const answers = questions.map((q) => ({
                 questionId: q.Question_ID,
                 response: responses[q.Question_ID],
             }));
-    
+
             const response = await fetch('http://localhost:5000/api/questionnaire/submit-answers', {
                 method: 'POST',
                 headers: {
@@ -130,49 +150,46 @@ function Questionnaire() {
                 },
                 body: JSON.stringify({ userId, answers, categoryId }),
             });
-    
+
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error('API Error:', errorData.error);
                 throw new Error(errorData.error || 'Failed to save responses');
             }
-    
+
             alert('Category responses saved successfully');
+
             setCompletedCategories((prev) => {
-                const updatedCategories = new Set(prev);
-                updatedCategories.add(categoryId);
-    
-                // Redirect to sector-specific questions if all categories are completed
-                if (updatedCategories.size === categories.length) {
-                    window.location.href = '/sector-specific'; // Ensure route is defined in React Router
+                const updated = new Set(prev);
+                updated.add(categoryId);
+
+                if (updated.size === categories.length) {
+                    setShowSectorSpecific(true);
                 }
-    
-                return updatedCategories;
+
+                return updated;
             });
         } catch (error) {
             console.error('Failed to save responses:', error);
             setError('Failed to save responses.');
         }
     };
-    
-
-    const renderYesNoInput = (question) => (
-        <FormControl>
-            <RadioGroup
-                row
-                value={responses[question.Question_ID] || ''}
-                onChange={(e) => handleResponseChange(question.Question_ID, e.target.value)}
-            >
-                <FormControlLabel value="0" control={<Radio />} label="Yes" />
-                <FormControlLabel value="1" control={<Radio />} label="No" />
-            </RadioGroup>
-        </FormControl>
-    );
 
     const renderInputForAnswerType = (question) => {
         switch (question.Answer_Type) {
             case 'yes_no':
-                return renderYesNoInput(question);
+                return (
+                    <FormControl>
+                        <RadioGroup
+                            row
+                            value={responses[question.Question_ID] || ''}
+                            onChange={(e) => handleResponseChange(question.Question_ID, e.target.value)}
+                        >
+                            <FormControlLabel value="0" control={<Radio />} label="Yes" />
+                            <FormControlLabel value="1" control={<Radio />} label="No" />
+                        </RadioGroup>
+                    </FormControl>
+                );
             case 'text':
                 return (
                     <textarea
@@ -206,9 +223,24 @@ function Questionnaire() {
     if (loading) return <CircularProgress />;
     if (error) return <Alert severity="error">{error}</Alert>;
 
+    if (showSectorSpecific) {
+        return (
+            <Box>
+                <Typography variant="h5">Sector-Specific Questions</Typography>
+                {sectorSpecific.map((question) => (
+                    <Card key={question.Question_ID} className="question-card">
+                        <CardContent>
+                            <Typography variant="h6">{question.Question_Text}</Typography>
+                            {renderInputForAnswerType(question)}
+                        </CardContent>
+                    </Card>
+                ))}
+            </Box>
+        );
+    }
+
     return (
         <Box className="questionnaire-container">
-            {/* Progress Tracker */}
             <Stepper activeStep={categories.findIndex((c) => c.Category_ID === categoryId)} alternativeLabel>
                 {categories.map((category) => (
                     <Step key={category.Category_ID}>
@@ -235,7 +267,6 @@ function Questionnaire() {
                 ))}
             </Select>
 
-            {/* General Questions */}
             {questions.map((question) => (
                 <Card key={question.Question_ID} className="question-card">
                     <CardContent>
@@ -245,29 +276,11 @@ function Questionnaire() {
                 </Card>
             ))}
 
-            {/* Sector-Specific Questions */}
-            {sectorSpecific.length > 0 && (
-                <>
-                    <Divider style={{ margin: '20px 0' }} />
-                    <Typography variant="h5" style={{ marginBottom: '10px' }}>
-                        Sector-Specific Questions
-                    </Typography>
-                    {sectorSpecific.map((question) => (
-                        <Card key={question.Question_ID} className="question-card">
-                            <CardContent>
-                                <Typography variant="h6">{question.Question_Text}</Typography>
-                                {renderInputForAnswerType(question)}
-                            </CardContent>
-                        </Card>
-                    ))}
-                </>
-            )}
-
             <Button
                 variant="contained"
                 color="primary"
                 onClick={handleSubmitCategory}
-                disabled={[...questions, ...sectorSpecific].some((q) => responses[q.Question_ID] === undefined)}
+                disabled={questions.some((q) => responses[q.Question_ID] === undefined)}
                 sx={{ mt: 3 }}
             >
                 Submit Category
@@ -277,4 +290,3 @@ function Questionnaire() {
 }
 
 export default Questionnaire;
-

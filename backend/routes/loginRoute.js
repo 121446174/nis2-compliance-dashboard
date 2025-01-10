@@ -35,26 +35,40 @@ router.post('/', async (req, res) => {
 
     // Retrieve sectorId for the user
     // (If your DB column is "sector_id", you can just use user.sector_id)
-    const sectorId = user.sector_id; // or user.Sector_ID
+    const sectorId = user.Sector_ID; // Correct column name
 
     // Generate JWT token
     if (!process.env.JWT_SECRET) {
       throw new Error('JWT_SECRET is not defined in the environment variables');
     }
-
+    console.log('User data fetched from database:', user); // Check user details, including Sector_ID
+    console.log('Classification fetched from compliance_assessment:', classificationRows[0]);
+    
     const token = jwt.sign(
-      { userId: user.User_ID, classification: classificationRows[0].classification },
+      { 
+          userId: user.User_ID, 
+          classification: classificationRows[0].classification, 
+          sectorId: sectorId // Include sectorId in token
+      },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
-    );
+  );
+  console.log('Generated JWT token:', token); // Verify token contains sectorId
 
-    res.status(200).json({
-      message: 'Login successful',
-      token,
-      userId: user.User_ID,
-      classificationType: classificationRows[0].classification,
-      sectorId // <--- Return the sector ID to the frontend
-    });
+
+  res.status(200).json({
+    message: 'Login successful',
+    token,
+    userId: user.User_ID,
+    classificationType: classificationRows[0].classification,
+    sectorId: sectorId, // Include sectorId in the response
+});
+console.log('Login API Response:', {
+  token,
+  userId: user.User_ID,
+  classificationType: classificationRows[0].classification,
+  sectorId: sectorId,
+});
   } catch (error) {
     console.error('Error during login:', error.message);
     res.status(500).json({ error: 'An error occurred during login' });

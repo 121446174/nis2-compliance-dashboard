@@ -76,23 +76,26 @@ function Registration() {
 
     try {
       const response = await fetch('http://localhost:5000/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
       });
-
+  
       const data = await response.json();
-      setLoading(false);
-
+      console.log('Registration API Response:', data);
+  
       if (response.ok) {
-        setClassification(data.classification);
+          setClassification(data.classification);
+          setLoading(false); // Add this inside the `if` block
       } else {
-        setErrorMessage(data.error || 'Registration failed');
+          setErrorMessage(data.error || 'Registration failed');
+          setLoading(false); // Add this inside the `else` block
       }
-    } catch (error) {
-      setLoading(false);
+  } catch (error) {
+      setLoading(false); // Ensure loading stops if an error occurs
       setErrorMessage('An error occurred during registration');
-    }
+  }
+  
   };
 
   return (
