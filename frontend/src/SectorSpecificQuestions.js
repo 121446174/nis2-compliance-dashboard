@@ -2,6 +2,9 @@ import React, { useEffect, useState, useContext } from 'react';
 import {
     Typography,
     Box,
+    Card,
+    CardContent,
+    Button,
     CircularProgress,
     Alert,
     FormControl,
@@ -11,7 +14,6 @@ import {
     TextField,
     Select,
     MenuItem,
-    Button,
 } from '@mui/material';
 import { UserContext } from './UserContext';
 
@@ -84,11 +86,11 @@ function SectorSpecificQuestions() {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ userId, answers }), // Include userId in the payload
+                body: JSON.stringify({ userId, answers }),
             });
 
             if (!response.ok) {
-                const data = await response.json(); // Corrected variable name
+                const data = await response.json();
                 console.error('Error response from API:', data);
                 throw new Error(data.error || 'Failed to submit responses');
             }
@@ -160,33 +162,31 @@ function SectorSpecificQuestions() {
 
     // Render questions
     return (
-        <Box>
-            <Typography variant="h4">Sector-Specific Questions</Typography>
+        <Box className="questionnaire-container">
+            <Typography variant="h4" className="questionnaire-title">
+                Sector-Specific Compliance Questionnaire
+            </Typography>
+
             {sectorQuestions.length === 0 ? (
                 <Typography>No questions available for your sector.</Typography>
             ) : (
                 sectorQuestions.map((question) => (
-                    <Box
-                        key={question.Question_ID}
-                        sx={{
-                            marginBottom: 2,
-                            padding: 2,
-                            border: '1px solid #ccc',
-                            borderRadius: '5px',
-                            backgroundColor: '#f9f9f9',
-                        }}
-                    >
-                        <Typography variant="h6">{question.Question_Text}</Typography>
-                        {renderInputForAnswerType(question)}
-                    </Box>
+                    <Card key={question.Question_ID} className="question-card">
+                        <CardContent>
+                            <Typography variant="h6">{question.Question_Text}</Typography>
+                            {renderInputForAnswerType(question)}
+                        </CardContent>
+                    </Card>
                 ))
             )}
+
             {sectorQuestions.length > 0 && (
                 <Button
                     variant="contained"
                     color="primary"
                     onClick={handleSubmit}
                     disabled={sectorQuestions.some((q) => !responses[q.Question_ID])}
+                    sx={{ mt: 3 }}
                 >
                     Submit Responses
                 </Button>
@@ -196,6 +196,7 @@ function SectorSpecificQuestions() {
 }
 
 export default SectorSpecificQuestions;
+
 
 
 

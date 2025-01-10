@@ -202,22 +202,28 @@ function Questionnaire() {
                         className="text-input"
                     />
                 );
-            case 'multiple_choice':
-                const options = Array.isArray(question.MCQ_Options)
-                    ? question.MCQ_Options
-                    : JSON.parse(question.MCQ_Options || '[]');
-                return (
-                    <Select
-                        value={responses[question.Question_ID] || ''}
-                        onChange={(e) => handleResponseChange(question.Question_ID, e.target.value)}
-                    >
-                        {options.map((option, index) => (
-                            <MenuItem key={index} value={option}>
-                                {option}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                );
+                case 'multiple_choice':
+                    const options = Array.isArray(question.MCQ_Options)
+                        ? question.MCQ_Options
+                        : JSON.parse(question.MCQ_Options || '[]');
+                    return (
+                        <FormControl fullWidth>
+                            <Select
+                                value={responses[question.Question_ID] || ''}
+                                onChange={(e) => handleResponseChange(question.Question_ID, e.target.value)}
+                                displayEmpty
+                                fullWidth
+                                sx={{ minWidth: '300px', maxWidth: '100%' }} // Adjust dropdown width for longer display
+                            >
+                                {options.map((option, index) => (
+                                    <MenuItem key={index} value={option}>
+                                        {option}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    );
+                
             default:
                 return null;
         }
