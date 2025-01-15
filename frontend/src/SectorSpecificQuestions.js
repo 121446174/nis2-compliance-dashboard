@@ -16,6 +16,8 @@ import {
     MenuItem,
 } from '@mui/material';
 import { UserContext } from './UserContext';
+import { useNavigate } from 'react-router-dom';
+
 
 function SectorSpecificQuestions() {
     const { userId, sectorId } = useContext(UserContext); // Access userId from UserContext
@@ -24,6 +26,8 @@ function SectorSpecificQuestions() {
     const [responses, setResponses] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const navigate = useNavigate();
+
 
     // Fetch questions
     useEffect(() => {
@@ -96,11 +100,12 @@ function SectorSpecificQuestions() {
             }
 
             alert('Responses submitted successfully!');
-        } catch (err) {
-            console.error('Error submitting responses:', err.message);
-            setError(err.message || 'Failed to submit responses.');
-        }
-    };
+        navigate('/risk-score'); // Navigate to the risk score page
+    } catch (err) {
+        console.error('Error submitting responses:', err.message);
+        setError(err.message || 'Failed to submit responses.');
+    }
+};
 
     // Render input based on answer type
     const renderInputForAnswerType = (question) => {
