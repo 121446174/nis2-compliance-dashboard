@@ -62,50 +62,72 @@ function Login() {
   };
 
   return (
-    <Box sx={{ maxWidth: 400, margin: 'auto', padding: 3 }}>
-      <Typography variant="h4" gutterBottom>Login</Typography>
-      <form onSubmit={handleSubmit}>
-        <TextField
-          label="Email"
-          name="email"
-          variant="outlined"
-          fullWidth
-          margin="normal"
-          value={formData.email}
-          onChange={handleChange}
-          required
-          type="email"
-        />
+    <Box className="registration-container">
+      {/* Left-Side: Information Section */}
+      <Box className="info-section">
+        <Typography variant="h3" className="info-title">
+          Welcome Back!
+        </Typography>
+        <Typography variant="h6" className="info-subtitle">
+          Log in to your NIS2 Compliance Dashboard
+        </Typography>
+        <ul className="info-list">
+          <li>Access your compliance progress</li>
+          <li>Review and manage incidents</li>
+          <li>Benchmark against industry standards</li>
+          <li>Stay updated with real-time insights</li>
+        </ul>
+        <Typography variant="body2" className="info-tagline">
+          We’re here to help you stay compliant.
+        </Typography>
+      </Box>
 
-        <TextField
-          label="Password"
-          name="password"
-          variant="outlined"
-          fullWidth
-          margin="normal"
-          value={formData.password}
-          onChange={handleChange}
-          required
-          type="password"
-        />
+      {/* Right-Side: Login Form */}
+      <Box className="form-section">
+        <Typography variant="h4" gutterBottom>
+          Login to Your Account
+        </Typography>
+        <form onSubmit={handleSubmit}>
+          <TextField
+            label="Email"
+            name="email"
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            type="email"
+          />
+          <TextField
+            label="Password"
+            name="password"
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            value={formData.password}
+            onChange={handleChange}
+            required
+            type="password"
+          />
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            disabled={loading}
+            sx={{ mt: 2 }}
+          >
+            {loading ? <CircularProgress size={24} /> : 'Login'}
+          </Button>
+        </form>
 
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          fullWidth
-          disabled={loading}
-          sx={{ mt: 2 }}
-        >
-          {loading ? <CircularProgress size={24} /> : 'Login'}
-        </Button>
-      </form>
-
-      {errorMessage && (
-        <Alert severity="error" sx={{ mt: 2 }}>
-          {errorMessage}
-        </Alert>
-      )}
+        {errorMessage && (
+          <Alert severity="error" sx={{ mt: 2 }}>
+            {errorMessage}
+          </Alert>
+        )}
+      </Box>
     </Box>
   );
 }
