@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Typography, Box, CircularProgress, Alert } from '@mui/material';
+import RiskChart from './RiskChart';
 
 function RiskResults() {
     const [loading, setLoading] = useState(true);
@@ -61,9 +62,14 @@ function RiskResults() {
 
     return (
         <Box>
-            <Typography variant="h4">Risk Assessment Results</Typography>
+            <Typography variant="h4" gutterBottom>
+                Risk Assessment Results
+            </Typography>
             <Typography variant="body1">Risk Level: {riskResult?.riskLevel}</Typography>
             <Typography variant="body1">Total Score: {riskResult?.totalScore}</Typography>
+
+            {/* Render the RiskChart */}
+            <RiskChart totalScore={riskResult?.totalScore} riskLevel={riskResult?.riskLevel} />
         </Box>
     );
 }

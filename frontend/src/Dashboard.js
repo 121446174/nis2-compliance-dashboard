@@ -6,16 +6,30 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';  // Use named import
-import { Typography, Box, CircularProgress, Alert, Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { jwtDecode } from 'jwt-decode'; // Corrected import (default import for jwt-decode)
+import {
+  Typography,
+  Box,
+  CircularProgress,
+  Alert,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Grid,
+  Card,
+  CardContent,
+} from '@mui/material';
+import RiskChart from './RiskChart'; // Import the RiskChart component
 
 function Dashboard() {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
+  const [riskData, setRiskData] = useState(null); // State to store risk data
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [helpOpen, setHelpOpen] = useState(false); // Help dialog state
-
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -30,11 +44,12 @@ function Dashboard() {
       const userId = decodedToken.userId;
 
       try {
+        // Fetch user data
         const response = await fetch(`http://localhost:5000/user/${userId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`, 
+            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -45,6 +60,21 @@ function Dashboard() {
 
         const data = await response.json();
         setUserData(data);
+
+        // Fetch risk assessment data
+        const riskResponse = await fetch('http://localhost:5000/api/risk/score/calculate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ userId }),
+        });
+
+        if (riskResponse.ok) {
+          const risk = await riskResponse.json();
+          setRiskData(risk); // Store risk score and level
+        }
       } catch (error) {
         setError(error.message || 'An error occurred while fetching data');
       } finally {
@@ -60,83 +90,90 @@ function Dashboard() {
     navigate('/login');
   };
 
-  
   // Handlers for Help/Info dialog
   // Reference: https://dev.to/codewithmahadihasan/comprehensive-guide-to-handling-modals-in-react-46je
   const handleHelpOpen = () => setHelpOpen(true);
   const handleHelpClose = () => setHelpOpen(false);
 
   return (
-    <Box sx={{ maxWidth: 600, margin: 'auto', padding: 3 }}>
-      {loading ? (
-        <CircularProgress />
-      ) : error ? (
-        <Alert severity="error">{error}</Alert>
-      ) : userData ? (
-        <>
-          {/* Top-right control buttons - https://mui.com/system/getting-started/the-sx-prop/*/}
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-            <Button
-              variant="outlined"
-              color="primary"
-              onClick={handleHelpOpen}
-              sx={{ mr: 1 }}
-            >
-              Help
-            </Button>
-            <Button
-              variant="outlined"
-              color="secondary"
-              href="https://docs.google.com/forms/d/e/1FAIpQLSfZ7pXJVG5wyk4LSH0YF39rOsPq7rtbd5UHHAE7NxBhldptnQ/viewform?usp=sf_link"
-              target="_blank"
-              rel="noopener noreferrer"
-              sx={{ mr: 1 }}
-            >
-              Give Feedback
-            </Button>
-            <Button variant="contained" color="secondary" onClick={handleLogout}>
-              Logout
-            </Button>
-          </Box>
+    <Box sx={{ maxWidth: 900, margin: 'auto', padding: 3 }}>
+        {loading ? (
+            <CircularProgress />
+        ) : error ? (
+            <Alert severity="error">{error}</Alert>
+        ) : userData ? (
+            <>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+                    <Button variant="outlined" color="primary" onClick={handleHelpOpen} sx={{ mr: 1 }}>
+                        Help
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        color="secondary"
+                        href="https://docs.google.com/forms"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        sx={{ mr: 1 }}
+                    >
+                        Give Feedback
+                    </Button>
+                    <Button variant="contained" color="secondary" onClick={handleLogout}>
+                        Logout
+                    </Button>
+                </Box>
 
-          <Typography variant="h4">Welcome, {userData.name || 'User'}</Typography>
-          <Typography variant="body1" sx={{ mt: 2 }}>
-            Email: {userData.email || 'No Email Provided'}
-          </Typography>
-          <Typography variant="body1">
-            Organisation: {userData.organisation || 'No Organisation Provided'}
-          </Typography>
-          <Typography variant="body1">
-            Role: {userData.role || 'No Role Provided'}
-          </Typography>
-          <Typography variant="body1" sx={{ mt: 1 }}>
-            Sector: {userData.sector || 'No Sector Provided'}
-          </Typography>
+                <Typography variant="h4" gutterBottom>
+                    Welcome, {userData.name || 'User'}
+                </Typography>
 
-          {/* Help Dialog */}
-          <Dialog open={helpOpen} onClose={handleHelpClose}>
-            <DialogTitle>How to Use the Dashboard</DialogTitle>
-            <DialogContent>
-              <Typography variant="body1">
-                This dashboard provides your compliance data, classification, and other key information related to NIS2 compliance.
-              </Typography>
-              <Typography variant="body2" sx={{ mt: 2 }}>
-                Use the navigation bar to access different sections like the compliance questionnaire, roadmap, and benchmarking tools.
-              </Typography>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleHelpClose} color="primary">
-                Close
-              </Button>
-            </DialogActions>
-          </Dialog>
-        </>
-      ) : (
-        <Alert severity="warning">Please log in to access the dashboard.</Alert>
-      )}
+                <Grid container spacing={3} sx={{ mt: 2 }}>
+                    <Grid item xs={12} md={6}>
+                        <Card>
+                            <CardContent>
+                                <Typography variant="h6">User Information</Typography>
+                                <Typography>Email: {userData.email}</Typography>
+                                <Typography>Organisation: {userData.organisation}</Typography>
+                                <Typography>Role: {userData.role}</Typography>
+                                <Typography>Sector: {userData.sector}</Typography>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+
+                    <Grid item xs={12} md={6}>
+                        <Card>
+                            <CardContent>
+                                <Typography variant="h6">Risk Assessment</Typography>
+                                {riskData ? (
+                                    <RiskChart totalScore={riskData.totalScore} riskLevel={riskData.riskLevel} />
+                                ) : (
+                                    <Typography color="textSecondary">
+                                        Complete the compliance questionnaire to see your risk score!
+                                    </Typography>
+                                )}
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                </Grid>
+
+                <Dialog open={helpOpen} onClose={handleHelpClose}>
+                    <DialogTitle>How to Use the Dashboard</DialogTitle>
+                    <DialogContent>
+                        <Typography>
+                            This dashboard provides your compliance data and other key information related to NIS2 compliance.
+                        </Typography>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleHelpClose} color="primary">
+                            Close
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            </>
+        ) : (
+            <Alert severity="warning">Please log in to access the dashboard.</Alert>
+        )}
     </Box>
-  );
+);
 }
 
 export default Dashboard;
-
