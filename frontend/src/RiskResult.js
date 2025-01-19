@@ -62,13 +62,14 @@ function RiskResults() {
                 Risk Level: {riskResult?.riskLevel}
             </Typography>
             <Typography variant="body1">
-                Total Score: {riskResult?.totalScore} / {riskResult?.maxPossibleScore}
+                Risk Score: {riskResult?.totalScore.toFixed(2)} / {riskResult?.maxPossibleScore.toFixed(2)} (
+                {riskResult?.normalizedScore.toFixed(2)}%)
             </Typography>
 
             {/* Render the RiskChart */}
             <RiskChart
-                totalScore={riskResult?.totalScore}
-                maxPossibleScore={riskResult?.maxPossibleScore}
+                totalScore={riskResult?.normalizedScore}
+                maxPossibleScore={100} // Normalized to 100
                 riskLevel={riskResult?.riskLevel}
             />
         </Box>

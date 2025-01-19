@@ -66,6 +66,9 @@ router.post('/score/calculate', auth, async (req, res) => {
         // Clamp totalScore if needed
         totalScore = Math.min(totalScore, maxPossibleScore);
 
+        // Normalize the score for frontend display
+        const normalizedScore = maxPossibleScore > 0 ? (totalScore / maxPossibleScore) * 100 : 0;
+
         // Map the score to a risk level
         const [riskLevel] = await connection.query(
             'SELECT Risk_Level FROM risk_levels WHERE ? BETWEEN Min_Score AND Max_Score',
@@ -77,16 +80,16 @@ router.post('/score/calculate', auth, async (req, res) => {
 
         // Save the score in the database
         await connection.query(
-            `INSERT INTO risk_score (User_ID, Score_Value, Risk_Level)
-             VALUES (?, ?, ?)
-             ON DUPLICATE KEY UPDATE Score_Value = ?, Risk_Level = ?`,
-            [userId, totalScore, level, totalScore, level]
+            `INSERT INTO risk_score (User_ID, Score_Value, Max_Value, Risk_Level)
+             VALUES (?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE Score_Value = ?, Max_Value = ?, Risk_Level = ?`,
+            [userId, totalScore, maxPossibleScore, level, totalScore, maxPossibleScore, level]
         );
 
         console.log('Risk score saved successfully for User ID:', userId);
 
         await connection.commit();
-        res.json({ totalScore, maxPossibleScore, riskLevel: level });
+        res.json({ totalScore, maxPossibleScore, normalizedScore, riskLevel: level });
     } catch (err) {
         await connection.rollback();
         console.error('Error calculating risk score:', err);
@@ -97,4 +100,3 @@ router.post('/score/calculate', auth, async (req, res) => {
 });
 
 module.exports = router;
-

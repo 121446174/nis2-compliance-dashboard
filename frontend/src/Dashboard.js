@@ -6,7 +6,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode'; // Corrected import (default import for jwt-decode)
+import { jwtDecode } from 'jwt-decode'; // Corrected import
 import {
   Typography,
   Box,
@@ -74,6 +74,8 @@ function Dashboard() {
         if (riskResponse.ok) {
           const risk = await riskResponse.json();
           setRiskData(risk); // Store risk score and level
+        } else {
+          setRiskData({ totalScore: 0, maxPossibleScore: 100, riskLevel: 'Unknown' }); // Default fallback
         }
       } catch (error) {
         setError(error.message || 'An error occurred while fetching data');
@@ -97,83 +99,87 @@ function Dashboard() {
 
   return (
     <Box sx={{ maxWidth: 900, margin: 'auto', padding: 3 }}>
-        {loading ? (
-            <CircularProgress />
-        ) : error ? (
-            <Alert severity="error">{error}</Alert>
-        ) : userData ? (
-            <>
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-                    <Button variant="outlined" color="primary" onClick={handleHelpOpen} sx={{ mr: 1 }}>
-                        Help
-                    </Button>
-                    <Button
-                        variant="outlined"
-                        color="secondary"
-                        href="https://docs.google.com/forms"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        sx={{ mr: 1 }}
-                    >
-                        Give Feedback
-                    </Button>
-                    <Button variant="contained" color="secondary" onClick={handleLogout}>
-                        Logout
-                    </Button>
-                </Box>
+      {loading ? (
+        <CircularProgress />
+      ) : error ? (
+        <Alert severity="error">{error}</Alert>
+      ) : userData ? (
+        <>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+            <Button variant="outlined" color="primary" onClick={handleHelpOpen} sx={{ mr: 1 }}>
+              Help
+            </Button>
+            <Button
+              variant="outlined"
+              color="secondary"
+              href="https://docs.google.com/forms"
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{ mr: 1 }}
+            >
+              Give Feedback
+            </Button>
+            <Button variant="contained" color="secondary" onClick={handleLogout}>
+              Logout
+            </Button>
+          </Box>
 
-                <Typography variant="h4" gutterBottom>
-                    Welcome, {userData.name || 'User'}
-                </Typography>
+          <Typography variant="h4" gutterBottom>
+            Welcome, {userData.name || 'User'}
+          </Typography>
 
-                <Grid container spacing={3} sx={{ mt: 2 }}>
-                    <Grid item xs={12} md={6}>
-                        <Card>
-                            <CardContent>
-                                <Typography variant="h6">User Information</Typography>
-                                <Typography>Email: {userData.email}</Typography>
-                                <Typography>Organisation: {userData.organisation}</Typography>
-                                <Typography>Role: {userData.role}</Typography>
-                                <Typography>Sector: {userData.sector}</Typography>
-                            </CardContent>
-                        </Card>
-                    </Grid>
+          <Grid container spacing={3} sx={{ mt: 2 }}>
+            <Grid item xs={12} md={6}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6">User Information</Typography>
+                  <Typography>Email: {userData.email}</Typography>
+                  <Typography>Organisation: {userData.organisation}</Typography>
+                  <Typography>Role: {userData.role}</Typography>
+                  <Typography>Sector: {userData.sector}</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
 
-                    <Grid item xs={12} md={6}>
-                        <Card>
-                            <CardContent>
-                                <Typography variant="h6">Risk Assessment</Typography>
-                                {riskData ? (
-                                    <RiskChart totalScore={riskData.totalScore} riskLevel={riskData.riskLevel} />
-                                ) : (
-                                    <Typography color="textSecondary">
-                                        Complete the compliance questionnaire to see your risk score!
-                                    </Typography>
-                                )}
-                            </CardContent>
-                        </Card>
-                    </Grid>
-                </Grid>
+            <Grid item xs={12} md={6}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6">Risk Assessment</Typography>
+                  {riskData && riskData.totalScore !== undefined && riskData.maxPossibleScore !== undefined ? (
+                    <RiskChart
+                      totalScore={riskData.totalScore}
+                      maxPossibleScore={riskData.maxPossibleScore}
+                      riskLevel={riskData.riskLevel}
+                    />
+                  ) : (
+                    <Typography color="textSecondary">
+                      Complete the compliance questionnaire to see your risk score!
+                    </Typography>
+                  )}
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
 
-                <Dialog open={helpOpen} onClose={handleHelpClose}>
-                    <DialogTitle>How to Use the Dashboard</DialogTitle>
-                    <DialogContent>
-                        <Typography>
-                            This dashboard provides your compliance data and other key information related to NIS2 compliance.
-                        </Typography>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={handleHelpClose} color="primary">
-                            Close
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-            </>
-        ) : (
-            <Alert severity="warning">Please log in to access the dashboard.</Alert>
-        )}
+          <Dialog open={helpOpen} onClose={handleHelpClose}>
+            <DialogTitle>How to Use the Dashboard</DialogTitle>
+            <DialogContent>
+              <Typography>
+                This dashboard provides your compliance data and other key information related to NIS2 compliance.
+              </Typography>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleHelpClose} color="primary">
+                Close
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </>
+      ) : (
+        <Alert severity="warning">Please log in to access the dashboard.</Alert>
+      )}
     </Box>
-);
+  );
 }
 
 export default Dashboard;
