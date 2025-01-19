@@ -82,7 +82,7 @@ function SectorSpecificQuestions() {
                 response: responses[question.Question_ID],
             }));
 
-            console.log('Submitting sector-specific answers:', { userId, answers });
+            console.log('Submitting sector-specific answers:', { userId, answers, sectorId });
 
             const response = await fetch('http://localhost:5000/api/questionnaire/submit-sector-answers', {
                 method: 'POST',
@@ -90,7 +90,7 @@ function SectorSpecificQuestions() {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ userId, answers }),
+                body: JSON.stringify({ userId, answers, sectorId }),
             });
 
             if (!response.ok) {

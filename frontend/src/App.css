@@ -1,7 +1,20 @@
-.App {
-  text-align: center;
+/* Global body style to ensure full-page blue background */
+body {
+  margin: 0; /* Removes any default margin */
+  padding: 0; /* Removes any default padding */
+  background-color: #e3f2fd; /* Light blue background to match the design */
+  min-height: 100vh;
 }
 
+/* Ensure .App stretches to fit the full viewport */
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Other existing styles remain the same */
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -14,8 +27,7 @@
 }
 
 .App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+  background-color: transparent;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -36,3 +48,4 @@
     transform: rotate(360deg);
   }
 }
+

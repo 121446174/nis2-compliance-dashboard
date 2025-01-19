@@ -3,102 +3,151 @@
 
 
 import React, { useState } from 'react';
-import { AppBar, Toolbar, Typography, Button, Box, Avatar, IconButton, Drawer, List, ListItem, ListItemText } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, Box, Avatar, IconButton, Drawer, List, ListItem, ListItemText, ListItemIcon } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import { Link } from 'react-router-dom';
-import logo from './assets/compliNIS2.png'; 
+import HomeIcon from '@mui/icons-material/Home';
+import LoginIcon from '@mui/icons-material/Login';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer';
+import MapIcon from '@mui/icons-material/Map';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import ReportIcon from '@mui/icons-material/Report';
+import { Link, useLocation } from 'react-router-dom';
+import logo from './assets/compliNIS2.png';
 
 function Navbar() {
-  const [drawerOpen, setDrawerOpen] = useState(false); // controls whether the sidebar is open/closed on small screen
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const location = useLocation(); // Get the current path to highlight the active menu
 
   const handleDrawerToggle = () => {
     setDrawerOpen(!drawerOpen);
   };
 
   const menuItems = [
-    { text: 'Home', path: '/' },
-    { text: 'Login', path: '/login' },
-    { text: 'Dashboard', path: '/dashboard' },
-    { text: 'Questionnaire', path: '/questionnaire' },
-    { text: 'Roadmap', path: '/roadmap' },
-    { text: 'Benchmarking', path: '/benchmarking' },
-    { text: 'Incident Reports', path: '/incident-reports' },
+    { text: 'Home', path: '/', icon: <HomeIcon /> },
+    { text: 'Login', path: '/login', icon: <LoginIcon /> },
+    { text: 'Dashboard', path: '/dashboard', icon: <DashboardIcon /> },
+    { text: 'Questionnaire', path: '/questionnaire', icon: <QuestionAnswerIcon /> },
+    { text: 'Roadmap', path: '/roadmap', icon: <MapIcon /> },
+    { text: 'Benchmarking', path: '/benchmarking', icon: <AssessmentIcon /> },
+    { text: 'Incident Reports', path: '/incident-reports', icon: <ReportIcon /> },
   ];
   
 // Material UI AppBar Documentation for implementation details:
 // URL: https://mui.com/material-ui/react-app-bar/ React, { useState } from 'react'; // useState manage for small screens
-  return (
-    <>
-      {/* Top Navigation Bar */}
-      <AppBar position="static" sx={{ backgroundColor: '#1976d2', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)' }}>
-        <Toolbar>
-          {/* Logo and Title */}
-          <Box display="flex" alignItems="center" sx={{ flexGrow: 1 }}>
-            <Avatar alt="CompliNIS2 Logo" src={logo} sx={{ width: 40, height: 40, mr: 1 }} />
-            <Typography variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
-              NIS2 Compliance Dashboard
-            </Typography>
-          </Box>
-
-          {/* Menu Button for Small Screens - button opens the sidebar (drawer) sx hides it */}
-          <IconButton
-            color="inherit"
-            edge="end"
-            onClick={handleDrawerToggle}
-            sx={{ display: { xs: 'block', md: 'none' } }}
-          >
-            <MenuIcon />
-          </IconButton>
-
-          {/* Navigation Links for Medium and Larger Screens (Box) */}
-          <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-            {menuItems.map((item) => (
-            <Button
-            key={item.text}
-            color="inherit"
-            component={Link}
-            to={item.path}
+return (
+  <>
+    {/* Top Navigation Bar */}
+    <AppBar
+      position="static"
+      sx={{
+        background: 'linear-gradient(90deg, #1976d2, #42a5f5)',
+        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+        border: 'none',
+      }}
+    >
+      <Toolbar>
+        {/* Logo and Title */}
+        <Box display="flex" alignItems="center" sx={{ flexGrow: 1 }}>
+          <Avatar
+            alt="CompliNIS2 Logo"
+            src={logo}
             sx={{
-              mx: 1,
+              width: 50,
+              height: 50,
+              mr: 2,
+            }}
+          />
+          <Typography
+            variant="h5"
+            component="div"
+            sx={{
               fontWeight: 'bold',
-              '&:hover': {
-                backgroundColor: '#1565c0',
-                color: '#ffffff',
-                borderRadius: 2,
-              },
+              fontFamily: 'Roboto, sans-serif',
+              color: '#ffffff',
             }}
           >
-            {item.text}
-          </Button>
-          
-            ))}
-          </Box>
-        </Toolbar>
-      </AppBar>
-
-      {/* Drawer for Small Screens */}
-      <Drawer
-        anchor="left"
-        open={drawerOpen}
-        onClose={handleDrawerToggle}
-        sx={{ display: { xs: 'block', md: 'none' } }}
-      >
-        <Box sx={{ width: 250 }} onClick={handleDrawerToggle}>
-          <List>
-            {menuItems.map((item) => (
-              <ListItem button key={item.text} component={Link} to={item.path}>
-                <ListItemText primary={item.text} />
-              </ListItem>
-            ))}
-          </List>
+            NIS2 Compliance Dashboard
+          </Typography>
         </Box>
-      </Drawer>
-    </>
-  );
+
+        {/* Menu Button for Small Screens */}
+        <IconButton
+          color="inherit"
+          edge="end"
+          onClick={handleDrawerToggle}
+          sx={{ display: { xs: 'block', md: 'none' } }}
+        >
+          <MenuIcon />
+        </IconButton>
+
+        {/* Navigation Links for Medium and Larger Screens */}
+        <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+          {menuItems.map((item) => (
+            <Button
+              key={item.text}
+              color="inherit"
+              component={Link}
+              to={item.path}
+              sx={{
+                mx: 1.5,
+                fontWeight: 'bold',
+                fontFamily: 'Roboto, sans-serif',
+                fontSize: '16px',
+                color: '#ffffff',
+                borderBottom: location.pathname === item.path ? '3px solid #ffffff' : 'none',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  borderRadius: '4px',
+                },
+                transition: 'all 0.3s ease',
+              }}
+            >
+              {item.text}
+            </Button>
+          ))}
+        </Box>
+      </Toolbar>
+    </AppBar>
+
+    {/* Drawer for Small Screens */}
+    <Drawer
+      anchor="left"
+      open={drawerOpen}
+      onClose={handleDrawerToggle}
+      sx={{ display: { xs: 'block', md: 'none' } }}
+    >
+      <Box
+        sx={{
+          width: 250,
+          background: 'linear-gradient(180deg, #1976d2, #42a5f5)',
+          color: '#ffffff',
+          height: '100%',
+        }}
+        onClick={handleDrawerToggle}
+      >
+        <List>
+          {menuItems.map((item) => (
+            <ListItem
+              button
+              key={item.text}
+              component={Link}
+              to={item.path}
+              sx={{
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: '#ffffff' }}>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.text} />
+            </ListItem>
+          ))}
+        </List>
+      </Box>
+    </Drawer>
+  </>
+);
 }
 
 export default Navbar;
-
-
-
-

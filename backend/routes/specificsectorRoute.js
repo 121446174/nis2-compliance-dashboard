@@ -43,9 +43,9 @@ router.get('/sector-specific', auth, async (req, res) => {
 
 // Route to submit sector-specific answers
 router.post('/submit-sector-answers', auth, async (req, res) => {
-    const { userId, answers } = req.body;
+    const { userId, answers, sectorId } = req.body;
 
-    if (!userId || !answers || !Array.isArray(answers)) {
+    if (!userId || !answers || !Array.isArray(answers) || !sectorId) {
         return res.status(400).json({ error: 'Missing or invalid answers data' });
     }
 
@@ -60,19 +60,35 @@ router.post('/submit-sector-answers', auth, async (req, res) => {
 
             if (answerType === 'yes_no') {
                 const responseValue = answer.response === "0" ? 0 : 1; // Yes = 0, No = 1
-                query = 'INSERT INTO responses (User_ID, Question_ID, Answer) VALUES (?, ?, ?)';
-                queryValues = [userId, answer.questionId, responseValue];
+                query = `
+                    INSERT INTO responses (User_ID, Question_ID, Answer, Sector_ID)
+                    VALUES (?, ?, ?, ?)
+                    ON DUPLICATE KEY UPDATE Answer = ?, Sector_ID = ?;
+                `;
+                queryValues = [userId, answer.questionId, responseValue, sectorId, responseValue, sectorId];
             } else if (answerType === 'text') {
-                query = 'INSERT INTO responses (User_ID, Question_ID, Text_Answer) VALUES (?, ?, ?)';
-                queryValues = [userId, answer.questionId, answer.response];
+                query = `
+                    INSERT INTO responses (User_ID, Question_ID, Text_Answer, Sector_ID)
+                    VALUES (?, ?, ?, ?)
+                    ON DUPLICATE KEY UPDATE Text_Answer = ?, Sector_ID = ?;
+                `;
+                queryValues = [userId, answer.questionId, answer.response, sectorId, answer.response, sectorId];
             } else if (answerType === 'multiple_choice') {
                 const responseValue = mapChoiceToScore(answer.response);
-                query = 'INSERT INTO responses (User_ID, Question_ID, Answer) VALUES (?, ?, ?)';
-                queryValues = [userId, answer.questionId, responseValue];
+                query = `
+                    INSERT INTO responses (User_ID, Question_ID, Answer, Sector_ID)
+                    VALUES (?, ?, ?, ?)
+                    ON DUPLICATE KEY UPDATE Answer = ?, Sector_ID = ?;
+                `;
+                queryValues = [userId, answer.questionId, responseValue, sectorId, responseValue, sectorId];
             } else if (answerType === 'numeric') {
                 const responseValue = parseInt(answer.response, 10);
-                query = 'INSERT INTO responses (User_ID, Question_ID, Answer) VALUES (?, ?, ?)';
-                queryValues = [userId, answer.questionId, responseValue];
+                query = `
+                    INSERT INTO responses (User_ID, Question_ID, Answer, Sector_ID)
+                    VALUES (?, ?, ?, ?)
+                    ON DUPLICATE KEY UPDATE Answer = ?, Sector_ID = ?;
+                `;
+                queryValues = [userId, answer.questionId, responseValue, sectorId, responseValue, sectorId];
             }
 
             return db.query(query, queryValues);
@@ -85,6 +101,7 @@ router.post('/submit-sector-answers', auth, async (req, res) => {
         res.status(500).json({ error: 'An error occurred while saving sector-specific answers' });
     }
 });
+
 
 // Helper function for multiple choice scoring
 function mapChoiceToScore(choice) {
