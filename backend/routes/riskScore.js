@@ -98,5 +98,14 @@ router.post('/score/calculate', auth, async (req, res) => {
         connection.release();
     }
 });
+router.get('/levels', async (req, res) => {
+    try {
+        const [levels] = await pool.query('SELECT * FROM risk_levels ORDER BY Min_Score ASC');
+        res.json(levels);
+    } catch (err) {
+        console.error('Error fetching risk levels:', err);
+        res.status(500).json({ error: 'Failed to fetch risk levels' });
+    }
+});
 
 module.exports = router;

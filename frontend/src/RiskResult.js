@@ -6,19 +6,17 @@ function RiskResults() {
     const [loading, setLoading] = useState(true);
     const [riskResult, setRiskResult] = useState(null);
     const [error, setError] = useState(null);
+    const [riskLevels, setRiskLevels] = useState([]); // Fetch and pass riskLevels dynamically
 
     const token = localStorage.getItem('token');
     const userId = token ? JSON.parse(atob(token.split('.')[1])).userId : null;
 
     useEffect(() => {
-        const fetchRiskScore = async () => {
-            if (!userId) {
-                setError('User ID is missing.');
-                setLoading(false);
-                return;
-            }
-
+        const fetchRiskData = async () => {
             try {
+                if (!userId) throw new Error('User ID is missing.');
+
+                // Fetch risk score
                 const response = await fetch('http://localhost:5000/api/risk/score/calculate', {
                     method: 'POST',
                     headers: {
@@ -27,31 +25,29 @@ function RiskResults() {
                     },
                     body: JSON.stringify({ userId }),
                 });
+                if (!response.ok) throw new Error('Failed to fetch risk score.');
 
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(errorText || 'Failed to fetch risk score');
-                }
+                const riskData = await response.json();
+                setRiskResult(riskData);
 
-                const data = await response.json();
-                setRiskResult(data);
+                // Fetch risk levels
+                const levelsResponse = await fetch('http://localhost:5000/api/risk/levels');
+                if (!levelsResponse.ok) throw new Error('Failed to fetch risk levels.');
+
+                const levelsData = await levelsResponse.json();
+                setRiskLevels(levelsData);
             } catch (err) {
-                setError(err.message || 'Failed to fetch risk score');
+                setError(err.message);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchRiskScore();
+        fetchRiskData();
     }, [userId]);
 
-    if (loading) {
-        return <CircularProgress />;
-    }
-
-    if (error) {
-        return <Alert severity="error">{error}</Alert>;
-    }
+    if (loading) return <CircularProgress />;
+    if (error) return <Alert severity="error">{error}</Alert>;
 
     return (
         <Box>
@@ -65,15 +61,16 @@ function RiskResults() {
                 Risk Score: {riskResult?.totalScore.toFixed(2)} / {riskResult?.maxPossibleScore.toFixed(2)} (
                 {riskResult?.normalizedScore.toFixed(2)}%)
             </Typography>
-
-            {/* Render the RiskChart */}
             <RiskChart
-                totalScore={riskResult?.normalizedScore}
-                maxPossibleScore={100} // Normalized to 100
+                totalScore={riskResult?.totalScore}
+                maxPossibleScore={riskResult?.maxPossibleScore}
                 riskLevel={riskResult?.riskLevel}
+                riskLevels={riskLevels} // Pass riskLevels here
             />
         </Box>
     );
 }
 
 export default RiskResults;
+
+
