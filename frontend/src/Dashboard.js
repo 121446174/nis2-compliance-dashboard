@@ -6,7 +6,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode'; // Corrected import
 import {
   Typography,
   Box,
@@ -27,6 +26,7 @@ function Dashboard() {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [riskData, setRiskData] = useState(null); // State to store risk data
+  const [riskLevels, setRiskLevels] = useState([]); // Add state for riskLevels
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [helpOpen, setHelpOpen] = useState(false); // Help dialog state
@@ -40,7 +40,7 @@ function Dashboard() {
       }
 
       // Decode token to get userId
-      const decodedToken = jwtDecode(token);
+      const decodedToken = JSON.parse(atob(token.split('.')[1]));
       const userId = decodedToken.userId;
 
       try {
@@ -77,6 +77,15 @@ function Dashboard() {
         } else {
           setRiskData({ totalScore: 0, maxPossibleScore: 100, riskLevel: 'Unknown' }); // Default fallback
         }
+
+        // Fetch risk levels
+        const levelsResponse = await fetch('http://localhost:5000/api/risk/levels');
+        if (levelsResponse.ok) {
+          const levelsData = await levelsResponse.json();
+          setRiskLevels(levelsData); // Store risk levels
+        } else {
+          console.error('Failed to fetch risk levels');
+        }
       } catch (error) {
         setError(error.message || 'An error occurred while fetching data');
       } finally {
@@ -92,8 +101,6 @@ function Dashboard() {
     navigate('/login');
   };
 
-  // Handlers for Help/Info dialog
-  // Reference: https://dev.to/codewithmahadihasan/comprehensive-guide-to-handling-modals-in-react-46je
   const handleHelpOpen = () => setHelpOpen(true);
   const handleHelpClose = () => setHelpOpen(false);
 
@@ -150,6 +157,7 @@ function Dashboard() {
                       totalScore={riskData.totalScore}
                       maxPossibleScore={riskData.maxPossibleScore}
                       riskLevel={riskData.riskLevel}
+                      riskLevels={riskLevels} // Pass fetched riskLevels
                     />
                   ) : (
                     <Typography color="textSecondary">

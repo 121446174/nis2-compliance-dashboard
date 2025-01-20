@@ -82,9 +82,13 @@ router.post('/score/calculate', auth, async (req, res) => {
         await connection.query(
             `INSERT INTO risk_score (User_ID, Score_Value, Max_Value, Risk_Level)
              VALUES (?, ?, ?, ?)
-             ON DUPLICATE KEY UPDATE Score_Value = ?, Max_Value = ?, Risk_Level = ?`,
-            [userId, totalScore, maxPossibleScore, level, totalScore, maxPossibleScore, level]
+             ON DUPLICATE KEY UPDATE
+             Score_Value = VALUES(Score_Value),
+             Max_Value = VALUES(Max_Value),
+             Risk_Level = VALUES(Risk_Level)`,
+            [userId, totalScore, maxPossibleScore, level]
         );
+        
 
         console.log('Risk score saved successfully for User ID:', userId);
 

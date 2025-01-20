@@ -3,7 +3,7 @@ import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
 
-const RiskChart = ({ totalScore = 0, maxPossibleScore = 100, riskLevel, riskLevels = [] }) => {
+const RiskChart = ({ totalScore = 0, maxPossibleScore = 100, riskLevel }) => {
     const chartRef = useRef(null);
     const chartInstance = useRef(null);
 
@@ -54,12 +54,21 @@ const RiskChart = ({ totalScore = 0, maxPossibleScore = 100, riskLevel, riskLeve
         };
     }, [totalScore, maxPossibleScore]);
 
-    const currentRiskLevel = riskLevels.find(
-        (level) => totalScore >= level.Min_Score && totalScore <= level.Max_Score
-    );
+    // Static mapping for colors and positions
+    const riskMapping = {
+        Low: { color: '#28A745', position: '10%' }, // Green
+        Medium: { color: '#FFC107', position: '30%' }, // Yellow
+        High: { color: '#FF9800', position: '50%' }, // Orange
+        'Very High': { color: '#FF5722', position: '70%' }, // Red
+        Critical: { color: '#D32F2F', position: '90%' }, // Dark Red
+    };
+
+    // Get the color and position for the current risk level
+    const { color, position } = riskMapping[riskLevel] || { color: '#000', position: '0%' };
 
     return (
         <div style={{ width: '400px', margin: 'auto', textAlign: 'center' }}>
+            {/* Donut Chart */}
             <div>
                 <canvas ref={chartRef}></canvas>
                 <p style={{ marginTop: '10px', fontSize: '18px', fontWeight: 'bold' }}>
@@ -70,11 +79,50 @@ const RiskChart = ({ totalScore = 0, maxPossibleScore = 100, riskLevel, riskLeve
                     style={{
                         fontSize: '16px',
                         fontWeight: 'bold',
-                        color: currentRiskLevel?.color || '#000',
+                        color: color,
                     }}
                 >
-                    Risk Level: {currentRiskLevel?.Risk_Level || riskLevel || 'Unknown'}
+                    Risk Level: {riskLevel || 'Unknown'}
                 </p>
+            </div>
+
+            {/* Static Progress Bar */}
+            <div style={{ marginTop: '20px', position: 'relative' }}>
+                <div
+                    style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        fontSize: '12px',
+                        marginBottom: '5px',
+                    }}
+                >
+                    <span style={{ color: '#28A745' }}>Low</span>
+                    <span style={{ color: '#FFC107' }}>Medium</span>
+                    <span style={{ color: '#FF9800' }}>High</span>
+                    <span style={{ color: '#FF5722' }}>Very High</span>
+                    <span style={{ color: '#D32F2F' }}>Critical</span>
+                </div>
+                <div
+                    style={{
+                        position: 'relative',
+                        height: '10px',
+                        width: '100%',
+                        background: '#E0E0E0',
+                        borderRadius: '5px',
+                    }}
+                >
+                    <div
+                        style={{
+                            position: 'absolute',
+                            height: '100%',
+                            width: '10px', // Fixed size for the indicator
+                            left: position, // Dynamic position
+                            background: color, // Dynamic color
+                            borderRadius: '5px',
+                            transform: 'translateX(-50%)', // Center the indicator
+                        }}
+                    ></div>
+                </div>
             </div>
         </div>
     );
@@ -82,3 +130,4 @@ const RiskChart = ({ totalScore = 0, maxPossibleScore = 100, riskLevel, riskLeve
 
 export default RiskChart;
 
+   
