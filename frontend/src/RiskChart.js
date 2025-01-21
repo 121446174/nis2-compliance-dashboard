@@ -130,4 +130,4 @@ const RiskChart = ({ totalScore = 0, maxPossibleScore = 100, riskLevel }) => {
 
 export default RiskChart;
 
-   
+    

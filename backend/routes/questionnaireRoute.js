@@ -1,13 +1,10 @@
 const express = require('express');
-const db = require('../db'); 
-const auth = require('../middleware/auth'); 
+const db = require('../db');
+const auth = require('../middleware/auth');
 
 const router = express.Router();
 
 // Route to fetch questions based on classification and category
-// Inspired Source: Mozilla Developer Network (MDN)
-// URL: Express Tutorial Part 4: Routes and Controllers
-// questionnaireRoute.js
 router.get('/questions', auth, async (req, res) => {
     const { classificationType, categoryId, sectorId } = req.query;
 
@@ -96,7 +93,7 @@ router.post('/submit-answers', auth, async (req, res) => {
         const [questionData] = await db.query('SELECT * FROM questions');
         const questionMap = Object.fromEntries(questionData.map((q) => [q.Question_ID, q.Answer_Type]));
 
-        const answerPromises = answers.map((answer) => {
+        const answerPromises = answers.map(async (answer) => {
             const answerType = questionMap[answer.questionId];
             let query, queryValues;
 
@@ -108,9 +105,19 @@ router.post('/submit-answers', auth, async (req, res) => {
                 query = 'INSERT INTO responses (User_ID, Question_ID, Text_Answer, Category_ID) VALUES (?, ?, ?, ?)';
                 queryValues = [userId, answer.questionId, answer.response, categoryId];
             } else if (answerType === 'multiple_choice') {
-                const responseValue = mapChoiceToScore(answer.response);
-                query = 'INSERT INTO responses (User_ID, Question_ID, Answer, Category_ID) VALUES (?, ?, ?, ?)';
-                queryValues = [userId, answer.questionId, responseValue, categoryId];
+                // Fetch numeric value for the user's choice
+                const [rule] = await db.query(
+                    'SELECT Score_Impact FROM scoring_rules WHERE Question_ID = ? AND Answer_Value = ?',
+                    [answer.questionId, answer.response]
+                );
+
+                if (!rule || rule.length === 0) {
+                    throw new Error(`Invalid multiple-choice response: ${answer.response} for Question_ID: ${answer.questionId}`);
+                }
+
+                const responseValue = rule[0].Score_Impact; // Numeric value from scoring rules
+                query = 'INSERT INTO responses (User_ID, Question_ID, Answer, Category_ID, Processed_Value) VALUES (?, ?, ?, ?, ?)';
+                queryValues = [userId, answer.questionId, responseValue, categoryId, answer.response];
             } else if (answerType === 'numeric') {
                 const responseValue = parseInt(answer.response, 10);
                 query = 'INSERT INTO responses (User_ID, Question_ID, Answer, Category_ID) VALUES (?, ?, ?, ?)';
@@ -127,11 +134,5 @@ router.post('/submit-answers', auth, async (req, res) => {
         res.status(500).json({ error: 'An error occurred while saving answers' });
     }
 });
-
-// Helper function for multiple choice scoring
-function mapChoiceToScore(choice) {
-    const scoreMap = { High: 3, Medium: 2, Low: 1 };
-    return scoreMap[choice] || 0;
-}
 
 module.exports = router;
