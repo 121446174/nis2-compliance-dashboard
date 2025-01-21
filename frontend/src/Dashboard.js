@@ -96,6 +96,44 @@ function Dashboard() {
     fetchUserData();
   }, [navigate]);
 
+  const [categoryScores, setCategoryScores] = useState([]);
+
+  useEffect(() => {
+    const fetchCategoryScores = async () => {
+        const token = localStorage.getItem('token');
+        const userId = token ? JSON.parse(atob(token.split('.')[1])).userId : null;
+
+        if (!userId) {
+            console.error('No userId found in token'); // Debugging log
+            return;
+        }
+
+        try {
+            console.log('Making API request for category scores'); // Debugging log
+            const response = await fetch(`http://localhost:5000/api/category-scores?userId=${userId}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            console.log('API response status:', response.status); // Debugging log
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Category Scores Data:', data); // Debugging log
+                setCategoryScores(data);
+            } else {
+                const errorResponse = await response.json();
+                console.error('API Error:', errorResponse); // Debugging log
+            }
+        } catch (err) {
+            console.error('Error fetching category scores:', err);
+        }
+    };
+
+    fetchCategoryScores();
+}, []);
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     navigate('/login');
@@ -112,6 +150,7 @@ function Dashboard() {
         <Alert severity="error">{error}</Alert>
       ) : userData ? (
         <>
+          {/* Header Buttons */}
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
             <Button variant="outlined" color="primary" onClick={handleHelpOpen} sx={{ mr: 1 }}>
               Help
@@ -130,13 +169,15 @@ function Dashboard() {
               Logout
             </Button>
           </Box>
-
+  
+          {/* Welcome Message */}
           <Typography variant="h4" gutterBottom>
             Welcome, {userData.name || 'User'}
           </Typography>
-
+  
+          {/* User Information */}
           <Grid container spacing={3} sx={{ mt: 2 }}>
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12}>
               <Card>
                 <CardContent>
                   <Typography variant="h6">User Information</Typography>
@@ -147,7 +188,53 @@ function Dashboard() {
                 </CardContent>
               </Card>
             </Grid>
-
+          </Grid>
+  
+          {/* Category Breakdown and Risk Assessment (Side by Side) */}
+          <Grid container spacing={3} sx={{ mt: 2 }}>
+            {/* Category Breakdown */}
+            <Grid item xs={12} md={6}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6">Category Compliance Overview</Typography>
+                  {categoryScores.length > 0 ? (
+                    <div>
+                      {categoryScores.map((category) => (
+                        <div key={category.category} style={{ marginBottom: '10px' }}>
+                          <Typography variant="subtitle2">{category.category}</Typography>
+                          <Box
+                            sx={{
+                              height: 10,
+                              background: '#E0E0E0',
+                              borderRadius: 5,
+                              overflow: 'hidden',
+                              mt: 1,
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                height: '100%',
+                                width: `${category.percentage}%`,
+                                background: '#6C63FF',
+                              }}
+                            ></Box>
+                          </Box>
+                          <Typography variant="caption" sx={{ display: 'block', mt: 1 }}>
+                            {Math.round(category.percentage)}% compliance
+                          </Typography>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <Typography color="textSecondary">
+                      No data available. Complete the questionnaire to see results!
+                    </Typography>
+                  )}
+                </CardContent>
+              </Card>
+            </Grid>
+  
+            {/* Risk Assessment */}
             <Grid item xs={12} md={6}>
               <Card>
                 <CardContent>
@@ -168,7 +255,8 @@ function Dashboard() {
               </Card>
             </Grid>
           </Grid>
-
+  
+          {/* Help Dialog */}
           <Dialog open={helpOpen} onClose={handleHelpClose}>
             <DialogTitle>How to Use the Dashboard</DialogTitle>
             <DialogContent>
