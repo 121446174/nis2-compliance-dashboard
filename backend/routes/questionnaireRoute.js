@@ -102,8 +102,33 @@ router.post('/submit-answers', auth, async (req, res) => {
                 query = 'INSERT INTO responses (User_ID, Question_ID, Answer, Category_ID) VALUES (?, ?, ?, ?)';
                 queryValues = [userId, answer.questionId, responseValue, categoryId];
             } else if (answerType === 'text') {
-                query = 'INSERT INTO responses (User_ID, Question_ID, Text_Answer, Category_ID) VALUES (?, ?, ?, ?)';
-                queryValues = [userId, answer.questionId, answer.response, categoryId];
+                // Check scoring rules for keyword or regex matches
+                const [rules] = await db.query(
+                    `SELECT Score_Impact 
+                     FROM scoring_rules 
+                     WHERE Question_ID = ? 
+                     AND Match_Type IN ('keyword', 'regex') 
+                     AND ? LIKE CONCAT('%', Answer_Value, '%')`,
+                    [answer.questionId, answer.response]
+                );
+            
+                // Default to 0 if no scoring rule matches
+                const responseValue = rules.length ? parseFloat(rules[0].Score_Impact) : 0;
+            
+                query = `
+                    INSERT INTO responses (User_ID, Question_ID, Answer, Processed_Value, Category_ID)
+                    VALUES (?, ?, ?, ?, ?)
+                    ON DUPLICATE KEY UPDATE Answer = ?, Processed_Value = ?;
+                `;
+                queryValues = [
+                    userId,
+                    answer.questionId,
+                    responseValue, // Scored numeric value (or 0 if no match)
+                    answer.response, // Original text response
+                    categoryId,
+                    responseValue, // Update Answer
+                    answer.response, // Update Processed_Value
+                ];
             } else if (answerType === 'multiple_choice') {
                 // Fetch numeric value for the user's choice
                 const [rule] = await db.query(

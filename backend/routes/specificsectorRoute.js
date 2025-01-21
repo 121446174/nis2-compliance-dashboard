@@ -67,12 +67,34 @@ router.post('/submit-sector-answers', auth, async (req, res) => {
                 `;
                 queryValues = [userId, answer.questionId, responseValue, sectorId, responseValue, sectorId];
             } else if (answerType === 'text') {
+                // Check scoring rules for keyword or regex matches
+                const [rules] = await db.query(
+                    `SELECT Score_Impact 
+                     FROM scoring_rules 
+                     WHERE Question_ID = ? 
+                     AND Match_Type IN ('keyword', 'regex') 
+                     AND ? LIKE CONCAT('%', Answer_Value, '%')`,
+                    [answer.questionId, answer.response]
+                );
+
+                // Default score is 0 if no rule matches
+                const responseValue = rules.length ? parseFloat(rules[0].Score_Impact) : 0;
+
                 query = `
-                    INSERT INTO responses (User_ID, Question_ID, Text_Answer, Sector_ID)
-                    VALUES (?, ?, ?, ?)
-                    ON DUPLICATE KEY UPDATE Text_Answer = ?, Sector_ID = ?;
+                    INSERT INTO responses (User_ID, Question_ID, Answer, Processed_Value, Sector_ID)
+                    VALUES (?, ?, ?, ?, ?)
+                    ON DUPLICATE KEY UPDATE Answer = ?, Processed_Value = ?, Sector_ID = ?;
                 `;
-                queryValues = [userId, answer.questionId, answer.response, sectorId, answer.response, sectorId];
+                queryValues = [
+                    userId,
+                    answer.questionId,
+                    responseValue, // Scored numeric value or 0 if no match
+                    answer.response, // Original text response
+                    sectorId,
+                    responseValue,
+                    answer.response,
+                    sectorId,
+                ];
             } else if (answerType === 'multiple_choice') {
                 // Fetch the numeric value (Score_Impact) for the MCQ response
                 const [rules] = await db.query(
