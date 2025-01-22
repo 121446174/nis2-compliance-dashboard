@@ -30,6 +30,8 @@ function SectorSpecificQuestions() {
 
 
     // Fetch questions
+    // Inspired Source: Using the Fetch API - MDN Web Docs Demonstrates checking response status before processing
+    // URL: https://developer.mozilla.org/en-US/docs/Web/API/fetch#checking_response_status
     useEffect(() => {
         const fetchSectorQuestions = async () => {
             try {
@@ -73,7 +75,9 @@ function SectorSpecificQuestions() {
         }));
     };
 
-    // Submit responses
+    // Using the Fetch API - MDN Web Docs
+    //POST request with body
+    // URL: https://developer.mozilla.org/en-US/docs/Web/API/fetch#checking_response_status
     const handleSubmit = async () => {
         try {
             const token = localStorage.getItem('token');
@@ -107,7 +111,9 @@ function SectorSpecificQuestions() {
     }
 };
 
-    // Render input based on answer type
+// This function dynamically renders input components based on the Answer_Type property of a question.
+// Reference: Conditional Rendering Components in React (YouTube)
+// Inspired Source: Youtube https://www.youtube.com/watch?v=xRKvjWDZlW8
     const renderInputForAnswerType = (question) => {
         switch (question.Answer_Type) {
             case 'yes_no':
@@ -165,7 +171,8 @@ function SectorSpecificQuestions() {
         return <Alert severity="error">{error}</Alert>;
     }
 
-    // Render questions
+     //Inspired Source: Learn MUI (Material UI) in under 10 min! https://www.youtube.com/watch?v=FB-sKY63AWo
+    // Material-UI React Box API etc (https://mui.com/material-ui/react-box/)
     return (
         <Box className="questionnaire-container">
             <Typography variant="h4" className="questionnaire-title">

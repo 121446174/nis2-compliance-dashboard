@@ -39,7 +39,7 @@ function Registration() {
   const [revenues, setRevenues] = useState([]);
 
   // Inspired Source: "Handling Async in React useEffect"  https://www.benmvp.com/blog/successfully-using-async-functions-useeffect-react/ 
-    // Using an inner async function within useEffect, as recommended, to avoid making useEffect async.
+// Using an inner async function within useEffect, as recommended, to avoid making useEffect async.
  useEffect(() => {
     const fetchData = async () => {
       try {
@@ -98,6 +98,8 @@ function Registration() {
   
   };
 
+// Styling and layout for the registration form
+// Source: MUI Typography
   return (
     <Box className="registration-container">
       {/* Left-Side: Information Section */}
@@ -118,8 +120,9 @@ function Registration() {
           Join us and simplify your compliance journey.
         </Typography>
       </Box>
-
+      
       {/* Right-Side: Registration Form */}
+      {/* Source: MUI TextField */}
       <Box className="form-section">
         <Typography variant="h4" gutterBottom>
           Register Your Organisation

@@ -1,3 +1,6 @@
+// Reference: Chart.js Integration in React
+// https://www.chartjs.org/docs/latest/getting-started/integration.html
+
 import React, { useEffect, useRef } from 'react';
 import { Chart, registerables } from 'chart.js';
 
@@ -7,6 +10,8 @@ const RiskChart = ({ totalScore = 0, maxPossibleScore = 100, riskLevel }) => {
     const chartRef = useRef(null);
     const chartInstance = useRef(null);
 
+// Reference: Chart.js Doughnut Chart
+// https://www.chartjs.org/docs/latest/charts/doughnut.html
     useEffect(() => {
         const ctx = chartRef.current.getContext('2d');
 
@@ -15,7 +20,7 @@ const RiskChart = ({ totalScore = 0, maxPossibleScore = 100, riskLevel }) => {
         }
 
         const normalizedScore = (totalScore / maxPossibleScore) * 100;
-        const colors = ['#6C63FF', '#FFC300']; // Purple for "Your Score", Yellow for "Remaining"
+        const colors = ['#6C63FF', '#FFC300']; 
 
         chartInstance.current = new Chart(ctx, {
             type: 'doughnut',
@@ -47,23 +52,29 @@ const RiskChart = ({ totalScore = 0, maxPossibleScore = 100, riskLevel }) => {
             },
         });
 
+       // Ensures that the Chart.js instance is destroyed if changes occur
+       // Reference: StakeOverflow - 'Destroy Chart.js bar graph to redraw other graph in same canvas'
+       // https://stackoverflow.com/questions/40056555/destroy-chart-js-bar-graph-to-redraw-other-graph-in-same-canvas
         return () => {
             if (chartInstance.current) {
                 chartInstance.current.destroy();
             }
         };
     }, [totalScore, maxPossibleScore]);
-
-    // Static mapping for colors and positions
-    const riskMapping = {
-        Low: { color: '#28A745', position: '10%' }, // Green
-        Medium: { color: '#FFC107', position: '30%' }, // Yellow
-        High: { color: '#FF9800', position: '50%' }, // Orange
-        'Very High': { color: '#FF5722', position: '70%' }, // Red
-        Critical: { color: '#D32F2F', position: '90%' }, // Dark Red
-    };
+  
+ // Static mapping for colors and positions
+ // Reference: React-simple-maps - Dynamic Styling
+ const riskMapping = {
+    Low: { color: '#28A745', position: '10%' }, // Green
+    Medium: { color: '#FFC107', position: '30%' }, // Yellow
+    High: { color: '#FF9800', position: '50%' }, // Orange
+    'Very High': { color: '#FF5722', position: '70%' }, // Red
+    Critical: { color: '#D32F2F', position: '90%' }, // Dark Red
+};
 
     // Get the color and position for the current risk level
+    // Source: Chart.js and StakeOverflow Dynamic CSS Style in JSX
+// https://stackoverflow.com/questions/46322708/inlining-dynamic-css-style-in-jsx
     const { color, position } = riskMapping[riskLevel] || { color: '#000', position: '0%' };
 
     return (

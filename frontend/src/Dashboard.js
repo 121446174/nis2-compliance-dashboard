@@ -1,4 +1,3 @@
-// Dashboard.js
 // Enhanced from Iteration 1 using JWT token
 // Inspired Source: JWT Decode - npm documentation
 // URL: https://www.npmjs.com/package/jwt-decode
@@ -25,12 +24,15 @@ import RiskChart from './RiskChart'; // Import the RiskChart component
 function Dashboard() {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
-  const [riskData, setRiskData] = useState(null); // State to store risk data
-  const [riskLevels, setRiskLevels] = useState([]); // Add state for riskLevels
+  const [riskData, setRiskData] = useState(null); 
+  const [riskLevels, setRiskLevels] = useState([]); 
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [helpOpen, setHelpOpen] = useState(false); // Help dialog state
+  const [helpOpen, setHelpOpen] = useState(false); 
 
+  // Fetch user data
+  // Source: StakeOverflow - LocalStorage getItem token 
+  // https://stackoverflow.com/questions/57197803/localstorage-getitem-token-returns-null
   useEffect(() => {
     const fetchUserData = async () => {
       const token = localStorage.getItem('token');
@@ -40,11 +42,14 @@ function Dashboard() {
       }
 
       // Decode token to get userId
+      // Source: Stack Overflow - Decode JWT Tokens in React
       const decodedToken = JSON.parse(atob(token.split('.')[1]));
       const userId = decodedToken.userId;
 
       try {
+
         // Fetch user data
+        //Source: MDN Web Docs - Fetch API
         const response = await fetch(`http://localhost:5000/user/${userId}`, {
           method: 'GET',
           headers: {
@@ -53,6 +58,8 @@ function Dashboard() {
           },
         });
 
+      // Error handling fetchinh data 
+      // Source: MDN Web Docs - Fetch API
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.error || 'Failed to fetch user data');
@@ -62,6 +69,7 @@ function Dashboard() {
         setUserData(data);
 
         // Fetch risk assessment data
+        // Source: Stack Overflow - Fetch with Await
         const riskResponse = await fetch('http://localhost:5000/api/risk/score/calculate', {
           method: 'POST',
           headers: {
@@ -71,6 +79,8 @@ function Dashboard() {
           body: JSON.stringify({ userId }),
         });
 
+       // Error handling fetchinh data 
+      // Source: MDN Web Docs - Fetch API
         if (riskResponse.ok) {
           const risk = await riskResponse.json();
           setRiskData(risk); // Store risk score and level
@@ -79,6 +89,7 @@ function Dashboard() {
         }
 
         // Fetch risk levels
+        // Source: Stack Overflow - Fetch with Await
         const levelsResponse = await fetch('http://localhost:5000/api/risk/levels');
         if (levelsResponse.ok) {
           const levelsData = await levelsResponse.json();
@@ -96,8 +107,12 @@ function Dashboard() {
     fetchUserData();
   }, [navigate]);
 
+  // Fetch category scores
+  // Manage local state for catrgory scores 
   const [categoryScores, setCategoryScores] = useState([]);
 
+  //  Source: benmvp - "Handling Async in React useEffect"
+  // Source: Stack Overflow - Decode JWT Token in JavaScript
   useEffect(() => {
     const fetchCategoryScores = async () => {
         const token = localStorage.getItem('token');
@@ -110,6 +125,7 @@ function Dashboard() {
 
         try {
             console.log('Making API request for category scores'); // Debugging log
+            //Source: MDN Web Docs - Fetch API
             const response = await fetch(`http://localhost:5000/api/category-scores?userId=${userId}`, {
                 headers: {
                     'Content-Type': 'application/json',
@@ -134,6 +150,8 @@ function Dashboard() {
     fetchCategoryScores();
 }, []);
 
+// Navigation and routing
+//Source: React Router Documentation
   const handleLogout = () => {
     localStorage.removeItem('token');
     navigate('/login');
@@ -142,6 +160,8 @@ function Dashboard() {
   const handleHelpOpen = () => setHelpOpen(true);
   const handleHelpClose = () => setHelpOpen(false);
 
+  // Dashboard layout
+  // Reference: MUI Website
   return (
     <Box sx={{ maxWidth: 900, margin: 'auto', padding: 3 }}>
       {loading ? (

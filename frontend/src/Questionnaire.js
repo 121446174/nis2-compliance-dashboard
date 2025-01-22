@@ -53,6 +53,7 @@ function Questionnaire() {
                 console.log('Questionnaire.js - Retrieved values from token:', decodedToken);
 
                 // Ensure fallback for classificationType and userSectorId
+                // Validation Logic - https://apidog.com/blog/nodejs-express-get-query-params/?utm
                 if (!classificationType) console.log('Fallback classificationType:', decodedToken.classification);
                 if (!userSectorId) console.log('Fallback sectorId:', decodedToken.sectorId);
             } else {
@@ -61,6 +62,9 @@ function Questionnaire() {
         }
     }, [classificationType, userSectorId]);
 
+    // Fetch categories 
+    // Inspired Source: Using the Fetch API - MDN Web Docs Demonstrates checking response status before processing
+    // URL: https://developer.mozilla.org/en-US/docs/Web/API/fetch#checking_response_status
     useEffect(() => {
         const fetchCategories = async () => {
             try {
@@ -90,6 +94,7 @@ function Questionnaire() {
         fetchCategories();
     }, [classificationType]);
 
+// Fetch questions
     useEffect(() => {
         const fetchQuestions = async () => {
             if (!categoryId) return;
@@ -131,6 +136,9 @@ function Questionnaire() {
         setResponses((prev) => ({ ...prev, [questionId]: value }));
     };
 
+    // Using the Fetch API - MDN Web Docs
+    //POST request with body
+    // URL: https://developer.mozilla.org/en-US/docs/Web/API/fetch#checking_response_status
     const handleSubmitCategory = async () => {
         if (!questions.every((q) => responses[q.Question_ID] !== undefined)) {
             setError('Please answer all questions before submitting.');
@@ -178,6 +186,9 @@ function Questionnaire() {
         }
     };
 
+// This function dynamically renders input components based on the Answer_Type property of a question.
+// Reference: Conditional Rendering Components in React (YouTube)
+// Inspired Source: Youtube https://www.youtube.com/watch?v=xRKvjWDZlW8
     const renderInputForAnswerType = (question) => {
         switch (question.Answer_Type) {
             case 'yes_no':
@@ -232,6 +243,8 @@ function Questionnaire() {
     if (loading) return <CircularProgress />;
     if (error) return <Alert severity="error">{error}</Alert>;
 
+    //Inspired Source: Learn MUI (Material UI) in under 10 min! https://www.youtube.com/watch?v=FB-sKY63AWo
+    // Material-UI React Box API etc (https://mui.com/material-ui/react-box/)
     return (
         <Box className="questionnaire-container">
             <Stepper activeStep={categories.findIndex((c) => c.Category_ID === categoryId)} alternativeLabel>

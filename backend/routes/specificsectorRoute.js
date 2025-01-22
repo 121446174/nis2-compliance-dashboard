@@ -5,9 +5,11 @@ const auth = require('../middleware/auth');
 const router = express.Router();
 
 /// Route to fetch sector-specific questions
+// Mozilla Developer Network (MDN) inspired source "The router.get() method responds to HTTP GET requests at a specific path."
+// Execurting query - https://www.honeybadger.io/blog/using-sql-databases-in-javascript/
 router.get('/sector-specific', auth, async (req, res) => {
     const { sectorId } = req.query;
-    const resolvedSectorId = sectorId || req.user.sectorId;
+    const resolvedSectorId = sectorId || req.user.sectorId; //if the `sectorId`, the user's sector ID is used as a fallback.
 
     console.log('Resolved Sector ID:', resolvedSectorId); // Log sectorId being used
 
@@ -42,6 +44,7 @@ router.get('/sector-specific', auth, async (req, res) => {
 
 
 // Route to submit sector-specific answers
+// Inspired by Chatgpt propmt from previous iteration
 router.post('/submit-sector-answers', auth, async (req, res) => {
     const { userId, answers, sectorId } = req.body;
 
@@ -59,7 +62,7 @@ router.post('/submit-sector-answers', auth, async (req, res) => {
             let query, queryValues;
 
             if (answerType === 'yes_no') {
-                const responseValue = answer.response === "0" ? 0 : 1; // Yes = 0, No = 1
+                const responseValue = answer.response === "0" ? 0 : 1; 
                 query = `
                     INSERT INTO responses (User_ID, Question_ID, Answer, Sector_ID)
                     VALUES (?, ?, ?, ?)
@@ -68,6 +71,7 @@ router.post('/submit-sector-answers', auth, async (req, res) => {
                 queryValues = [userId, answer.questionId, responseValue, sectorId, responseValue, sectorId];
             } else if (answerType === 'text') {
                 // Check scoring rules for keyword or regex matches
+                // Inspired Source: https://forum.freecodecamp.org/t/nodejs-async-await-mysql-query-select-problem/410085/2
                 const [rules] = await db.query(
                     `SELECT Score_Impact 
                      FROM scoring_rules 
@@ -78,6 +82,7 @@ router.post('/submit-sector-answers', auth, async (req, res) => {
                 );
 
                 // Default score is 0 if no rule matches
+                // Inspired Source: https://dev.mysql.com/doc/refman/8.0/en/insert-on-duplicate.html
                 const responseValue = rules.length ? parseFloat(rules[0].Score_Impact) : 0;
 
                 query = `
@@ -101,7 +106,8 @@ router.post('/submit-sector-answers', auth, async (req, res) => {
                     'SELECT Score_Impact FROM scoring_rules WHERE Question_ID = ? AND Answer_Value = ?',
                     [answer.questionId, answer.response]
                 );
-
+             //Error handling for invalid data
+             // https://stackoverflow.com/questions/75014916/error-handling-array-map-is-not-a-function
                 if (!rules.length) {
                     throw new Error(`Invalid multiple-choice response: ${answer.response} for Question_ID: ${answer.questionId}`);
                 }
@@ -116,8 +122,8 @@ router.post('/submit-sector-answers', auth, async (req, res) => {
                 queryValues = [
                     userId,
                     answer.questionId,
-                    responseValue, // Numeric value from scoring rules
-                    answer.response, // Original MCQ text (e.g., "Annually")
+                    responseValue, 
+                    answer.response, 
                     sectorId,
                     responseValue,
                     answer.response,

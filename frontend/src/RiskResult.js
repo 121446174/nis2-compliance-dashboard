@@ -8,15 +8,20 @@ function RiskResults() {
     const [error, setError] = useState(null);
     const [riskLevels, setRiskLevels] = useState([]); // Fetch and pass riskLevels dynamically
 
+// Parse the jwt token too to extract user data
+// Reference: StakeOverflow - How to decode jwt token in javascript
     const token = localStorage.getItem('token');
     const userId = token ? JSON.parse(atob(token.split('.')[1])).userId : null;
 
+// Fetching Risk Data
+// Reference: benmvp - "Handling Async in React useEffect"
     useEffect(() => {
         const fetchRiskData = async () => {
             try {
                 if (!userId) throw new Error('User ID is missing.');
 
-                // Fetch risk score
+// Fetch risk score  
+// Reference: Stakeoverflow - How to fetch with await
                 const response = await fetch('http://localhost:5000/api/risk/score/calculate', {
                     method: 'POST',
                     headers: {
@@ -30,7 +35,7 @@ function RiskResults() {
                 const riskData = await response.json();
                 setRiskResult(riskData);
 
-                // Fetch risk levels
+    // Fetch risk levels
                 const levelsResponse = await fetch('http://localhost:5000/api/risk/levels');
                 if (!levelsResponse.ok) throw new Error('Failed to fetch risk levels.');
 
@@ -46,9 +51,13 @@ function RiskResults() {
         fetchRiskData();
     }, [userId]);
 
+    // Loading spinners while waiting for data
+    // Reference: MUI - Circular Progress
     if (loading) return <CircularProgress />;
     if (error) return <Alert severity="error">{error}</Alert>;
 
+    // Accessing nested properties of the risk score object and formatting numbers to two decimal places.
+    // Risk Score: MDM web doc - Optional chaining (?.) and Number.prototype.toFixed()
     return (
         <Box>
             <Typography variant="h4" gutterBottom>
