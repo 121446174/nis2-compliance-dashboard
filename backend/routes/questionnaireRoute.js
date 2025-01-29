@@ -6,7 +6,6 @@
 const express = require('express');
 const db = require('../db');
 const auth = require('../middleware/auth');
-
 const router = express.Router();
 
 // Route to fetch questions based on classification and category
@@ -94,22 +93,53 @@ router.post('/submit-answers', auth, async (req, res) => {
             } else if (answerType === 'text') {
                 // Check scoring rules for keyword or regex matches
                 // Inspired Source: https://forum.freecodecamp.org/t/nodejs-async-await-mysql-query-select-problem/410085/2
-                const [rules] = await db.query(
-                    `SELECT Score_Impact 
-                     FROM scoring_rules 
-                     WHERE Question_ID = ? 
-                     AND Match_Type IN ('keyword', 'regex') 
-                     AND ? LIKE CONCAT('%', Answer_Value, '%')`,
-                    [answer.questionId, answer.response]
-                );
+                const [rules] = await db.query(`
+                    SELECT Score_Impact, Answer_Value
+                    FROM scoring_rules
+                    WHERE Question_ID = ?
+                      AND Match_Type = 'keyword'
+                `, [answer.questionId]);
+            
+                //MAYBE NEW REFERENCE 
                 // Default to 0 if no scoring rule matches
                 // Inspired Source: https://dev.mysql.com/doc/refman/8.0/en/insert-on-duplicate.html
-                const responseValue = rules.length ? parseFloat(rules[0].Score_Impact) : 0;
+                let maxImpact = 0;
+                const userResponseLower = answer.response.toLowerCase();
+            //NEW REFERENCE NEEDED
+                for (const rule of rules) {
+                    // Fetch synonyms from the DB instead of a hardcoded file
+                    const [synonymResults] = await db.query(`
+                        SELECT Synonym FROM synonyms WHERE Keyword = ?
+                    `, [rule.Answer_Value]);
             
-                query = `INSERT INTO responses (User_ID, Question_ID, Answer, Processed_Value, Category_ID) VALUES (?, ?, ?, ?, ?)
-                    ON DUPLICATE KEY UPDATE Answer = ?, Processed_Value = ?;
+                    const syns = synonymResults.map(row => row.Synonym);
+                    syns.push(rule.Answer_Value); // Include the original keyword
+            
+                    console.log(`Synonyms for "${rule.Answer_Value}":`, syns);
+            
+                    for (const candidate of syns) {
+                        if (userResponseLower.includes(candidate.toLowerCase())) {
+                            console.log(`Match found: ${candidate}`);
+                            maxImpact = Math.max(maxImpact, parseFloat(rule.Score_Impact));
+                            break;
+                        }
+                    }
+                }
+            
+                query = `
+                  INSERT INTO responses (User_ID, Question_ID, Answer, Processed_Value, Category_ID)
+                  VALUES (?, ?, ?, ?, ?)
+                  ON DUPLICATE KEY UPDATE Answer = ?, Processed_Value = ?
                 `;
-                queryValues = [ userId, answer.questionId, responseValue, answer.response, categoryId, responseValue, answer.response];
+                queryValues = [
+                    userId,
+                    answer.questionId,
+                    maxImpact,
+                    answer.response,
+                    categoryId,
+                    maxImpact,
+                    answer.response
+                ];
             } else if (answerType === 'multiple_choice') {
                 // Fetch numeric value for the user's choice
                 // await sync: https://forum.freecodecamp.org/t/nodejs-async-await-mysql-query-select-problem/410085/2
@@ -144,3 +174,4 @@ router.post('/submit-answers', auth, async (req, res) => {
 });
 
 module.exports = router;
+

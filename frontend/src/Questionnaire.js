@@ -22,6 +22,7 @@ import {
     FormControl,
     RadioGroup,
     FormControlLabel,
+    TextField,
     Radio,
 } from '@mui/material';
 import { UserContext } from './UserContext';
@@ -206,12 +207,15 @@ function Questionnaire() {
                 );
             case 'text':
                 return (
-                    <textarea
-                        value={responses[question.Question_ID] || ''}
-                        onChange={(e) => handleResponseChange(question.Question_ID, e.target.value)}
-                        placeholder="Type your answer here..."
-                        className="text-input"
-                    />
+                    <TextField
+                    fullWidth
+                    multiline
+                    rows={3}
+                    value={responses[question.Question_ID] || ''}
+                    onChange={(e) => handleResponseChange(question.Question_ID, e.target.value)}
+                    placeholder="Enter your response here"
+                    variant="outlined"
+                />
                 );
                 case 'multiple_choice':
                     const options = Array.isArray(question.MCQ_Options)

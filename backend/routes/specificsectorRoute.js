@@ -45,6 +45,7 @@ router.get('/sector-specific', auth, async (req, res) => {
 
 // Route to submit sector-specific answers
 // Inspired by Chatgpt prompt from previous iteration
+// Route to submit sector-specific answers
 router.post('/submit-sector-answers', auth, async (req, res) => {
     const { userId, answers, sectorId } = req.body;
 
@@ -59,7 +60,8 @@ router.post('/submit-sector-answers', auth, async (req, res) => {
 
         const answerPromises = answers.map(async (answer) => {
             const answerType = questionMap[answer.questionId];
-            let query, queryValues;
+            let query = null; // Ensure query is initialized
+            let queryValues = []; // Ensure queryValues is always an array
 
             if (answerType === 'yes_no') {
                 const responseValue = answer.response === "0" ? 0 : 1; 
@@ -69,66 +71,85 @@ router.post('/submit-sector-answers', auth, async (req, res) => {
                     ON DUPLICATE KEY UPDATE Answer = ?, Sector_ID = ?;
                 `;
                 queryValues = [userId, answer.questionId, responseValue, sectorId, responseValue, sectorId];
+
             } else if (answerType === 'text') {
-                // Check scoring rules for keyword or regex matches
+                // Fetch scoring rules for the question
+                 // Check scoring rules for keyword or regex matches
                 // Inspired Source: https://forum.freecodecamp.org/t/nodejs-async-await-mysql-query-select-problem/410085/2
-                const [rules] = await db.query(
-                    `SELECT Score_Impact 
-                     FROM scoring_rules 
-                     WHERE Question_ID = ? 
-                     AND Match_Type IN ('keyword', 'regex') 
-                     AND ? LIKE CONCAT('%', Answer_Value, '%')`,
-                    [answer.questionId, answer.response]
-                );
+                const [rules] = await db.query(`
+                    SELECT Score_Impact, Answer_Value
+                    FROM scoring_rules
+                    WHERE Question_ID = ?
+                      AND Match_Type = 'keyword'
+                `, [answer.questionId]);
+
+                console.log('Rules fetched for Question_ID:', answer.questionId, rules);
 
                 // Default score is 0 if no rule matches
                 // Inspired Source: https://dev.mysql.com/doc/refman/8.0/en/insert-on-duplicate.html
-                const responseValue = rules.length ? parseFloat(rules[0].Score_Impact) : 0;
+                let maxImpact = 0;
+                const userResponseLower = answer.response ? answer.response.toLowerCase() : '';
 
+                // Ensure user response exists
+                if (!userResponseLower) {
+                    console.error('User response is missing or empty for Question_ID:', answer.questionId);
+                    throw new Error('Invalid user response');
+                }
+
+                for (const rule of rules) {
+                    // Fetch synonyms for the keyword from the database
+                    //REFERENCE
+                    const [synonymResults] = await db.query(`
+                        SELECT Synonym FROM synonyms WHERE Keyword = ? AND Question_ID = ?
+                    `, [rule.Answer_Value, answer.questionId]); //  Ensuring synonyms are for the correct question
+
+                    console.log(`Synonyms for "${rule.Answer_Value}":`, synonymResults);
+
+                    const syns = synonymResults.map(row => row.Synonym);
+                    syns.push(rule.Answer_Value); // Include the original keyword
+
+                    for (const candidate of syns) {
+                        if (userResponseLower.includes(candidate.toLowerCase())) {
+                            console.log(`Match found: ${candidate}`);
+                            maxImpact = Math.max(maxImpact, parseFloat(rule.Score_Impact));
+                            break; // Stop checking once a match is found
+                        }
+                    }
+                }
+
+                console.log('Max Impact for Question_ID:', answer.questionId, 'is:', maxImpact);
+
+                // Ensure query is defined before executing
                 query = `
-                    INSERT INTO responses (User_ID, Question_ID, Answer, Processed_Value, Sector_ID)
-                    VALUES (?, ?, ?, ?, ?)
-                    ON DUPLICATE KEY UPDATE Answer = ?, Processed_Value = ?, Sector_ID = ?;
+                  INSERT INTO responses (User_ID, Question_ID, Answer, Processed_Value, Sector_ID)
+                  VALUES (?, ?, ?, ?, ?)
+                  ON DUPLICATE KEY UPDATE Answer = ?, Processed_Value = ?, Sector_ID = ?;
                 `;
-                queryValues = [
-                    userId,
-                    answer.questionId,
-                    responseValue, // Scored numeric value or 0 if no match
-                    answer.response, // Original text response
-                    sectorId,
-                    responseValue,
-                    answer.response,
-                    sectorId,
-                ];
+                queryValues = [userId, answer.questionId, maxImpact, answer.response, sectorId, maxImpact, answer.response, sectorId];
+
+                console.log('Query values for text response:', queryValues);
+
             } else if (answerType === 'multiple_choice') {
                 // Fetch the numeric value (Score_Impact) for the MCQ response
-                const [rules] = await db.query(
-                    'SELECT Score_Impact FROM scoring_rules WHERE Question_ID = ? AND Answer_Value = ?',
-                    [answer.questionId, answer.response]
-                );
+                const [rules] = await db.query(`
+                    SELECT Score_Impact FROM scoring_rules
+                    WHERE Question_ID = ? AND LOWER(Answer_Value) = LOWER(?)
+                `, [answer.questionId, answer.response]);
              //Error handling for invalid data
              // https://stackoverflow.com/questions/75014916/error-handling-array-map-is-not-a-function
                 if (!rules.length) {
+                    console.error(`Invalid MCQ response: ${answer.response} for Question_ID: ${answer.questionId}`);
                     throw new Error(`Invalid multiple-choice response: ${answer.response} for Question_ID: ${answer.questionId}`);
                 }
 
-                const responseValue = rules[0].Score_Impact; // Numeric value for scoring
-
+                const responseValue = rules[0].Score_Impact;
                 query = `
                     INSERT INTO responses (User_ID, Question_ID, Answer, Processed_Value, Sector_ID)
                     VALUES (?, ?, ?, ?, ?)
                     ON DUPLICATE KEY UPDATE Answer = ?, Processed_Value = ?, Sector_ID = ?;
                 `;
-                queryValues = [
-                    userId,
-                    answer.questionId,
-                    responseValue, 
-                    answer.response, 
-                    sectorId,
-                    responseValue,
-                    answer.response,
-                    sectorId,
-                ];
+                queryValues = [userId, answer.questionId, responseValue, answer.response, sectorId, responseValue, answer.response, sectorId];
+
             } else if (answerType === 'numeric') {
                 const responseValue = parseInt(answer.response, 10);
                 query = `
@@ -139,7 +160,13 @@ router.post('/submit-sector-answers', auth, async (req, res) => {
                 queryValues = [userId, answer.questionId, responseValue, sectorId, responseValue, sectorId];
             }
 
-            return db.query(query, queryValues);
+            //  Ensure query and queryValues exist before running the query
+            if (query && queryValues.length > 0) {
+                return db.query(query, queryValues);
+            } else {
+                console.error(`Skipping invalid query for Question_ID: ${answer.questionId}`);
+                return Promise.resolve(); // Prevents errors when query is undefined
+            }
         });
 
         await Promise.all(answerPromises);
