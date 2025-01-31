@@ -90,7 +90,7 @@ router.post('/score/calculate', auth, async (req, res) => {
         //https://www.programiz.com/sql/between-operator
         const [riskLevel] = await connection.query(
             'SELECT Risk_Level FROM risk_levels WHERE ? BETWEEN Min_Score AND Max_Score',
-            [totalScore]
+            [normalizedScore]
         );
         const level = riskLevel[0]?.Risk_Level || 'Unknown';
 
@@ -100,13 +100,14 @@ router.post('/score/calculate', auth, async (req, res) => {
         // Inspired by Stack Overflow - Async/Await for MySQL Transactions in Node.js
         // Source: https://stackoverflow.com/questions/59749045/cant-use-async-await-to-mysql-transaction-using-nodejs
         await connection.query(
-            `INSERT INTO risk_score (User_ID, Score_Value, Max_Value, Risk_Level)
-             VALUES (?, ?, ?, ?)
+            `INSERT INTO risk_score (User_ID, Score_Value, Max_Value, Normalized_Score, Risk_Level)
+             VALUES (?, ?, ?, ?, ?)
              ON DUPLICATE KEY UPDATE
              Score_Value = VALUES(Score_Value),
              Max_Value = VALUES(Max_Value),
+             Normalized_Score = VALUES(Normalized_Score),
              Risk_Level = VALUES(Risk_Level)`,
-            [userId, totalScore, maxPossibleScore, level]
+            [userId, totalScore, maxPossibleScore, normalizedScore, level]
         );
         
 

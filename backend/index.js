@@ -14,6 +14,7 @@ const questionnaireRoute = require('./routes/questionnaireRoute'); // Import que
 const specificsectorRoute = require('./routes/specificsectorRoute'); // Import sector-specific route
 const riskScoreRoute = require('./routes/riskScore');
 const categoryScores = require('./routes/categoryScores');
+const recommendationsRoute = require('./routes/recommendations');
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -36,6 +37,7 @@ app.use('/api/questionnaire', questionnaireRoute); // Mount questionnaire route
 app.use('/api/questionnaire', specificsectorRoute); // Mount specific sector route
 app.use('/api/risk', riskScoreRoute); // Mount Risk Score route
 app.use('/api', categoryScores); 
+app.use('/api/recommendations', recommendationsRoute);
 
 // Start the server - verify server running
 app.listen(port, () => {

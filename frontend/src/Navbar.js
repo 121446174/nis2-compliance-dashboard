@@ -28,7 +28,7 @@ function Navbar() {
     { text: 'Login', path: '/login', icon: <LoginIcon /> },
     { text: 'Dashboard', path: '/dashboard', icon: <DashboardIcon /> },
     { text: 'Questionnaire', path: '/questionnaire', icon: <QuestionAnswerIcon /> },
-    { text: 'Roadmap', path: '/roadmap', icon: <MapIcon /> },
+    { text: 'Recommendations', path: '/recommendations', icon: <AssessmentIcon /> },
     { text: 'Benchmarking', path: '/benchmarking', icon: <AssessmentIcon /> },
     { text: 'Incident Reports', path: '/incident-reports', icon: <ReportIcon /> },
   ];

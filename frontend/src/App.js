@@ -12,6 +12,8 @@ import Questionnaire from './Questionnaire';
 import { UserProvider } from './UserContext';
 import SectorSpecificQuestions from './SectorSpecificQuestions';
 import RiskScore from './RiskResult';
+import Recommendations from './Recommendations';
+
 
 
 function App() {
@@ -26,6 +28,7 @@ function App() {
           <Route path="/questionnaire" element={<Questionnaire />} />
           <Route path="/sector-specific" element={<SectorSpecificQuestions />} /> 
           <Route path="/risk-score" element={<RiskScore />} />
+          <Route path="/recommendations" element={<Recommendations />} />
         </Routes>
       </Router>
     </UserProvider>
