@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Box } from '@mui/material';
 import Navbar from './Navbar';
 import Registration from './Registration';
 import Login from './Login';
@@ -14,28 +15,32 @@ import SectorSpecificQuestions from './SectorSpecificQuestions';
 import RiskScore from './RiskResult';
 import Recommendations from './Recommendations';
 
-
-
 function App() {
   return (
     <UserProvider>
       <Router>
-        <Navbar />
-        <Routes>
-          <Route path="/" element={<Registration />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/questionnaire" element={<Questionnaire />} />
-          <Route path="/sector-specific" element={<SectorSpecificQuestions />} /> 
-          <Route path="/risk-score" element={<RiskScore />} />
-          <Route path="/recommendations" element={<Recommendations />} />
-        </Routes>
+        <Box sx={{ display: 'flex', height: '100vh' }}>
+          {/* Sidebar (Fixed Width) */}
+          <Box sx={{ width: '240px', flexShrink: 0 }}>
+            <Navbar />
+          </Box>
+
+          {/* Main Content (Takes Remaining Space) */}
+          <Box sx={{ flexGrow: 1, p: 3 }}>  
+            <Routes>
+              <Route path="/" element={<Registration />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/questionnaire" element={<Questionnaire />} />
+              <Route path="/sector-specific" element={<SectorSpecificQuestions />} /> 
+              <Route path="/risk-score" element={<RiskScore />} />
+              <Route path="/recommendations" element={<Recommendations />} />
+            </Routes>
+          </Box>
+        </Box>
       </Router>
     </UserProvider>
   );
 }
 
 export default App;
-
-
-
