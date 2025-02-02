@@ -1,34 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import {
-    Typography, Box, CircularProgress, Alert, Grid, Paper
+    Typography, Box, CircularProgress, Alert, Table, TableBody, TableCell,
+    TableContainer, TableHead, TableRow, Paper, TextField, MenuItem, Select, InputLabel, FormControl
 } from '@mui/material';
 
-// Define risk level priorities
+// Define risk level priorities for sorting
 const riskLevelsOrder = { 'Critical': 1, 'Very High': 2, 'High': 3, 'Medium': 4, 'Low': 5 };
 
-// Define colors based on risk level
+// Define colors for risk levels
 const riskColors = {
-    'Critical': '#d32f2f',  // Red
-    'Very High': '#ff5722', // Deep Orange
-    'High': '#ff9800',      // Orange
-    'Medium': '#ffeb3b',    // Yellow
-    'Low': '#4caf50'        // Green
+    Critical: '#ffcccc',  // Light Red
+    'Very High': '#ffeb99', // Light Yellow
+    High: '#ffcc99',  // Orange
+    Medium: '#ccffcc', // Light Green
+    Low: '#e6f7ff'  // Light Blue
 };
-
-// Define categories
-const categories = [
-    { id: 'governance', name: 'Governance' },
-    { id: 'third_party', name: 'Third Party Risk Management' },
-    { id: 'incident_response', name: 'Incident Response' },
-    { id: 'supply_chain', name: 'Supply Chain' },
-    { id: 'sector', name: 'Sector-Specific Recommendations' }
-];
 
 function Recommendations() {
     const [loading, setLoading] = useState(true);
     const [recommendations, setRecommendations] = useState([]);
-    const [categoryRisks, setCategoryRisks] = useState({});
-    const [error, setError] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterRisk, setFilterRisk] = useState('');
+    const [filterCategory, setFilterCategory] = useState('');
+    const [sortOrder, setSortOrder] = useState('desc'); // Default: Highest Risk First
 
     const token = localStorage.getItem('token');
     const userId = token ? JSON.parse(atob(token.split('.')[1])).userId : null;
@@ -45,19 +39,13 @@ function Recommendations() {
                 if (!response.ok) throw new Error('Failed to fetch recommendations.');
                 
                 const result = await response.json();
-                const recommendations = result || [];
-
-                console.log("✅ API Response: ", recommendations);
-
-                // ✅ FIXED: Sort recommendations by risk level dynamically
-                const sortedRecs = [...recommendations].sort((a, b) => 
+                const sortedRecs = result.sort((a, b) => 
                     (riskLevelsOrder[a.risk_level] || 99) - (riskLevelsOrder[b.risk_level] || 99)
                 );
 
                 setRecommendations(sortedRecs);
             } catch (err) {
                 console.error('Error fetching recommendations:', err);
-                setError(err.message);
             } finally {
                 setLoading(false);
             }
@@ -67,81 +55,109 @@ function Recommendations() {
     }, [userId]);
 
     if (loading) return <CircularProgress />;
-    if (error) return <Alert severity="error">{error}</Alert>;
+    if (!recommendations.length) return <Alert severity="info">No recommendations available.</Alert>;
 
-    // ✅ FIXED: Categorize recommendations properly
-    const categorizedRecs = {
-        governance: [],
-        third_party: [],
-        incident_response: [],
-        supply_chain: [],
-        sector: []
-    };
+   // ✅ Filter + Sort Recommendations
+   const filteredRecommendations = recommendations
+   .filter(rec => 
+       rec.recommendation_text.toLowerCase().includes(searchTerm.toLowerCase()) &&
+       (filterRisk ? rec.risk_level === filterRisk : true) &&
+       (filterCategory ? rec.category_name === filterCategory : true) // ✅ FIXED: Now it properly filters by category
+   )
+   .sort((a, b) => 
+       sortOrder === 'asc' 
+           ? (riskLevelsOrder[b.risk_level] || 99) - (riskLevelsOrder[a.risk_level] || 99)  // ✅ FIXED: Sort correctly
+           : (riskLevelsOrder[a.risk_level] || 99) - (riskLevelsOrder[b.risk_level] || 99)
+   );
 
-    recommendations.forEach((rec) => {
-        if (rec.sector_id) {
-            categorizedRecs.sector.push(rec); // ✅ FIXED: Adding sector recommendations
-        } else if (rec.category_id === 1) {
-            categorizedRecs.governance.push(rec);
-        } else if (rec.category_id === 5 || rec.category_id === 6) {
-            categorizedRecs.third_party.push(rec);
-        } else if (rec.category_id === 3) {
-            categorizedRecs.incident_response.push(rec);
-        } else {
-            categorizedRecs.supply_chain.push(rec);
+            return ( 
+                <Box sx={{ maxWidth: 1200, mx: 'auto', p: 3 }}>
+                    <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', textAlign: 'center' }}>
+                        Your Personalised Cybersecurity Recommendations
+                    </Typography>
+        
+                    {/* ✅ Search & Filter Options */}
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+                        <TextField 
+                            label="Search Recommendations" 
+                            variant="outlined"
+                            size="small"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            sx={{ width: '30%' }}
+                        />
+        
+                        {/* Filter by Risk */}
+                        <FormControl sx={{ minWidth: 150 }}>
+                            <InputLabel>Filter by Risk</InputLabel>
+                            <Select
+                                value={filterRisk}
+                                onChange={(e) => setFilterRisk(e.target.value)}
+                            >
+                                <MenuItem value="">All</MenuItem>
+                                <MenuItem value="Critical">Critical</MenuItem>
+                                <MenuItem value="Very High">Very High</MenuItem>
+                                <MenuItem value="High">High</MenuItem>
+                                <MenuItem value="Medium">Medium</MenuItem>
+                                <MenuItem value="Low">Low</MenuItem>
+                            </Select>
+                        </FormControl>
+        
+                        {/* Filter by Category */}
+                        <FormControl sx={{ minWidth: 150 }}>
+                            <InputLabel>Filter by Category</InputLabel>
+                            <Select
+                                value={filterCategory}
+                                onChange={(e) => setFilterCategory(e.target.value)}
+                            >
+                                <MenuItem value="">All</MenuItem>
+                                {Array.from(new Set(recommendations.map(rec => rec.category_name)))
+                                    .map(category => <MenuItem key={category} value={category}>{category}</MenuItem>)}
+                            </Select>
+                        </FormControl>
+        
+                        {/* Sort by Risk Level */}
+                        <FormControl sx={{ minWidth: 150 }}>
+                            <InputLabel>Sort by Risk</InputLabel>
+                            <Select
+                                value={sortOrder}
+                                onChange={(e) => setSortOrder(e.target.value)}
+                            >
+                                <MenuItem value="asc">Highest Risk First</MenuItem> {/* ✅ FIXED: Proper sorting label */}
+                                <MenuItem value="desc">Lowest Risk First</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Box>
+        
+                    {/* ✅ Recommendations Table */}
+                    <TableContainer component={Paper}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell><strong>Category</strong></TableCell>
+                                    <TableCell><strong>Risk Level</strong></TableCell>
+                                    <TableCell><strong>Recommendation</strong></TableCell>
+                                    <TableCell><strong>Impact</strong></TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {filteredRecommendations.map((rec) => (
+                                    <TableRow key={rec.id}>
+                                        <TableCell>{rec.category_name || 'Sector-Specific'}</TableCell>
+                                        <TableCell 
+                                            sx={{ backgroundColor: riskColors[rec.risk_level] || 'white' }}
+                                        >
+                                            {rec.risk_level}
+                                        </TableCell>
+                                        <TableCell>{rec.recommendation_text}</TableCell>
+                                        <TableCell>{rec.impact}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Box>
+            );
         }
-    });
-
-    console.log("✅ Categorized Recommendations: ", categorizedRecs);
-
-    return (
-        <Box sx={{ maxWidth: 1200, mx: 'auto', p: 3 }}>
-            <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', textAlign: 'center' }}>
-                Your Personalised Cybersecurity Recommendations
-            </Typography>
-
-            <Grid container spacing={3}>
-                {categories.map(({ id, name }) => (
-                    <Grid item xs={12} sm={6} key={id}>
-                        <Paper elevation={3} sx={{ p: 3, backgroundColor: '#f5f5f5' }}>
-                            <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2, textAlign: 'center' }}>
-                                {name}
-                            </Typography>
-                            {categorizedRecs[id].length === 0 ? (
-                                <Typography variant="body2" sx={{ color: 'gray', textAlign: 'center' }}>
-                                    No recommendations in this category.
-                                </Typography>
-                            ) : (
-                                categorizedRecs[id].map((rec) => (
-                                    <Paper
-                                        key={rec.id}
-                                        sx={{
-                                            p: 2, mb: 2,
-                                            backgroundColor: riskColors[rec.risk_level] || '#ffffff',
-                                            color: rec.risk_level === 'Low' ? 'black' : 'white'
-                                        }}
-                                    >
-                                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-                                            {rec.recommendation_text}
-                                        </Typography>
-                                        <Typography variant="body2">
-                                            <strong>Impact:</strong> {rec.impact}
-                                        </Typography>
-                                    </Paper>
-                                ))
-                            )}
-                        </Paper>
-                    </Grid>
-                ))}
-            </Grid>
-        </Box>
-    );
-}
-
-export default Recommendations;
-
-
-
-
-
-
+        
+        export default Recommendations;
