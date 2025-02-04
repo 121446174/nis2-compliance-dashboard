@@ -28,7 +28,8 @@ function Navbar() {
     { text: 'Questionnaire', path: '/questionnaire', icon: <QuestionAnswerIcon /> },
     { text: 'Recommendations', path: '/recommendations', icon: <AssessmentIcon /> },
     { text: 'Benchmarking', path: '/benchmarking', icon: <AssessmentIcon /> },
-    { text: 'Incident Reports', path: '/incident-reports', icon: <ReportIcon /> },
+    { text: 'Incident Reports', path: '/incidents', icon: <ReportIcon /> }
+
   ];
   
 // Material UI AppBar Documentation for implementation details:
