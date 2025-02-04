@@ -166,6 +166,7 @@ const IncidentDashboard = () => {
                             <TableCell><strong>Date</strong></TableCell>
                             <TableCell><strong>Severity</strong></TableCell>
                             <TableCell><strong>Description</strong></TableCell>
+                            <TableCell><strong>Status & Deadlines</strong></TableCell>
                             <TableCell align="right"><strong>Actions</strong></TableCell>
                         </TableRow>
                     </TableHead>
@@ -175,6 +176,17 @@ const IncidentDashboard = () => {
                                 <TableCell>{new Date(incident.date_time).toLocaleString()}</TableCell>
                                 <TableCell>{incident.severity}</TableCell>
                                 <TableCell>{incident.description}</TableCell>
+                                <TableCell>
+                                    <Typography variant="caption" sx={{ display: "block", color: "#d32f2f" }}>
+                                        ⏳ Early Warning Due: {new Date(incident.early_warning_due).toLocaleString()}
+                                    </Typography>
+                                    <Typography variant="caption" sx={{ display: "block", color: "#ff5722" }}>
+                                        🚨 Official Notification Due: {new Date(incident.official_notification_due).toLocaleString()}
+                                    </Typography>
+                                    <Typography variant="caption" sx={{ display: "block", color: "#388e3c" }}>
+                                        ✅ Final Report Due: {new Date(incident.final_report_due).toLocaleString()}
+                                    </Typography>
+                                </TableCell>
                                 <TableCell align="right">
                                     <Button variant="contained" color="warning" size="small" sx={{ mr: 1 }} onClick={() => handleEditOpen(incident)}>
                                         ✏️ Edit
@@ -199,4 +211,6 @@ const IncidentDashboard = () => {
 };
 
 export default IncidentDashboard;
+
+
 
