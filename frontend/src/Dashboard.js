@@ -19,16 +19,21 @@ import {
   Card,
   CardContent,
 } from '@mui/material';
+import { Bar } from 'react-chartjs-2';
 import RiskChart from './RiskChart'; // Import the RiskChart component
 
 function Dashboard() {
-  const navigate = useNavigate();
-  const [userData, setUserData] = useState(null);
-  const [riskData, setRiskData] = useState(null); 
-  const [riskLevels, setRiskLevels] = useState([]); 
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [helpOpen, setHelpOpen] = useState(false); 
+    const navigate = useNavigate();
+    const [userData, setUserData] = useState(null);
+    const [riskData, setRiskData] = useState(null);
+    const [riskLevels, setRiskLevels] = useState([]);
+    const [recommendations, setRecommendations] = useState([]);
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [helpOpen, setHelpOpen] = useState(false);
+    const [allRecommendations, setAllRecommendations] = useState([]);  
+const [topRecommendations, setTopRecommendations] = useState([]);  
+
 
   // Fetch user data
   // Source: StakeOverflow - LocalStorage getItem token 
@@ -149,6 +154,139 @@ function Dashboard() {
 
     fetchCategoryScores();
 }, []);
+
+// Top 5 Recommendations
+useEffect(() => {
+  const fetchRecommendations = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    const userId = JSON.parse(atob(token.split('.')[1])).userId;
+    try {
+      console.log('Fetching recommendations...');
+
+      const response = await fetch(`http://localhost:5000/api/recommendations/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!response.ok) throw new Error('Failed to fetch recommendations');
+
+      let recs = await response.json();
+      console.log('📊 All Recommendations Data:', recs); // ✅ Debugging log
+
+      // ✅ Store ALL recommendations for the chart
+      setAllRecommendations(recs);
+    } catch (err) {
+      console.error('❌ Error fetching recommendations:', err);
+    }
+  };
+
+  fetchRecommendations();
+}, []);
+
+// ✅ Process TOP 5 Recommendations Separately
+useEffect(() => {
+  if (allRecommendations.length > 0) {
+    console.log('🔄 Processing top 5 recommendations...');
+    
+    const riskLevelsOrder = { Critical: 1, "Very High": 2, High: 3, Medium: 4, Low: 5 };
+    
+    const sortedTop5 = [...allRecommendations]
+      .filter(rec => rec.risk_level) // Ensure valid risk levels
+      .sort((a, b) => (riskLevelsOrder[a.risk_level] || 99) - (riskLevelsOrder[b.risk_level] || 99)) // Sort by risk level
+      .slice(0, 5); // Get only the Top 5
+
+    console.log('🔥 Top 5 Sorted Recommendations:', sortedTop5); // ✅ Debugging log
+    setTopRecommendations(sortedTop5);
+  }
+}, [allRecommendations]); // Runs when `allRecommendations` updates
+
+// Recommendations
+// ✅ Fetch ALL recommendations & store separately
+useEffect(() => {
+  const fetchRecommendations = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    const userId = JSON.parse(atob(token.split('.')[1])).userId;
+    try {
+      console.log('Fetching recommendations...');
+
+      const response = await fetch(`http://localhost:5000/api/recommendations/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!response.ok) throw new Error('Failed to fetch recommendations');
+
+      let recs = await response.json();
+      console.log('Raw Recommendations:', recs); // ✅ Debugging log
+
+      // ✅ Store ALL recommendations for the chart
+      setAllRecommendations(recs);
+
+      // ✅ Filter only the TOP 5 recommendations for the list
+      const sortedTop5 = recs
+        .filter(rec => rec.risk_level) // Ensure valid risk levels
+        .sort((a, b) => {
+          const riskLevelsOrder = { Critical: 1, "Very High": 2, High: 3, Medium: 4, Low: 5 };
+          return (riskLevelsOrder[a.risk_level] || 99) - (riskLevelsOrder[b.risk_level] || 99);
+        })
+        .slice(0, 5); // Get only the Top 5
+
+      console.log('Filtered & Sorted Top 5 Recommendations:', sortedTop5); // ✅ Debugging log
+      setTopRecommendations(sortedTop5);
+      
+    } catch (err) {
+      console.error('Error fetching recommendations:', err);
+    }
+  };
+
+  fetchRecommendations();
+}, []);
+
+// ✅ FIX CHART DATA (Use all recommendations)
+const getRiskChartData = () => {
+  console.log("📊 All Recommendations Data:", allRecommendations); // Debugging log
+
+  if (!allRecommendations || allRecommendations.length === 0) {
+    console.warn("⚠️ No recommendations available! Defaulting to zeros.");
+    return {
+      labels: ['Low', 'Medium', 'High', 'Very High', 'Critical'],
+      datasets: [
+        {
+          label: 'Risk Distribution',
+          data: [0, 0, 0, 0, 0], // Default empty values
+          backgroundColor: ['#4caf50', '#ffeb3b', '#ffa000', '#ff5733', '#d32f2f'],
+        },
+      ],
+    };
+  }
+
+  // ✅ Count risk levels dynamically
+  const riskLevels = ['Low', 'Medium', 'High', 'Very High', 'Critical'];
+  const riskCounts = { Low: 0, Medium: 0, High: 0, 'Very High': 0, Critical: 0 };
+
+  allRecommendations.forEach((rec) => {
+    if (rec.risk_level && riskCounts.hasOwnProperty(rec.risk_level)) {
+      riskCounts[rec.risk_level]++;
+    }
+  });
+
+  console.log("📊 Final Risk Counts (ALL RECOMMENDATIONS):", riskCounts); // Debugging log
+
+  return {
+    labels: riskLevels,
+    datasets: [
+      {
+        label: 'Risk Distribution',
+        data: riskLevels.map(level => riskCounts[level] || 0), // Ensure all risk levels are accounted for
+        backgroundColor: ['#4caf50', '#ffeb3b', '#ffa000', '#ff5733', '#d32f2f'],
+      },
+    ],
+  };
+};
+
+
 
 // Navigation and routing
 //Source: React Router Documentation
@@ -275,7 +413,40 @@ function Dashboard() {
               </Card>
             </Grid>
           </Grid>
-  
+          <Grid container spacing={3} sx={{ mt: 2 }}>
+          <Grid item xs={12} md={6}>
+  <Card>
+    <CardContent>
+      <Typography variant="h6">📊 Risk Level Distribution</Typography>
+      <Bar data={getRiskChartData()} options={{ responsive: true, maintainAspectRatio: true }} height={150} />
+    </CardContent>
+  </Card>
+</Grid>
+
+          
+
+ <Grid item xs={12} md={6}>
+  <Card>
+    <CardContent>
+      <Typography variant="h6">⭐ Top 5 Risk-Based Recommendations</Typography>
+      {topRecommendations.length > 0 ? (
+  <ul>
+    {topRecommendations.map((rec, index) => (
+
+            <li key={index}>
+              <strong>{rec.category_name} ({rec.risk_level} Risk):</strong> {rec.recommendation_text}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <Typography>No recommendations available.</Typography>
+      )}
+    </CardContent>
+  </Card>
+</Grid>
+
+          </Grid>
+
           {/* Help Dialog */}
           <Dialog open={helpOpen} onClose={handleHelpClose}>
             <DialogTitle>How to Use the Dashboard</DialogTitle>
@@ -297,5 +468,6 @@ function Dashboard() {
     </Box>
   );
 }
+
 
 export default Dashboard;
