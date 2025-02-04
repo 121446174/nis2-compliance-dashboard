@@ -1,16 +1,16 @@
-import { Bar } from 'react-chartjs-2'; 
+import { Bar } from 'react-chartjs-2';
 import { Chart, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import React, { useState, useEffect } from 'react';
 import {
     Typography, Box, Table, TableBody, TableCell, TableContainer,
-    TableHead, TableRow, Paper, Button, Dialog, DialogTitle, DialogContent,
+    TableHead, TableRow, Paper, Button, Dialog, DialogTitle, DialogContent, DialogActions,
     TextField, MenuItem, Select, InputLabel, FormControl
 } from '@mui/material';
 
 Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const IncidentDashboard = () => {
-    const [incidents, setIncidents] = useState([]); 
+    const [incidents, setIncidents] = useState([]);
     const [open, setOpen] = useState(false);
     const [editOpen, setEditOpen] = useState(false);
     const [selectedIncident, setSelectedIncident] = useState(null);
@@ -25,7 +25,7 @@ const IncidentDashboard = () => {
         })
         .then(res => res.json())
         .then(data => {
-            if (!Array.isArray(data)) {  
+            if (!Array.isArray(data)) {
                 console.error("API response is not an array:", data);
                 setIncidents([]);
             } else {
@@ -67,6 +67,7 @@ const IncidentDashboard = () => {
             const newIncident = await response.json();
             setIncidents([newIncident, ...incidents]);
             setOpen(false);
+            setFormData({ description: '', severity: '', date_time: '', indicators: '', impacted_services: '' });
         } catch (err) {
             console.error('Error reporting incident:', err);
         }
@@ -143,6 +144,7 @@ const IncidentDashboard = () => {
                 Cybersecurity Incident Tracker
             </Typography>
 
+            {/* 🚨 Report Incident Button */}
             <Button
                 variant="contained"
                 sx={{
@@ -158,17 +160,38 @@ const IncidentDashboard = () => {
                 ➕ Report an Incident
             </Button>
 
-            {/* 🗂 Incident Table */}
+            {/* 📝 Incident Report Dialog */}
+            <Dialog open={open} onClose={() => setOpen(false)}>
+                <DialogTitle>Report an Incident</DialogTitle>
+                <DialogContent>
+                    <TextField fullWidth label="Description" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
+                    <FormControl fullWidth sx={{ mt: 2 }}>
+                        <InputLabel>Severity</InputLabel>
+                        <Select value={formData.severity} onChange={(e) => setFormData({ ...formData, severity: e.target.value })}>
+                            <MenuItem value="Low">Low</MenuItem>
+                            <MenuItem value="Medium">Medium</MenuItem>
+                            <MenuItem value="High">High</MenuItem>
+                            <MenuItem value="Critical">Critical</MenuItem>
+                        </Select>
+                    </FormControl>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpen(false)}>Cancel</Button>
+                    <Button onClick={handleSubmit}>Submit</Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* 📋 Incident Table */}
             <TableContainer component={Paper} sx={{ mt: 3, boxShadow: "2px 2px 12px rgba(0,0,0,0.1)" }}>
                 <Table>
                     <TableHead sx={{ backgroundColor: "#f4f4f4" }}>
-                        <TableRow>
-                            <TableCell><strong>Date</strong></TableCell>
-                            <TableCell><strong>Severity</strong></TableCell>
-                            <TableCell><strong>Description</strong></TableCell>
-                            <TableCell><strong>Status & Deadlines</strong></TableCell>
-                            <TableCell align="right"><strong>Actions</strong></TableCell>
-                        </TableRow>
+                    <TableRow>
+        <TableCell><strong>Date</strong></TableCell>
+        <TableCell><strong>Severity</strong></TableCell>
+        <TableCell><strong>Description</strong></TableCell>
+        <TableCell><strong>Status & Deadlines</strong></TableCell>                            
+        <TableCell align="right"><strong>Actions</strong></TableCell>
+    </TableRow>
                     </TableHead>
                     <TableBody>
                         {incidents.map(incident => (
@@ -176,6 +199,7 @@ const IncidentDashboard = () => {
                                 <TableCell>{new Date(incident.date_time).toLocaleString()}</TableCell>
                                 <TableCell>{incident.severity}</TableCell>
                                 <TableCell>{incident.description}</TableCell>
+                               
                                 <TableCell>
                                     <Typography variant="caption" sx={{ display: "block", color: "#d32f2f" }}>
                                         ⏳ Early Warning Due: {new Date(incident.early_warning_due).toLocaleString()}
@@ -187,10 +211,7 @@ const IncidentDashboard = () => {
                                         ✅ Final Report Due: {new Date(incident.final_report_due).toLocaleString()}
                                     </Typography>
                                 </TableCell>
-                                <TableCell align="right">
-                                    <Button variant="contained" color="warning" size="small" sx={{ mr: 1 }} onClick={() => handleEditOpen(incident)}>
-                                        ✏️ Edit
-                                    </Button>
+                                 <TableCell align="right">
                                     <Button variant="contained" color="error" size="small" onClick={() => handleDelete(incident.incident_id)}>
                                         🗑 Delete
                                     </Button>
@@ -200,17 +221,16 @@ const IncidentDashboard = () => {
                     </TableBody>
                 </Table>
             </TableContainer>
-
-            {/* 📊 Incident Severity Graph */}
-            <Box sx={{ mt: 3, textAlign: 'center', width: '80%', mx: 'auto' }}>
+       
+        {/* 📊 Incident Severity Graph */}
+        <Box sx={{ mt: 3, textAlign: 'center', width: '80%', mx: 'auto' }}>
                 <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Incident Severity Breakdown</Typography>
                 <Bar data={getChartData()} options={{ responsive: true, maintainAspectRatio: true }} height={150} />
             </Box>
-        </Box>
+             </Box>
     );
 };
 
 export default IncidentDashboard;
-
 
 
