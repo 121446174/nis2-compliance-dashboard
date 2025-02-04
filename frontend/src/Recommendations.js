@@ -118,16 +118,16 @@ function Recommendations() {
         
                         {/* Sort by Risk Level */}
                         <FormControl sx={{ minWidth: 150 }}>
-                            <InputLabel>Sort by Risk</InputLabel>
-                            <Select
-                                value={sortOrder}
-                                onChange={(e) => setSortOrder(e.target.value)}
-                            >
-                                <MenuItem value="asc">Highest Risk First</MenuItem> {/* ✅ FIXED: Proper sorting label */}
-                                <MenuItem value="desc">Lowest Risk First</MenuItem>
-                            </Select>
-                        </FormControl>
-                    </Box>
+    <InputLabel>Sort by Risk</InputLabel>
+    <Select
+        value={sortOrder}
+        onChange={(e) => setSortOrder(e.target.value)}
+    >
+        <MenuItem value="desc">Highest Risk First</MenuItem> {/* Corrected! */}
+        <MenuItem value="asc">Lowest Risk First</MenuItem>  {/* Corrected! */}
+    </Select>
+</FormControl>
+</Box>
         
                     {/* ✅ Recommendations Table */}
                     <TableContainer component={Paper}>
