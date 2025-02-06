@@ -44,7 +44,7 @@ router.get('/sector-specific', auth, async (req, res) => {
 
 
 // Route to submit sector-specific answers
-// Inspired by Chatgpt prompt from previous iteration
+// Inspired by Chatgpt prompt from previous iteration 3
 // Route to submit sector-specific answers
 router.post('/submit-sector-answers', auth, async (req, res) => {
     const { userId, answers, sectorId } = req.body;

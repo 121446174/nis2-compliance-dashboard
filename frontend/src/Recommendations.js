@@ -4,16 +4,18 @@ import {
     TableContainer, TableHead, TableRow, Paper, TextField, MenuItem, Select, InputLabel, FormControl
 } from '@mui/material';
 
+
+// Inspired Source – MDN Web Docs, "Map Object in JavaScript" https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map 
 // Define risk level priorities for sorting
 const riskLevelsOrder = { 'Critical': 1, 'Very High': 2, 'High': 3, 'Medium': 4, 'Low': 5 };
 
 // Define colors for risk levels
 const riskColors = {
-    Critical: '#ffcccc',  // Light Red
-    'Very High': '#ffeb99', // Light Yellow
-    High: '#ffcc99',  // Orange
-    Medium: '#ccffcc', // Light Green
-    Low: '#e6f7ff'  // Light Blue
+    Critical: '#ffcccc',  
+    'Very High': '#ffeb99', 
+    High: '#ffcc99',  
+    Medium: '#ccffcc', 
+    Low: '#e6f7ff'  
 };
 
 function Recommendations() {
@@ -22,11 +24,16 @@ function Recommendations() {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterRisk, setFilterRisk] = useState('');
     const [filterCategory, setFilterCategory] = useState('');
-    const [sortOrder, setSortOrder] = useState('desc'); // Default: Highest Risk First
+    const [sortOrder, setSortOrder] = useState('desc'); 
 
+   
+// Inspired by: Auth0 Community discussion on decoding tokens
+// Purpose: Retrieve the userId from the stored JWT token in localStorage https://community.auth0.com/t/decoding-token-atob-fails-if-i-include-users-picture/151202
     const token = localStorage.getItem('token');
     const userId = token ? JSON.parse(atob(token.split('.')[1])).userId : null;
 
+// Inspired Source: MDN Web Docs, "fetch() API" 
+// Purpose: Fetch recommendations for the current user using an API request. https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch#checking_response_status
     useEffect(() => {
         const fetchRecommendations = async () => {
             try {
@@ -36,6 +43,7 @@ function Recommendations() {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
+            
                 if (!response.ok) throw new Error('Failed to fetch recommendations.');
                 
                 const result = await response.json();
@@ -54,29 +62,32 @@ function Recommendations() {
         fetchRecommendations();
     }, [userId]);
 
+    // Reference: Material-UI CircularProgress and Alert component - https://mui.com/material-ui/react-progress/ and https://mui.com/material-ui/react-alert/
     if (loading) return <CircularProgress />;
     if (!recommendations.length) return <Alert severity="info">No recommendations available.</Alert>;
 
-   // ✅ Filter + Sort Recommendations
+   // Filter + Sort Recommendations
+   // Used to filter recommendations based on search term, risk level, and category Reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
    const filteredRecommendations = recommendations
    .filter(rec => 
-       rec.recommendation_text.toLowerCase().includes(searchTerm.toLowerCase()) &&
-       (filterRisk ? rec.risk_level === filterRisk : true) &&
-       (filterCategory ? rec.category_name === filterCategory : true) // ✅ FIXED: Now it properly filters by category
-   )
+       rec.recommendation_text.toLowerCase().includes(searchTerm.toLowerCase()) && // Filters by search term - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/includes
+       (filterRisk ? rec.risk_level === filterRisk : true) && // Filters by risk level
+       (filterCategory ? rec.category_name === filterCategory : true) // Filters by category
+   ) 
+   // Used to sort recommendations by risk level in ascending or descending order https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
    .sort((a, b) => 
        sortOrder === 'asc' 
-           ? (riskLevelsOrder[b.risk_level] || 99) - (riskLevelsOrder[a.risk_level] || 99)  // ✅ FIXED: Sort correctly
-           : (riskLevelsOrder[a.risk_level] || 99) - (riskLevelsOrder[b.risk_level] || 99)
+           ? (riskLevelsOrder[b.risk_level] || 99) - (riskLevelsOrder[a.risk_level] || 99) // Sorts by risk level
+           : (riskLevelsOrder[a.risk_level] || 99) - (riskLevelsOrder[b.risk_level] || 99) // Sorts by risk level
    );
 
-            return ( 
+    return ( 
                 <Box sx={{ maxWidth: 1200, mx: 'auto', p: 3 }}>
                     <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', textAlign: 'center' }}>
                         Your Personalised Cybersecurity Recommendations
                     </Typography>
         
-                    {/* ✅ Search & Filter Options */}
+                    {/* Search & Filter Options - 'Search Filter in React JS' https://www.youtube.com/watch?v=xAqCEBFGdYk */}
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
                         <TextField 
                             label="Search Recommendations" 
@@ -87,7 +98,7 @@ function Recommendations() {
                             sx={{ width: '30%' }}
                         />
         
-                        {/* Filter by Risk */}
+                        {/* Filter by Risk MUI Select Component - https://mui.com/material-ui/react-select/?srsltid=AfmBOorW3g0r41s-LsuhZNfhHw1346l9BTC7jX3s9pMg9Zf7-8wtAGrS*/}
                         <FormControl sx={{ minWidth: 150 }}>
                             <InputLabel>Filter by Risk</InputLabel>
                             <Select
@@ -103,7 +114,7 @@ function Recommendations() {
                             </Select>
                         </FormControl>
         
-                        {/* Filter by Category */}
+                        {/* Filter by Category Reference: React Creating Dynamic Select and Option Elements with Material-UI - Stack Overflow - https://stackoverflow.com/questions/65927056/react-creating-dynamic-select-and-option-elements-with-material-ui*/}
                         <FormControl sx={{ minWidth: 150 }}>
                             <InputLabel>Filter by Category</InputLabel>
                             <Select
@@ -116,48 +127,48 @@ function Recommendations() {
                             </Select>
                         </FormControl>
         
-                        {/* Sort by Risk Level */}
+                        {/* Sort by Risk Level MUI Select Component - https://mui.com/material-ui/react-select/?srsltid=AfmBOorW3g0r41s-LsuhZNfhHw1346l9BTC7jX3s9pMg9Zf7-8wtAGrS*/}
                         <FormControl sx={{ minWidth: 150 }}>
-    <InputLabel>Sort by Risk</InputLabel>
-    <Select
-        value={sortOrder}
-        onChange={(e) => setSortOrder(e.target.value)}
-    >
-        <MenuItem value="desc">Highest Risk First</MenuItem> {/* Corrected! */}
-        <MenuItem value="asc">Lowest Risk First</MenuItem>  {/* Corrected! */}
-    </Select>
-</FormControl>
+                        <InputLabel>Sort by Risk</InputLabel>
+                     <Select
+                      value={sortOrder}
+                      onChange={(e) => setSortOrder(e.target.value)}
+                      >
+                    <MenuItem value="desc">Highest Risk First</MenuItem> 
+                  <MenuItem value="asc">Lowest Risk First</MenuItem> 
+              </Select>
+           </FormControl>
+         </Box>
+        
+ {/* Recommendations Table 'React Material UI Tutorial - 33 - Table' https://www.youtube.com/watch?v=qk2oY7W3fuY*/}
+<TableContainer component={Paper}>
+ <Table>
+    <TableHead>
+        <TableRow>
+            <TableCell><strong>Category</strong></TableCell>
+            <TableCell><strong>Risk Level</strong></TableCell>
+            <TableCell><strong>Recommendation</strong></TableCell>
+            <TableCell><strong>Impact</strong></TableCell>
+        </TableRow>
+    </TableHead>
+<TableBody>
+ {filteredRecommendations.map((rec) => (
+<TableRow key={rec.id}>
+    <TableCell>{rec.category_name || 'Sector-Specific'}</TableCell>
+    <TableCell 
+    sx={{ backgroundColor: riskColors[rec.risk_level] || 'white' }}
+        >
+         {rec.risk_level}
+    </TableCell>
+    <TableCell>{rec.recommendation_text}</TableCell>
+    <TableCell>{rec.impact}</TableCell>
+</TableRow>
+))}
+ </TableBody>
+</Table>
+</TableContainer>
 </Box>
+);
+}
         
-                    {/* ✅ Recommendations Table */}
-                    <TableContainer component={Paper}>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell><strong>Category</strong></TableCell>
-                                    <TableCell><strong>Risk Level</strong></TableCell>
-                                    <TableCell><strong>Recommendation</strong></TableCell>
-                                    <TableCell><strong>Impact</strong></TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {filteredRecommendations.map((rec) => (
-                                    <TableRow key={rec.id}>
-                                        <TableCell>{rec.category_name || 'Sector-Specific'}</TableCell>
-                                        <TableCell 
-                                            sx={{ backgroundColor: riskColors[rec.risk_level] || 'white' }}
-                                        >
-                                            {rec.risk_level}
-                                        </TableCell>
-                                        <TableCell>{rec.recommendation_text}</TableCell>
-                                        <TableCell>{rec.impact}</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </Box>
-            );
-        }
-        
-        export default Recommendations;
+ export default Recommendations;

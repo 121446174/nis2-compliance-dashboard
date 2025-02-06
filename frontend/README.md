@@ -80,9 +80,6 @@ node-mysql2 Documentation
 Purpose: Using mysql2 with promise-based queries for efficient database connection.
 URL: https://sidorares.github.io/node-mysql2/docs
 
-Frontend
-Developed using Create React App, following React best practices for project setup and environment management.
-
 # riskScore.js 
 
 Source: Validating Data in POST Requests  
@@ -108,8 +105,7 @@ Purpose: To convert string values to floating-point numbers for calculations
 Source: Math.min() in JavaScript  
 Purpose: To ensure totalScore does not exceed maxPossibleScore  
 //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/min
-
-        
+    
 Source: SQL BETWEEN Operator  
 Purpose: To determine the risk level based on the calculated score range  
 //https://www.programiz.com/sql/between-operator
@@ -147,7 +143,88 @@ Source: MDN Web Docs - Array.prototype.map()
 Purpose: Processes the categoryScores array to calculate a percentage score for each category
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
 
+Source: JavaScript for...of Loop - MDN Web Docs  
+Purpose: Explains how to iterate over iterable objects, such as arrays, using the `for...of` loop.  
+URL: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...of  
+
+Source: MySQL INSERT ON DUPLICATE KEY UPDATE  
+Purpose: Describes how to insert data into a MySQL table and update existing records if a conflict occurs.  
+URL: https://dev.mysql.com/doc/refman/8.0/en/insert-on-duplicate.html  
+
+Source: Stack Overflow - Formatting Numbers as Percentages  
+Purpose: Provides a method for rounding numbers and converting them into a percentage format using `.toFixed(2)`.  
+URL: https://stackoverflow.com/questions/8522673/make-a-number-a-percentage  
+
+# recommendations.js  
+
+Source: NetJS Tech
+Purpose: Efficient Database Querying with Connection Pooling
+Uses await pool.query(...) to execute queries asynchronously.
+Ensures efficient resource management by reusing database connections.
+URL: https://www.netjstech.com/2024/07/nodejs-mysql-connection-pool.html
+
+Source: MDN Web Docs - "Express Routing"  
+Purpose: This route implementation follows best practices from MDN's Express Routing guide:
+- Extracting route parameters using req.params
+- Applying authentication middleware before request handling
+- Using async/await for efficient database operations
+URL: MDN Express Routing Guide (https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Server-side/Express_Nodejs/routes)
+
+Source: StackOverflow
+Purpose: Querying if user exits 
+- Queries the database to check user existence before further processing.
+- Returns 404 Not Found if no matching record exists.
+- (Modified as article used using access tokens for user validation) 
+URL:https://stackoverflow.com/questions/63591695/check-if-a-user-exists-node-js-mysql
+
+Source: W3Schools - "Node.js MySQL Join"  
+Purpose: Uses JOIN to combine data from two tables (category_scores & categories)
+- Filters results based on user_id to return only relevant records**  
+URL: https://www.w3schools.com/nodejs/nodejs_mysql_join.asp?
+
+Source: MDN Web Docs, "Destructuring Assignment" (const {a,b}= obj;)
+URL:https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs/routes
+
+Source: MySQL Documentation
+Purpose: This reference explains the SQL JOIN operations used in the project, particularly for linking recommendations, responses, questions, and categories tables.
+URL: https://dev.mysql.com/doc/refman/8.0/en/join.html
+
+Source: FullStackHeroes
+Purpose:Used new Map() to remove duplicate objects based on a property.
+URL: https://fullstackheroes.com/tutorials/javascript/5-ways-to-remove-duplicate-objects-from-array-based-on-property/?
+
+# incidents.js 
+Source: MernStackDev: "Post Requests"
+Purpose: This article provides guidance on handling POST requests in Express.js applications, including data validation and route setup.
+URL: https://mernstackdev.com/post-routes-in-web-development/#validating-data-in-post-requests
+https://youtu.be/0Hu27PoloYw
+
+Source: MDN – Date() Constructor & Stack Overflow
+Purpose: Calculates deadlines for incident reporting based on timestamps.
+URLs:
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/Date
+https://stackoverflow.com/questions/38420260/new-datenew-date-gettime-25-24-60-60-1000-got-unexpected-date
+
+Source: mysql2-async
+Purpose: Insert Incident into the Database 
+URL: https://www.npmjs.com/package/mysql2-async
+
+Source: Mozilla Developer Network (MDN) - "Express Routing" Guide
+Purpose: Provides guidelines on structuring Express.js routes, including handling requests and responses efficiently.
+URL: https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Server-side/Express_Nodejs/routes
+
+Source: MySQL 8.0 Documentation - SELECT Query
+Purpose: Explains how to retrieve data from a MySQL database using the SELECT statement, ensuring efficient data fetching.
+URL: https://dev.mysql.com/doc/refman/8.0/en/select.html
+
+Delete an Incident
+Source: Stack Overflow - "How to modularize a DELETE route with params in Express"
+Purpose: Demonstrates best practices for implementing DELETE routes in Express, ensuring modular and maintainable code.
+URL: https://stackoverflow.com/questions/72342532/how-to-modularize-a-delete-route-with-params-in-express
+
+
 Core Components
+
 # App.js: 
 
 Source: Stack Overflow - How to Import "Route, Router and Switch" Correctly in React
@@ -239,7 +316,7 @@ URL: [https://dev.mysql.com/doc/refman/8.0/en/insert-on-duplicate.html](https://
 
 **Code inspired by sources from questionnaireRoute*
 
-FRONTEND:
+*********** FRONTEND **************
 
 # Login.js: 
 Manages user login and authentication.
@@ -392,7 +469,95 @@ Source: Stack Overflow - Dynamic CSS Style in JSX
 Purpose: Explains how to inline and dynamically apply CSS styles in JSX based on props or states.
 // https://stackoverflow.com/questions/46322708/inlining-dynamic-css-style-in-jsx
 
-Database
+# Recommendations.js 
+Source: MDN Web Docs
+Purpose: In this project, Map is used to assign numerical priority values to risk levels (riskLevelsOrder) and associate each risk level with a corresponding color (riskColors). This ensures that recommendations are visually categorized and sorted based on severity.
+URL: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map
+
+Inspired by: Auth0 Community discussion on decoding tokens
+Source: https://community.auth0.com/t/decoding-token-atob-fails-if-i-include-users-picture/151202
+URL: Retrieve the userId from the stored JWT token in localStorage
+
+Inspired Source: MDN Web Docs, "fetch() API" #
+Purpose: Fetch recommendations for the current user using an API request.
+URL: https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch#checking_response_status
+
+Source: 'Search Filter in React JS' 
+URL: https://www.youtube.com/watch?v=xAqCEBFGdYk
+
+Source: MDN Web Docs - JavaScript Array.filter()
+Purpose: Filters recommendations based on user-inputted search term.
+URL: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
+
+Source: MDN Web Docs - JavaScript String.includes()
+Purpose: Allows filtering recommendations based on partial matches to the search term.
+URL: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/includes
+
+Source: MDN Web Docs - JavaScript Array.sort()
+Purpose: Sorts recommendations based on predefined risk levels in ascending or descending order.
+URL: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
+
+
+Source: MUI Official Docs MUI Select Component for Dropdowns
+Purpose: Implements Material-UI Select component for risk level and category filtering.
+URL: https://mui.com/material-ui/react-select/
+
+Source: Stack Overflow - "React Creating Dynamic Select and Option Elements with Material-UI"
+Purpose: Uses dynamic data to populate category dropdowns in Material-UI.
+URL: https://stackoverflow.com/questions/65927056/react-creating-dynamic-select-and-option-elements-with-material-ui
+
+Creating Tables in Material-UI
+Source: YouTube Video - "React Material UI Tutorial - 33 - Table"
+Purpose: Implements an interactive table for displaying recommendations in a structured format.
+URL: https://www.youtube.com/watch?v=qk2oY7W3fuY
+
+#  IncidentDashboard.js 
+Source: MDN "fetch() method" - Handling API Requests
+Purpose: Used for retrieving incidents from the backend using the Fetch API.
+URL: https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch#checking_response_status
+
+Source: TutorialKart - React: How to Get Form Data
+Purpose: Demonstrates handling and retrieving form data in a React component.
+URL: https://www.tutorialkart.com/react/react-how-to-get-form-data/
+
+Source: Stack Overflow - Convert JS Date Time to MySQL DateTime
+Purpose: Ensures proper date formatting for MySQL database storage.
+URL: https://stackoverflow.com/questions/5129624/convert-js-date-time-to-mysql-datetime
+URL: https://stackoverflow.com/questions/76140048 event-start-and-end-time-not-correctly-set-when-using-formdata-append-in-react
+
+Source: MDN Fetch API Documentation
+Purpose: Guides best practices for making API requests with error handling in JavaScript.
+URL: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch?
+
+Source: React Documentation - Updating State Based on Previous State
+Purpose: Explains how to correctly update state arrays in React to avoid potential bugs.
+URL: https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state
+
+Source: "React Axios Delete Request Example" - Handling DELETE Requests & Updating StatePurpose: Updating state in React after performing DELETE operations
+URL: https://boxoflearn.com/react-axios-delete-request-example/
+
+Source: "Count Number of Element Occurrences in JavaScript Array" - Using forEach() to count occurrences
+Purpose: Explains how to count occurrences of specific values.
+URL: https://stackabuse.com/count-number-of-element-occurrences-in-javascript-array/
+
+Source: "W3Schools Bar Chart" - Chart.js Implementation
+Purpose: Provides an example of implementing a bar chart using Chart.js.
+URL: https://www.w3schools.com/js/js_graphics_chartjs.asp
+
+Source: MUI Button API and Customization
+Purpose: Customizing Material UI buttons for styling and functionality.
+URL: https://mui.com/material-ui/customization/how-to-customize/
+Incident Report Dialog
+
+Source: GeeksforGeeks - How to Create a Dialog Box in ReactJS
+Purpose: Implementing a modal dialog for reporting incidents using React.
+URL: https://www.geeksforgeeks.org/how-to-create-dialog-box-in-reactjs-2/
+Incident Table
+
+Source: React Material UI Tutorial - 33 - Table (YouTube)
+Purpose: Creating and structuring tables in React using Material UI components.
+URL: https://www.youtube.com/watch?v=qk2oY7W3fuY
+# Database
 
 I created the database using my own knowledge and query guidance using MySQL's provdied tutorials 
 URL = https://dev.mysql.com/doc/mysql-tutorial-excerpt/5.7/en/example-auto-increment.html

@@ -124,12 +124,12 @@ const [topRecommendations, setTopRecommendations] = useState([]);
         const userId = token ? JSON.parse(atob(token.split('.')[1])).userId : null;
 
         if (!userId) {
-            console.error('No userId found in token'); // Debugging log
+            console.error('No userId found in token'); 
             return;
         }
 
         try {
-            console.log('Making API request for category scores'); // Debugging log
+            console.log('Making API request for category scores'); 
             //Source: MDN Web Docs - Fetch API
             const response = await fetch(`http://localhost:5000/api/category-scores?userId=${userId}`, {
                 headers: {
@@ -138,14 +138,14 @@ const [topRecommendations, setTopRecommendations] = useState([]);
                 },
             });
 
-            console.log('API response status:', response.status); // Debugging log
+            console.log('API response status:', response.status); 
             if (response.ok) {
                 const data = await response.json();
-                console.log('Category Scores Data:', data); // Debugging log
+                console.log('Category Scores Data:', data); 
                 setCategoryScores(data);
             } else {
                 const errorResponse = await response.json();
-                console.error('API Error:', errorResponse); // Debugging log
+                console.error('API Error:', errorResponse); 
             }
         } catch (err) {
             console.error('Error fetching category scores:', err);
@@ -155,7 +155,10 @@ const [topRecommendations, setTopRecommendations] = useState([]);
     fetchCategoryScores();
 }, []);
 
-// Top 5 Recommendations
+// ✅ SHOW Top 5 Recommendations (Based on Risk Level)
+// Inspired Source: MDN Web Docs, "fetch() API" 
+// Purpose: Fetch recommendations for the current user using an API request. 
+// URL: https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch#checking_response_status
 useEffect(() => {
   const fetchRecommendations = async () => {
     const token = localStorage.getItem('token');
@@ -164,7 +167,6 @@ useEffect(() => {
     const userId = JSON.parse(atob(token.split('.')[1])).userId;
     try {
       console.log('Fetching recommendations...');
-
       const response = await fetch(`http://localhost:5000/api/recommendations/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -172,84 +174,44 @@ useEffect(() => {
       if (!response.ok) throw new Error('Failed to fetch recommendations');
 
       let recs = await response.json();
-      console.log('📊 All Recommendations Data:', recs); // ✅ Debugging log
+      console.log('All Recommendations Data:', recs);
 
-      // ✅ Store ALL recommendations for the chart
-      setAllRecommendations(recs);
-    } catch (err) {
-      console.error('❌ Error fetching recommendations:', err);
-    }
-  };
-
-  fetchRecommendations();
-}, []);
-
-// ✅ Process TOP 5 Recommendations Separately
-useEffect(() => {
-  if (allRecommendations.length > 0) {
-    console.log('🔄 Processing top 5 recommendations...');
-    
-    const riskLevelsOrder = { Critical: 1, "Very High": 2, High: 3, Medium: 4, Low: 5 };
-    
-    const sortedTop5 = [...allRecommendations]
-      .filter(rec => rec.risk_level) // Ensure valid risk levels
-      .sort((a, b) => (riskLevelsOrder[a.risk_level] || 99) - (riskLevelsOrder[b.risk_level] || 99)) // Sort by risk level
-      .slice(0, 5); // Get only the Top 5
-
-    console.log('🔥 Top 5 Sorted Recommendations:', sortedTop5); // ✅ Debugging log
-    setTopRecommendations(sortedTop5);
-  }
-}, [allRecommendations]); // Runs when `allRecommendations` updates
-
-// Recommendations
-// ✅ Fetch ALL recommendations & store separately
-useEffect(() => {
-  const fetchRecommendations = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-
-    const userId = JSON.parse(atob(token.split('.')[1])).userId;
-    try {
-      console.log('Fetching recommendations...');
-
-      const response = await fetch(`http://localhost:5000/api/recommendations/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!response.ok) throw new Error('Failed to fetch recommendations');
-
-      let recs = await response.json();
-      console.log('Raw Recommendations:', recs); // ✅ Debugging log
-
-      // ✅ Store ALL recommendations for the chart
-      setAllRecommendations(recs);
-
-      // ✅ Filter only the TOP 5 recommendations for the list
-      const sortedTop5 = recs
-        .filter(rec => rec.risk_level) // Ensure valid risk levels
-        .sort((a, b) => {
-          const riskLevelsOrder = { Critical: 1, "Very High": 2, High: 3, Medium: 4, Low: 5 };
-          return (riskLevelsOrder[a.risk_level] || 99) - (riskLevelsOrder[b.risk_level] || 99);
-        })
-        .slice(0, 5); // Get only the Top 5
-
-      console.log('Filtered & Sorted Top 5 Recommendations:', sortedTop5); // ✅ Debugging log
-      setTopRecommendations(sortedTop5);
-      
+      setAllRecommendations(recs); // ✅ Store ALL recommendations
     } catch (err) {
       console.error('Error fetching recommendations:', err);
     }
   };
 
   fetchRecommendations();
-}, []);
+}, []); 
 
-// ✅ FIX CHART DATA (Use all recommendations)
+// ✅ PROCESS Top 5 Recommendations
+// Inspired Reference: "JS - Get Top 5 Max Elements from Array" - Sorting & Slicing to Extract Top 5
+// URL: https://stackoverflow.com/questions/3954438/how-to-sort-an-array-in-javascript 
+// URL: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
+useEffect(() => {
+  if (allRecommendations.length > 0) {
+    console.log('Processing top 5 recommendations...');
+
+    const riskLevelsOrder = { Critical: 1, "Very High": 2, High: 3, Medium: 4, Low: 5 };
+
+    const sortedTop5 = [...allRecommendations]
+      .filter(rec => rec.risk_level) // Ensure valid risk levels
+      .sort((a, b) => (riskLevelsOrder[a.risk_level] || 99) - (riskLevelsOrder[b.risk_level] || 99)) // Sort by risk level
+      .slice(0, 5); // Get only the Top 5
+
+    console.log('🔥 Top 5 Sorted Recommendations:', sortedTop5);
+    setTopRecommendations(sortedTop5);
+  }
+}, [allRecommendations]); // ✅ Runs when `allRecommendations` updates
+
+// ✅ FIX CHART DATA = Process ALL recommendations for the chart
+// W3schools Bar Chart - https://www.w3schools.com/js/js_graphics_chartjs.asp
 const getRiskChartData = () => {
-  console.log("📊 All Recommendations Data:", allRecommendations); // Debugging log
+  console.log("All Recommendations Data:", allRecommendations); // Debugging log
 
   if (!allRecommendations || allRecommendations.length === 0) {
-    console.warn("⚠️ No recommendations available! Defaulting to zeros.");
+    console.warn("No recommendations available! Defaulting to zeros.");
     return {
       labels: ['Low', 'Medium', 'High', 'Very High', 'Critical'],
       datasets: [
@@ -261,8 +223,8 @@ const getRiskChartData = () => {
       ],
     };
   }
-
-  // ✅ Count risk levels dynamically
+// Inspired Reference: "Count Number of Element Occurrences in JavaScript Array" - Using forEach() to count occurrences
+// URL: https://stackabuse.com/count-number-of-element-occurrences-in-javascript-array/
   const riskLevels = ['Low', 'Medium', 'High', 'Very High', 'Critical'];
   const riskCounts = { Low: 0, Medium: 0, High: 0, 'Very High': 0, Critical: 0 };
 
@@ -272,21 +234,19 @@ const getRiskChartData = () => {
     }
   });
 
-  console.log("📊 Final Risk Counts (ALL RECOMMENDATIONS):", riskCounts); // Debugging log
+  console.log("Final Risk Counts (ALL RECOMMENDATIONS):", riskCounts);
 
   return {
     labels: riskLevels,
     datasets: [
       {
         label: 'Risk Distribution',
-        data: riskLevels.map(level => riskCounts[level] || 0), // Ensure all risk levels are accounted for
+        data: riskLevels.map(level => riskCounts[level] || 0),
         backgroundColor: ['#4caf50', '#ffeb3b', '#ffa000', '#ff5733', '#d32f2f'],
       },
     ],
   };
 };
-
-
 
 // Navigation and routing
 //Source: React Router Documentation
@@ -425,7 +385,7 @@ const getRiskChartData = () => {
 
           
 
- <Grid item xs={12} md={6}>
+<Grid item xs={12} md={6}>
   <Card>
     <CardContent>
       <Typography variant="h6">⭐ Top 5 Risk-Based Recommendations</Typography>
