@@ -68,6 +68,7 @@ function Recommendations() {
 
    // Filter + Sort Recommendations
    // Used to filter recommendations based on search term, risk level, and category Reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
+   // https://www.geeksforgeeks.org/how-to-implement-search-filter-functionality-in-reactjs/
    const filteredRecommendations = recommendations
    .filter(rec => 
        rec.recommendation_text.toLowerCase().includes(searchTerm.toLowerCase()) && // Filters by search term - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/includes

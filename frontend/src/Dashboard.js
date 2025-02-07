@@ -155,7 +155,7 @@ const [topRecommendations, setTopRecommendations] = useState([]);
     fetchCategoryScores();
 }, []);
 
-// ✅ SHOW Top 5 Recommendations (Based on Risk Level)
+// SHOW Top 5 Recommendations (Based on Risk Level)
 // Inspired Source: MDN Web Docs, "fetch() API" 
 // Purpose: Fetch recommendations for the current user using an API request. 
 // URL: https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch#checking_response_status
@@ -164,6 +164,8 @@ useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) return;
 
+ // Inspired by: Auth0 Community discussion on decoding tokens
+// Purpose: Retrieve the userId from the stored JWT token in localStorage https://community.auth0.com/t/decoding-token-atob-fails-if-i-include-users-picture/151202
     const userId = JSON.parse(atob(token.split('.')[1])).userId;
     try {
       console.log('Fetching recommendations...');
@@ -176,7 +178,7 @@ useEffect(() => {
       let recs = await response.json();
       console.log('All Recommendations Data:', recs);
 
-      setAllRecommendations(recs); // ✅ Store ALL recommendations
+      setAllRecommendations(recs); // Store ALL recommendations
     } catch (err) {
       console.error('Error fetching recommendations:', err);
     }
@@ -185,10 +187,10 @@ useEffect(() => {
   fetchRecommendations();
 }, []); 
 
-// ✅ PROCESS Top 5 Recommendations
+// PROCESS Top 5 Recommendations
 // Inspired Reference: "JS - Get Top 5 Max Elements from Array" - Sorting & Slicing to Extract Top 5
 // URL: https://stackoverflow.com/questions/3954438/how-to-sort-an-array-in-javascript 
-// URL: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
+// URL: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort  // Chatgpt Assistance (Prompt in READMEFILE)
 useEffect(() => {
   if (allRecommendations.length > 0) {
     console.log('Processing top 5 recommendations...');
@@ -203,9 +205,9 @@ useEffect(() => {
     console.log('🔥 Top 5 Sorted Recommendations:', sortedTop5);
     setTopRecommendations(sortedTop5);
   }
-}, [allRecommendations]); // ✅ Runs when `allRecommendations` updates
+}, [allRecommendations]); // Runs when `allRecommendations` updates
 
-// ✅ FIX CHART DATA = Process ALL recommendations for the chart
+// FIX CHART DATA = Process ALL recommendations for the chart
 // W3schools Bar Chart - https://www.w3schools.com/js/js_graphics_chartjs.asp
 const getRiskChartData = () => {
   console.log("All Recommendations Data:", allRecommendations); // Debugging log

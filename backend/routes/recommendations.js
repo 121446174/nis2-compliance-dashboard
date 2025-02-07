@@ -23,8 +23,6 @@ const { userId } = req.params;
         }
         console.log(`User ID ${userId} exists:`, userCheck);
 
-
-
         // 2. Check category risk levels
         // Inspired Reference: "Node.js MySQL Join" (https://www.w3schools.com/nodejs/nodejs_mysql_join.asp?)
         console.log(`Retrieving category risk levels for User ID ${userId}...`);
@@ -56,6 +54,7 @@ const { userId } = req.params;
 
         // 4️. Fetch Trigger-Based Recommendations
         // Inspired Reference: MySQL’s documentation on JOIN clauses (15.2.13.2 JOIN Clause, MySQL).https://dev.mysql.com/doc/refman/8.0/en/join.html
+        // Chatgpt Assistance (Prompt in READMEFILE)
         console.log(`Fetching trigger-based recommendations for User ID ${userId}...`);
         const [triggerRecs] = await pool.query(`
             SELECT r.*, c.category_name 
@@ -92,7 +91,7 @@ const { userId } = req.params;
         ).values());
 
         console.log(`Final Recommendations for User ID ${userId}:`, uniqueRecommendations);
-        return res.json(uniqueRecommendations);
+        return res.json(uniqueRecommendations);  // Return the unique recommendations https://stackoverflow.com/questions/19696240/proper-way-to-return-json-using-node-or-express
 
     } catch (err) {
         console.error(`ERROR: Failed to fetch recommendations for User ID ${userId}:`, err);

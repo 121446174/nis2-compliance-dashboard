@@ -193,6 +193,18 @@ Source: FullStackHeroes
 Purpose:Used new Map() to remove duplicate objects based on a property.
 URL: https://fullstackheroes.com/tutorials/javascript/5-ways-to-remove-duplicate-objects-from-array-based-on-property/?
 
+'*Chatgpt Prompt: I am working on a Node.js backend with MySQL and need to fetch cybersecurity recommendations based on user responses to security-related questions. Each recommendation is tied to a question, and I need to return only the recommendations where the user answered 1 (which means a security gap exists).
+
+The database schema includes:
+responses (stores user answers, linked to questions by question_id) questions (stores the question details, linked to categories) categories (stores category details, linked to recommendations) recommendations (stores recommendation text, linked to questions via question_id)
+I attempted this query, but I’m not sure if it correctly retrieves the relevant recommendations based on res.answer = 1 while properly joining across multiple tables: SELECT r.*, c.category_name 
+FROM recommendations r
+JOIN responses res ON r.question_id = res.question_id
+LEFT JOIN questions q ON r.question_id = q.question_id
+LEFT JOIN categories c ON q.category_id = c.category_id
+WHERE res.user_id = ? AND res.answer = 1;
+Does this query correctly filter only the recommendations triggered by user responses? Is there a better way to structure it for efficiency and accuracy?"*
+
 # incidents.js 
 Source: MernStackDev: "Post Requests"
 Purpose: This article provides guidance on handling POST requests in Express.js applications, including data validation and route setup.
@@ -280,6 +292,10 @@ Source: PlainEnglish.io - Embedding Google Forms in React Apps
 Purpose: Embedded Google Forms for feedback collection.
 URL: https://plainenglish.io/blog/embedding-google-forms-in-react-apps
 
+"I'm building a React dashboard that displays cybersecurity recommendations based on risk levels. I need to sort all recommendations by severity (Critical first, Low last) and then extract the Top 5 highest-risk ones. Here's my current attempt:
+const sortedTop5 = allRecommendations
+  .sort((a, b) => (riskLevelsOrder[b.risk_level] - riskLevelsOrder[a.risk_level])) // Sorting attempt
+  .filter((rec, index) => index < 5);' 
 
 
 # questionnaireRoute.js
