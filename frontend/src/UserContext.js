@@ -33,21 +33,23 @@ export const UserProvider = ({ children }) => {
   //Login method
   const login = (id, type, sector) => {
     console.log('UserContext - Before Login:', { id, type, sector });
+    // If no sector is provided, assume this is an admin login and default to sector 19
     if (!sector) {
-      console.error('UserContext - Missing sectorId. Check backend response or login logic.');
-      return; // Exit early to avoid inconsistencies
-  }
+      console.warn('UserContext - Missing sectorId; defaulting to Admin sector (19)');
+      sector = 19;
+    }
     setUserId(id);
     setClassificationType(type);
     setSectorId(sector);
-
+  
     // Save to localStorage
     localStorage.setItem('userId', id);
     localStorage.setItem('classificationType', type);
-    localStorage.setItem('sectorId', sector || '');
-
+    localStorage.setItem('sectorId', sector);
+  
     console.log('UserContext - After Login:', { id, type, sector });
   };
+  
 
   console.log('UserContext - Current State:', { userId, classificationType, sectorId });
 

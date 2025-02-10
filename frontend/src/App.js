@@ -2,7 +2,6 @@
 // Modification: Updated imports to use 'Routes' instead of 'Switch' for React Router v6 syntax
 // URL: https://stackoverflow.com/questions/68384258/how-to-import-route-router-and-switch-correctly
 
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Box } from '@mui/material';
 import Navbar from './Navbar';
@@ -15,6 +14,7 @@ import SectorSpecificQuestions from './SectorSpecificQuestions';
 import RiskScore from './RiskResult';
 import Recommendations from './Recommendations';
 import IncidentDashboard from './IncidentDashboard';
+import AdminPanel from './AdminPanel'; 
 
 function App() {
   return (
@@ -37,6 +37,7 @@ function App() {
               <Route path="/risk-score" element={<RiskScore />} />
               <Route path="/recommendations" element={<Recommendations />} />
               <Route path="/incidents" element={<IncidentDashboard />} />
+              <Route path="/admin" element={<AdminPanel />} />
             </Routes>
           </Box>
         </Box>

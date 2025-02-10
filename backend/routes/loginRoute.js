@@ -23,6 +23,25 @@ router.post('/', async (req, res) => {
 
     const user = userRows[0];
 
+
+    // 🔹 If the user is an admin, bypass classification check
+    if (user.isAdmin) {
+      console.log('Admin login detected:', user.Email);
+      
+      const token = jwt.sign(
+        { userId: user.User_ID, isAdmin: true },
+        process.env.JWT_SECRET,
+        { expiresIn: '1h' }
+      );
+
+      return res.status(200).json({
+        message: 'Admin login successful',
+        token,
+        userId: user.User_ID,
+        isAdmin: true
+      });
+    }
+    
     // Check classification...
     const [classificationRows] = await db.query(
       'SELECT classification FROM compliance_assessment WHERE user_id = ?',

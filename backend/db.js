@@ -14,11 +14,12 @@ const db = mysql.createPool({
 // https://www.mysqltutorial.org/mysql-nodejs/connect/
 db.getConnection()
   .then(() => {
-    console.log('Connected to MySQL database.');
+    console.log('✅ Connected to MySQL database.');
   })
   .catch((err) => {
-    console.error('Error connecting to MySQL:', err);
+    console.error('❌ Error connecting to MySQL:', err);
   });
+
 
 module.exports = db;
 

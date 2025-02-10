@@ -40,23 +40,40 @@ function Login() {
       console.log('Login API Response:', data);
   
       if (response.ok && data.token) {
-        // Store token and update UserContext
-        localStorage.setItem('token', data.token);
-        login(data.userId, data.classificationType, data.sectorId); // Ensure sectorId is passed here
-        console.log('After Login - UserContext Sector ID:', data.sectorId);
-  
-        // Redirect to dashboard
-        navigate('/dashboard');
-      } else {
-        setErrorMessage(data.error || 'Login failed');
-      }
-    } catch (error) {
-      console.error('Error in login request:', error.message);
-      setErrorMessage('An error occurred during login');
-    } finally {
-      setLoading(false);
+         // ✅ Store token & user details in localStorage
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify({ 
+        userId: data.userId, 
+        isAdmin: data.isAdmin, 
+        sectorId: data.sectorId 
+      }));
+      
+      console.log('✅ User saved to localStorage:', { 
+        userId: data.userId, 
+        isAdmin: data.isAdmin, 
+        sectorId: data.sectorId 
+      });
+
+      // ✅ Update UserContext
+      login(data.userId, data.classificationType, data.sectorId);
+
+      console.log('After Login - UserContext Sector ID:', data.sectorId);
+
+      // ✅ Redirect based on role
+      navigate(data.isAdmin ? '/admin' : '/dashboard');
+
+      // ✅ Reload to ensure Navbar updates
+      window.location.reload();
+    } else {
+      setErrorMessage(data.error || 'Login failed');
     }
-  };
+  } catch (error) {
+    console.error('Error in login request:', error.message);
+    setErrorMessage('An error occurred during login');
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <Box className="registration-container">

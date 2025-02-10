@@ -17,13 +17,19 @@ const riskScoreRoute = require('./routes/riskScore');
 const categoryScores = require('./routes/categoryScores');
 const recommendationsRoute = require('./routes/recommendations');
 const incidentsRoute = require('./routes/incidents');
+const adminRoutes = require('./routes/adminRoute');
 
 const app = express();
 const port = process.env.PORT || 5000;
 
 // Middleware setup -  easy for your server to handle requests from the frontend and parse JSON data.
-app.use(cors());
-app.use(bodyParser.json());
+app.use(cors({
+  origin: "http://localhost:3000", // Allow frontend to make requests
+  credentials: true // Allow cookies, authentication headers (fix for Admin Panel)
+}));
+app.use(express.json()); // Replaces bodyParser.json() (modern way)
+app.use(express.urlencoded({ extended: true })); // Allows form submissions
+
 
 // Root route for testing - check server is running
 app.get('/', (req, res) => {
@@ -41,6 +47,7 @@ app.use('/api/risk', riskScoreRoute); // Mount Risk Score route
 app.use('/api', categoryScores); 
 app.use('/api/recommendations', recommendationsRoute);
 app.use('/api/incidents', incidentsRoute);
+app.use('/admin', adminRoutes);
 
 // Start the server - verify server running
 app.listen(port, () => {
