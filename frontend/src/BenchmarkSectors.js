@@ -19,36 +19,32 @@ import 'chart.js/auto';
 function BenchmarkSectors() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [benchmark, setBenchmark] = useState(null);
+  // We'll store the comparison data in one object:
+  const [comparison, setComparison] = useState(null);
 
   const token = localStorage.getItem('token');
-  // Decode user ID from token (assuming token payload includes "userId")
+  // Decode the user ID from the token (assuming it’s in the payload as "userId")
   const userId = token ? JSON.parse(atob(token.split('.')[1])).userId : null;
 
-  const fetchBenchmarks = async () => {
+  const fetchComparisonData = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const res = await fetch(`http://localhost:5000/api/benchmark/${userId}`, {
+      const res = await fetch(`http://localhost:5000/api/benchmark/comparison/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
       if (!res.ok) {
         const errData = await res.json().catch(() => {});
-        const errMsg = errData?.error || 'Failed to fetch sector benchmarks.';
+        const errMsg = errData?.error || 'Failed to fetch comparison data.';
         throw new Error(errMsg);
       }
 
       const data = await res.json();
-      if (data.length > 0) {
-        // We expect one benchmark record for the user's sector
-        setBenchmark(data[0]);
-      } else {
-        throw new Error('No benchmark data available for your sector.');
-      }
+      setComparison(data);
     } catch (err) {
-      console.error('Error fetching benchmarks:', err);
+      console.error('Error fetching comparison data:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -61,7 +57,7 @@ function BenchmarkSectors() {
       setError(null);
 
       const reqBody = {
-        internalWeight: 30,
+        internalWeight: 30, // These values are now in the DB, but you could allow overrides
         externalWeight: 70
       };
 
@@ -80,7 +76,7 @@ function BenchmarkSectors() {
         throw new Error(errMsg);
       }
 
-      await fetchBenchmarks();
+      await fetchComparisonData();
     } catch (err) {
       console.error('Error recalculating benchmarks:', err);
       setError(err.message);
@@ -91,7 +87,7 @@ function BenchmarkSectors() {
 
   useEffect(() => {
     if (userId) {
-      fetchBenchmarks();
+      fetchComparisonData();
     } else {
       setError('User not logged in.');
     }
@@ -99,32 +95,34 @@ function BenchmarkSectors() {
 
   if (loading) return <CircularProgress />;
   if (error) return <Alert severity="error">{error}</Alert>;
-  if (!benchmark) return null;
+  if (!comparison) return null;
 
-  // Prepare data for the bar chart
+  const { userRiskScore, benchmark } = comparison;
+
+  // Prepare data for the bar chart (Internal, External, Blended)
   const chartData = {
     labels: ['Internal Avg', 'External Score', 'Blended Score'],
     datasets: [
       {
-        label: 'Benchmark Scores',
+        label: 'Sector Benchmark',
         data: [benchmark.internal_avg, benchmark.external_score, benchmark.blended_score],
         backgroundColor: ['#1976d2', '#ff9800', '#4caf50'],
       },
-    ],
+      {
+        label: 'Your Risk Score',
+        data: [userRiskScore.Normalized_Score], // Assuming normalized score (0-100)
+        backgroundColor: ['#e91e63'],
+      }
+    ]
   };
 
   return (
     <Box sx={{ maxWidth: 800, mx: 'auto', mt: 2 }}>
       <Typography variant="h4" sx={{ mb: 2 }}>
-        Sector Benchmark Analysis
+        Sector Benchmark Analysis & Your Risk Score
       </Typography>
 
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleRecalc}
-        sx={{ mb: 3 }}
-      >
+      <Button variant="contained" color="primary" onClick={handleRecalc} sx={{ mb: 3 }}>
         Recalculate Benchmarks
       </Button>
 
@@ -155,17 +153,18 @@ function BenchmarkSectors() {
       <Bar data={chartData} />
 
       <Box sx={{ mt: 3, p: 2, bgcolor: '#f5f5f5', borderRadius: 2 }}>
-        <Typography variant="body1">
-          <strong>What This Means:</strong>
+        <Typography variant="body1"><strong>What This Means:</strong></Typography>
+        <Typography variant="body2">
+          - <strong>Internal Avg</strong>: The average risk score from users in your sector.
         </Typography>
         <Typography variant="body2">
-          - The <strong>Internal Avg</strong> is calculated from your compliance scores.
+          - <strong>External Score</strong>: An industry benchmark score.
         </Typography>
         <Typography variant="body2">
-          - The <strong>External Score</strong> is sourced from industry benchmarks.
+          - <strong>Blended Score</strong>: A weighted score combining internal and external values.
         </Typography>
-        <Typography variant="body2">
-          - The <strong>Blended Score</strong> combines these scores using a 30/70 weighting.
+        <Typography variant="body2" sx={{ mt: 1 }}>
+          - Your individual risk score is <strong>{userRiskScore.Normalized_Score.toFixed(2)}</strong>.
         </Typography>
       </Box>
     </Box>
@@ -173,5 +172,6 @@ function BenchmarkSectors() {
 }
 
 export default BenchmarkSectors;
+
 
 

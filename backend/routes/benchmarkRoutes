@@ -1,77 +1,109 @@
-// benchmarkRoutes.js
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 const auth = require('../middleware/auth');
 
-// POST route remains unchanged...
+// 🔹 GET: Fetch the latest weight settings for benchmarks
+router.get('/settings', auth, async (req, res) => {
+    try {
+        const [settingsRows] = await pool.query(
+            'SELECT internal_weight, external_weight FROM benchmark_settings ORDER BY last_updated DESC LIMIT 1'
+        );
+
+        if (!settingsRows.length) {
+            return res.status(404).json({ error: 'Benchmark settings not found' });
+        }
+
+        res.json(settingsRows[0]);  // Returns latest stored benchmark weights
+    } catch (err) {
+        console.error('Error fetching benchmark settings:', err);
+        res.status(500).json({ error: 'Failed to fetch benchmark settings' });
+    }
+});
+
+// 🔹 POST: Calculate & Store Sector Benchmarks
 router.post('/calculate', auth, async (req, res) => {
     console.log('Calculating sector benchmarks...');
-    const { sectorId, internalWeight = 30, externalWeight = 70 } = req.body;
+
+    const { sectorId } = req.body;
+
+    // 1️⃣ ✅ Fetch weight settings from DB
+    let dbInternalWeight = 30, dbExternalWeight = 70;
+    try {
+        const [settingsRows] = await pool.query(
+            'SELECT internal_weight, external_weight FROM benchmark_settings ORDER BY last_updated DESC LIMIT 1'
+        );
+
+        if (settingsRows.length > 0) {
+            dbInternalWeight = settingsRows[0].internal_weight;
+            dbExternalWeight = settingsRows[0].external_weight;
+        }
+    } catch (err) {
+        console.error('Error fetching benchmark settings:', err);
+    }
+
     const connection = await pool.getConnection();
     try {
         await connection.beginTransaction();
+
+        // 2️⃣ ✅ Fetch sectors to process (either all or one specific sector)
         let sectors = [];
         if (sectorId) {
-            const [rows] = await connection.query(
-                'SELECT * FROM sector WHERE Sector_ID = ?',
-                [sectorId]
-            );
+            const [rows] = await connection.query('SELECT * FROM sector WHERE Sector_ID = ?', [sectorId]);
             sectors = rows;
         } else {
             const [allSectors] = await connection.query('SELECT * FROM sector');
             sectors = allSectors;
         }
+
         const results = [];
+
         for (const sectorObj of sectors) {
             const sid = sectorObj.Sector_ID;
-            // Calculate internal average from risk_score for this sector
+
+            // 3️⃣ ✅ Calculate Internal Average from `risk_score`
             const [avgRows] = await connection.query(
-                `
-                SELECT AVG(rs.Score_Value) AS internalAvg
-                FROM risk_score rs
-                JOIN user u ON rs.User_ID = u.User_ID
-                WHERE u.Sector_ID = ?
-                `,
+                `SELECT AVG(rs.Score_Value) AS internalAvg
+                 FROM risk_score rs
+                 JOIN user u ON rs.User_ID = u.User_ID
+                 WHERE u.Sector_ID = ?`,
                 [sid]
             );
             const internalAvg = avgRows[0].internalAvg || 0;
-            // Fetch external data from external_benchmarks for this sector
+
+            // 4️⃣ ✅ Fetch External Benchmark Data
             const [extRows] = await connection.query(
-                `
-                SELECT external_score, source_reference
-                FROM external_benchmarks 
-                WHERE sector_id = ?
-                ORDER BY updated_at DESC
-                LIMIT 1
-                `,
+                `SELECT external_score, source_reference
+                 FROM external_benchmarks 
+                 WHERE sector_id = ?
+                 ORDER BY updated_at DESC
+                 LIMIT 1`,
                 [sid]
             );
-            let externalScore = 0;
-            let externalSource = null;
+            let externalScore = 0, externalSource = null;
             if (extRows.length > 0) {
                 externalScore = extRows[0].external_score;
                 externalSource = extRows[0].source_reference;
             }
-            // Calculate the blended score: 30% internal + 70% external
-            const intWeight = parseFloat(internalWeight) / 100.0;
-            const extWeight = parseFloat(externalWeight) / 100.0;
+
+            // 5️⃣ ✅ Calculate Blended Score Using Stored DB Weights
+            const intWeight = parseFloat(dbInternalWeight) / 100.0;
+            const extWeight = parseFloat(dbExternalWeight) / 100.0;
             const blendedScore = (internalAvg * intWeight) + (externalScore * extWeight);
-            // Upsert into sector_benchmark table
+
+            // 6️⃣ ✅ Store Calculated Benchmark in `sector_benchmark`
             await connection.query(
-                `
-                INSERT INTO sector_benchmark
-                    (sector_id, internal_avg, external_score, blended_score, source_reference)
-                VALUES (?, ?, ?, ?, ?)
-                ON DUPLICATE KEY UPDATE
-                    internal_avg = VALUES(internal_avg),
-                    external_score = VALUES(external_score),
-                    blended_score = VALUES(blended_score),
-                    source_reference = VALUES(source_reference),
-                    updated_at = CURRENT_TIMESTAMP
-                `,
+                `INSERT INTO sector_benchmark (sector_id, internal_avg, external_score, blended_score, source_reference)
+                 VALUES (?, ?, ?, ?, ?)
+                 ON DUPLICATE KEY UPDATE 
+                 internal_avg = VALUES(internal_avg),
+                 external_score = VALUES(external_score),
+                 blended_score = VALUES(blended_score),
+                 source_reference = VALUES(source_reference),
+                 updated_at = CURRENT_TIMESTAMP`,
                 [sid, internalAvg, externalScore, blendedScore, externalSource]
             );
+
             results.push({
                 sectorId: sid,
                 sectorName: sectorObj.Sector_Name,
@@ -81,44 +113,89 @@ router.post('/calculate', auth, async (req, res) => {
                 sourceReference: externalSource
             });
         }
+
         await connection.commit();
         console.log('Benchmark calculation complete:', results);
-        return res.json({
-            message: 'Sector benchmarks calculated successfully',
-            data: results
-        });
+        res.json({ message: 'Sector benchmarks calculated successfully', data: results });
     } catch (err) {
         await connection.rollback();
         console.error('Error calculating benchmarks:', err);
-        return res.status(500).json({ error: 'Failed to calculate benchmarks' });
+        res.status(500).json({ error: 'Failed to calculate benchmarks' });
     } finally {
         connection.release();
     }
 });
 
-// NEW GET route: Returns benchmark info only for the specified user’s sector.
-// We use a route parameter (/:userId) for consistency with your recommendations route.
-router.get('/:userId', auth, async (req, res) => {
+// 🔹 GET: Fetch User Risk Score & Sector Benchmark
+router.get('/comparison/:userId', auth, async (req, res) => {
     const { userId } = req.params;
     try {
-        // Look up the user in the database
+        // ✅ Fetch Latest User Risk Score
+        const [riskRows] = await pool.query(
+            `SELECT Score_Value, Normalized_Score, Risk_Level
+             FROM risk_score 
+             WHERE User_ID = ?
+             ORDER BY Score_ID DESC LIMIT 1`,
+            [userId]
+        );
+
+        if (!riskRows.length) {
+            return res.status(404).json({ error: 'User risk score not found' });
+        }
+        const userRiskScore = riskRows[0];
+
+        // ✅ Get User's Sector
         const [userRows] = await pool.query('SELECT Sector_ID FROM user WHERE User_ID = ?', [userId]);
         if (!userRows.length) {
             return res.status(404).json({ error: 'User not found' });
         }
         const sectorId = userRows[0].Sector_ID;
-        // Fetch benchmark data for this sector
-        const [benchmarks] = await pool.query(
-            `
-            SELECT sb.*, s.Sector_Name
-            FROM sector_benchmark sb
-            JOIN sector s ON sb.sector_id = s.Sector_ID
-            WHERE sb.sector_id = ?
-            ORDER BY sb.updated_at DESC
-            `,
+
+        // ✅ Fetch Sector Benchmark
+        const [benchmarkRows] = await pool.query(
+            `SELECT * FROM sector_benchmark
+             WHERE sector_id = ?
+             ORDER BY updated_at DESC LIMIT 1`,
             [sectorId]
         );
+
+        if (!benchmarkRows.length) {
+            return res.status(404).json({ error: 'Benchmark for sector not found' });
+        }
+
+        const benchmark = benchmarkRows[0];
+
+        res.json({ userRiskScore, benchmark });
+
+    } catch (err) {
+        console.error('Error fetching comparison data:', err);
+        res.status(500).json({ error: 'Failed to fetch comparison data' });
+    }
+});
+
+// 🔹 GET: Fetch Only User’s Sector Benchmark
+router.get('/:userId', auth, async (req, res) => {
+    const { userId } = req.params;
+    try {
+        // ✅ Get User's Sector
+        const [userRows] = await pool.query('SELECT Sector_ID FROM user WHERE User_ID = ?', [userId]);
+        if (!userRows.length) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        const sectorId = userRows[0].Sector_ID;
+
+        // ✅ Fetch Benchmark for User’s Sector
+        const [benchmarks] = await pool.query(
+            `SELECT sb.*, s.Sector_Name
+             FROM sector_benchmark sb
+             JOIN sector s ON sb.sector_id = s.Sector_ID
+             WHERE sb.sector_id = ?
+             ORDER BY sb.updated_at DESC`,
+            [sectorId]
+        );
+
         return res.json(benchmarks);
+
     } catch (err) {
         console.error('Error fetching sector benchmarks:', err);
         return res.status(500).json({ error: 'Failed to fetch sector benchmarks' });
@@ -126,4 +203,3 @@ router.get('/:userId', auth, async (req, res) => {
 });
 
 module.exports = router;
-
