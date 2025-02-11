@@ -55,7 +55,7 @@ function Navbar() {
     { text: "Dashboard", path: "/dashboard", icon: <DashboardIcon /> },
     { text: "Questionnaire", path: "/questionnaire", icon: <QuestionAnswerIcon /> },
     { text: "Recommendations", path: "/recommendations", icon: <AssessmentIcon /> },
-    { text: "Benchmarking", path: "/benchmarking", icon: <AssessmentIcon /> },
+    { text: "Benchmarking", path: "/benchmarks", icon: <AssessmentIcon /> },
     { text: "Incident Reports", path: "/incidents", icon: <ReportIcon /> },
   ];
 

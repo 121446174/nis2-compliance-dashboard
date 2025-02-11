@@ -18,6 +18,7 @@ const categoryScores = require('./routes/categoryScores');
 const recommendationsRoute = require('./routes/recommendations');
 const incidentsRoute = require('./routes/incidents');
 const adminRoutes = require('./routes/adminRoute');
+const benchmarkRoutes = require('./routes/benchmarkRoutes');
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -48,6 +49,7 @@ app.use('/api', categoryScores);
 app.use('/api/recommendations', recommendationsRoute);
 app.use('/api/incidents', incidentsRoute);
 app.use('/admin', adminRoutes);
+app.use('/api/benchmark', benchmarkRoutes);
 
 // Start the server - verify server running
 app.listen(port, () => {
