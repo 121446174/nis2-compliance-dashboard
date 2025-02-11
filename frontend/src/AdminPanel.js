@@ -1,177 +1,301 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
+import {
+    Box,
+    Typography,
+    TextField,
+    Select,
+    MenuItem,
+    Button,
+    Table,
+    TableHead,
+    TableRow,
+    TableCell,
+    TableBody,
+    Paper,
+    FormControl,
+    InputLabel,
+    Alert
+} from '@mui/material';
 
+// AdminPanel component to manage questions
 const AdminPanel = () => {
-  const [questions, setQuestions] = useState([]);
-  const [newQuestion, setNewQuestion] = useState({
-    text: "",
-    category: "",
-    classification: "",
-    type: ""
-  });
-  const [error, setError] = useState(null);
+    const [questions, setQuestions] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [sectors, setSectors] = useState([]);
+    const [formData, setFormData] = useState({
+        question_text: '',
+        classification_type: '',
+        category_id: '',
+        sector_id: '',
+        answer_type: '',
+        mcq_options: ''
+    });
+    const [editingId, setEditingId] = useState(null);
+    const [error, setError] = useState('');
+    const token = localStorage.getItem('token');
 
-  // ✅ Get token from localStorage (like your other pages)
-  const token = localStorage.getItem("token");
+    // 1. Fetch Questions, Categories, and Sectors on component mount
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const questionsRes = await fetch('http://localhost:5000/admin/questions', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const categoriesRes = await fetch('http://localhost:5000/admin/categories', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const sectorsRes = await fetch('http://localhost:5000/admin/sectors', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const questionsData = await questionsRes.json();
+                const categoriesData = await categoriesRes.json();
+                const sectorsData = await sectorsRes.json();
+                setQuestions(questionsData);
+                setCategories(categoriesData);
+                setSectors(sectorsData);
+            } catch (err) {
+                console.error('Error fetching data:', err);
+                setError('Failed to fetch data');
+            }
+        };
+        fetchData();
+    }, [token]);
 
-  // ✅ Fetch all questions on mount
-  useEffect(() => {
-    fetch("http://localhost:5000/admin/questions", {
-      method: "GET",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // 🔥 FIXED: Add missing Authorization header
-      },
-    })
-      .then(async (res) => {
-        if (!res.ok) {
-          const errText = await res.text();
-          throw new Error(`HTTP ${res.status}: ${errText}`);
+    // 2. Handle form field changes
+    const handleChange = (field, value) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+    };
+
+    // 3. Handle form submission (add or update question)
+    const handleSubmit = async () => {
+        // Validate required fields
+        if (!formData.question_text || !formData.classification_type || !formData.category_id || !formData.answer_type) {
+            setError('Please fill in all required fields.');
+            return;
         }
-        return res.json();
-      })
-      .then((data) => {
-        setQuestions(data);
-        setError(null);
-      })
-      .catch((error) => {
-        console.error("Error fetching questions:", error);
-        setError(error.message);
-      });
-  }, [token]); // ✅ Ensures token is available when fetching
-
-  // ✅ Add a new question
-  const addQuestion = () => {
-    fetch("http://localhost:5000/admin/questions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // 🔥 FIXED: Add missing Authorization header
-      },
-      body: JSON.stringify({
-        question_text: newQuestion.text,
-        category_id: newQuestion.category,
-        classification_type: newQuestion.classification,
-        answer_type: newQuestion.type
-      }),
-      credentials: "include"
-    })
-      .then(async (res) => {
-        if (!res.ok) {
-          const errText = await res.text();
-          throw new Error(`HTTP ${res.status}: ${errText}`);
+        if (formData.classification_type === 'Sector-Specific' && !formData.sector_id) {
+            setError('Sector-Specific questions require a sector.');
+            return;
         }
-        return res.json();
-      })
-      .then(() => {
-        setNewQuestion({ text: "", category: "", classification: "", type: "" });
-        window.location.reload();
-      })
-      .catch((error) => {
-        console.error("Error adding question:", error);
-        setError(error.message);
-      });
-  };
+        setError('');
+        
+        // For multiple_choice answer type, process mcq_options (comma separated) into JSON string
+        const payload = {
+            question_text: formData.question_text,
+            classification_type: formData.classification_type,
+            category_id: formData.category_id,
+            sector_id: formData.classification_type === 'Sector-Specific' ? formData.sector_id : null,
+            answer_type: formData.answer_type,
+            mcq_options: formData.answer_type === 'multiple_choice'
+                ? JSON.stringify(formData.mcq_options.split(',').map(opt => opt.trim()))
+                : null
+        };
 
-  // ✅ Delete a question
-  const deleteQuestion = (id) => {
-    fetch(`http://localhost:5000/admin/questions/${id}`, {
-      method: "DELETE",
-      credentials: "include",
-      headers: {
-        Authorization: `Bearer ${token}`, // 🔥 FIXED: Add missing Authorization header
-      },
-    })
-      .then(async (res) => {
-        if (!res.ok) {
-          const errText = await res.text();
-          throw new Error(`HTTP ${res.status}: ${errText}`);
+        try {
+            let response;
+            if (editingId) {
+                // Update existing question
+                response = await fetch(`http://localhost:5000/admin/questions/${editingId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+            } else {
+                // Add new question
+                response = await fetch('http://localhost:5000/admin/questions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+            }
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error || 'Failed to save question');
+            }
+            // Refresh the page data (you may update state instead of reloading)
+            window.location.reload();
+        } catch (err) {
+            console.error('Error saving question:', err);
+            setError(err.message);
         }
-        return res.json();
-      })
-      .then(() => window.location.reload())
-      .catch((error) => {
-        console.error("Error deleting question:", error);
-        setError(error.message);
-      });
-  };
+    };
 
-  return (
-    <div style={{ padding: "1rem" }}>
-      <h2>Admin Panel - Manage Questions</h2>
-      {error && <div style={{ color: "red", marginBottom: "1rem" }}>Error: {error}</div>}
+    // 4. Handle edit: populate form with selected question's data
+    const handleEdit = (question) => {
+        setEditingId(question.Question_ID);
+        setFormData({
+            question_text: question.Question_Text,
+            classification_type: question.Classification_Type,
+            category_id: question.Category_ID,
+            sector_id: question.Sector_ID || '',
+            answer_type: question.Answer_Type,
+            mcq_options: question.MCQ_Options ? JSON.parse(question.MCQ_Options).join(', ') : ''
+        });
+    };
 
-      {/* ✅ Form to add questions */}
-      <div style={{ marginBottom: "1rem" }}>
-        <input
-          type="text"
-          value={newQuestion.text}
-          onChange={(e) => setNewQuestion({ ...newQuestion, text: e.target.value })}
-          placeholder="Enter question"
-          style={{ padding: "0.5rem", width: "300px", marginRight: "10px" }}
-        />
-        <select
-          value={newQuestion.classification}
-          onChange={(e) => setNewQuestion({ ...newQuestion, classification: e.target.value })}
-          style={{ marginRight: "10px" }}
-        >
-          <option value="">Select Classification</option>
-          <option value="Essential">Essential</option>
-          <option value="Important">Important</option>
-          <option value="Sector-Specific">Sector-Specific</option>
-        </select>
-        <select
-          value={newQuestion.type}
-          onChange={(e) => setNewQuestion({ ...newQuestion, type: e.target.value })}
-          style={{ marginRight: "10px" }}
-        >
-          <option value="">Select Answer Type</option>
-          <option value="yes_no">Yes/No</option>
-          <option value="text">Text</option>
-          <option value="numeric">Numeric</option>
-          <option value="multiple_choice">Multiple Choice</option>
-        </select>
-        {newQuestion.type === "multiple_choice" && (
-          <input
-            type="text"
-            value={newQuestion.mcqOptions}
-            onChange={(e) => setNewQuestion({ ...newQuestion, mcqOptions: e.target.value })}
-            placeholder="Comma-separated options (e.g. Yes, No, Not Sure)"
-            style={{ padding: "0.5rem", width: "300px" }}
-          />
-        )}
-        <button onClick={addQuestion} style={{ marginLeft: "1rem", padding: "0.5rem 1rem" }}>
-          Add Question
-        </button>
-      </div>
+    // 5. Handle delete question
+    const handleDelete = async (id) => {
+        if (!window.confirm('Are you sure you want to delete this question?')) return;
+        try {
+            const response = await fetch(`http://localhost:5000/admin/questions/${id}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (!response.ok) throw new Error('Failed to delete question');
+            window.location.reload();
+        } catch (err) {
+            console.error('Error deleting question:', err);
+            setError('Failed to delete question');
+        }
+    };
 
-      {/* ✅ Table of Questions */}
-      <table border="1" cellPadding="8" cellSpacing="0">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Question</th>
-            <th>Classification</th>
-            <th>Answer Type</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {questions.map((q) => (
-            <tr key={q.Question_ID}>
-              <td>{q.Question_ID}</td>
-              <td>{q.Question_Text}</td>
-              <td>{q.Classification_Type}</td>
-              <td>{q.Answer_Type}</td>
-              <td>
-                <button onClick={() => deleteQuestion(q.Question_ID)}>Delete</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+    return (
+        <Box sx={{ maxWidth: 1200, mx: 'auto', p: 3 }}>
+            <Typography variant="h4" sx={{ textAlign: 'center', mb: 3, fontWeight: 'bold' }}>
+                Admin Panel - Manage Questions
+            </Typography>
+            {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+            {/* Form for Add/Edit Question */}
+            <Paper sx={{ p: 2, mb: 3, boxShadow: '2px 2px 10px rgba(0,0,0,0.1)' }}>
+                <Typography variant="h6" sx={{ mb: 2 }}>
+                    {editingId ? 'Edit Question' : 'Add New Question'}
+                </Typography>
+                <TextField
+                    fullWidth
+                    label="Question Text"
+                    value={formData.question_text}
+                    onChange={(e) => handleChange('question_text', e.target.value)}
+                    sx={{ mb: 2 }}
+                />
+                <FormControl fullWidth sx={{ mb: 2 }}>
+                    <InputLabel>Category</InputLabel>
+                    <Select
+                        value={formData.category_id}
+                        label="Category"
+                        onChange={(e) => handleChange('category_id', e.target.value)}
+                    >
+                        {categories.map(cat => (
+                            <MenuItem key={cat.Category_ID} value={cat.Category_ID}>
+                                {cat.Category_Name}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+                <FormControl fullWidth sx={{ mb: 2 }}>
+                    <InputLabel>Classification</InputLabel>
+                    <Select
+                        value={formData.classification_type}
+                        label="Classification"
+                        onChange={(e) => handleChange('classification_type', e.target.value)}
+                    >
+                        <MenuItem value="Essential">Essential</MenuItem>
+                        <MenuItem value="Important">Important</MenuItem>
+                        <MenuItem value="Sector-Specific">Sector-Specific</MenuItem>
+                    </Select>
+                </FormControl>
+                {/* Show Sector selection only for Sector-Specific classification */}
+                {formData.classification_type === 'Sector-Specific' && (
+                    <FormControl fullWidth sx={{ mb: 2 }}>
+                        <InputLabel>Sector</InputLabel>
+                        <Select
+                            value={formData.sector_id}
+                            label="Sector"
+                            onChange={(e) => handleChange('sector_id', e.target.value)}
+                        >
+                            {sectors.map(sec => (
+                                <MenuItem key={sec.Sector_ID} value={sec.Sector_ID}>
+                                    {sec.Sector_Name}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                )}
+                <FormControl fullWidth sx={{ mb: 2 }}>
+                    <InputLabel>Answer Type</InputLabel>
+                    <Select
+                        value={formData.answer_type}
+                        label="Answer Type"
+                        onChange={(e) => handleChange('answer_type', e.target.value)}
+                    >
+                        <MenuItem value="yes_no">Yes/No</MenuItem>
+                        <MenuItem value="text">Text</MenuItem>
+                        <MenuItem value="numeric">Numeric</MenuItem>
+                        <MenuItem value="multiple_choice">Multiple Choice</MenuItem>
+                    </Select>
+                </FormControl>
+                {/* Show MCQ Options input only if answer type is multiple_choice */}
+                {formData.answer_type === 'multiple_choice' && (
+                    <TextField
+                        fullWidth
+                        label="MCQ Options (comma-separated)"
+                        value={formData.mcq_options}
+                        onChange={(e) => handleChange('mcq_options', e.target.value)}
+                        sx={{ mb: 2 }}
+                    />
+                )}
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                    <Button variant="contained" onClick={handleSubmit}>
+                        {editingId ? 'Update Question' : 'Add Question'}
+                    </Button>
+                    {editingId && (
+                        <Button variant="outlined" onClick={() => {
+                            setEditingId(null);
+                            setFormData({
+                                question_text: '',
+                                classification_type: '',
+                                category_id: '',
+                                sector_id: '',
+                                answer_type: '',
+                                mcq_options: ''
+                            });
+                        }}>
+                            Cancel Edit
+                        </Button>
+                    )}
+                </Box>
+            </Paper>
+            {/* Table to display existing questions */}
+            <Paper sx={{ p: 2, boxShadow: '2px 2px 10px rgba(0,0,0,0.1)' }}>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell><strong>Question</strong></TableCell>
+                            <TableCell><strong>Category</strong></TableCell>
+                            <TableCell><strong>Classification</strong></TableCell>
+                            <TableCell><strong>Sector</strong></TableCell>
+                            <TableCell><strong>Answer Type</strong></TableCell>
+                            <TableCell align="right"><strong>Actions</strong></TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {questions.map(q => (
+                            <TableRow key={q.Question_ID}>
+                                <TableCell>{q.Question_Text}</TableCell>
+                                <TableCell>{q.Category_Name || 'N/A'}</TableCell>
+                                <TableCell>{q.Classification_Type}</TableCell>
+                                <TableCell>{q.Sector_Name || 'N/A'}</TableCell>
+                                <TableCell>{q.Answer_Type}</TableCell>
+                                <TableCell align="right">
+                                    <Button variant="outlined" size="small" onClick={() => handleEdit(q)}>
+                                        Edit
+                                    </Button>
+                                    <Button variant="outlined" color="error" size="small" sx={{ ml: 1 }} onClick={() => handleDelete(q.Question_ID)}>
+                                        Delete
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </Paper>
+        </Box>
+    );
 };
 
 export default AdminPanel;

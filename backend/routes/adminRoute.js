@@ -1,94 +1,150 @@
 const express = require('express');
-const db = require('../db'); // Database connection
-const auth = require('../middleware/auth'); // Authentication middleware
+const db = require('../db');
+const auth = require('../middleware/auth');
 const router = express.Router();
 
-// Middleware: Check if user is admin
-router.use(auth, async (req, res, next) => {
+// 1. Fetch All Questions (with Category & Sector information)
+// Inspired by MDN and your incident routes
+router.get('/questions', auth, async (req, res) => {
     try {
-        const [user] = await db.query("SELECT isAdmin FROM user WHERE User_ID = ?", [req.user.userId]);
-        if (!user.length || !user[0].isAdmin) {
-            return res.status(403).json({ error: "Access denied. Admins only." });
-        }
-        next();
-    } catch (err) {
-        console.error("Admin Check Error:", err);
-        res.status(500).json({ error: "Error verifying admin status" });
-    }
-});
-
-// 1️⃣ Get all questions for the Admin
-router.get('/questions', async (req, res) => {
-    try {
-        console.log("🔹 Admin Questions API Hit");
-
-        const [questions] = await db.query(`
-            SELECT q.Question_ID, q.Question_Text, q.Category_ID, q.Answer_Type, 
-       q.Classification_Type, q.Sector_ID, s.Sector_Name
-FROM questions q
-LEFT JOIN sector s ON q.Sector_ID = s.Sector_ID
-        `);
-
-        console.log("✅ Questions fetched:", questions.length);
+        // SQL query: join questions with categories and sectors for display
+        const [questions] = await db.query(
+            `SELECT 
+                q.Question_ID, 
+                q.Question_Text, 
+                q.Classification_Type, 
+                q.Sector_ID, 
+                c.Category_ID, 
+                c.Category_Name, 
+                q.Answer_Type, 
+                q.MCQ_Options, 
+                s.Sector_Name
+             FROM questions q
+             LEFT JOIN categories c ON q.Category_ID = c.Category_ID
+             LEFT JOIN sector s ON q.Sector_ID = s.Sector_ID
+             ORDER BY q.Question_ID DESC`
+        );
+        console.log(`Fetched ${questions.length} questions`);
         res.json(questions);
     } catch (err) {
-        console.error('❌ Error fetching questions:', err.message); // Logs actual error
-        res.status(500).json({ error: 'Error fetching questions', details: err.message });
+        console.error('Error fetching questions:', err);
+        res.status(500).json({ error: 'Failed to fetch questions' });
     }
 });
 
+// 2. Fetch All Categories
+router.get('/categories', auth, async (req, res) => {
+    try {
+        const [categories] = await db.query(
+            `SELECT * FROM categories ORDER BY Category_Name ASC`
+        );
+        console.log(`Fetched ${categories.length} categories`);
+        res.json(categories);
+    } catch (err) {
+        console.error('Error fetching categories:', err);
+        res.status(500).json({ error: 'Failed to fetch categories' });
+    }
+});
 
-// 2️⃣ Add a new question
-router.post('/questions', async (req, res) => {
-    const { question_text, category_id, classification_type, answer_type, sector_id } = req.body;
+// 3. Fetch All Sectors
+router.get('/sectors', auth, async (req, res) => {
+    try {
+        const [sectors] = await db.query(
+            `SELECT * FROM sector ORDER BY Sector_Name ASC`
+        );
+        console.log(`Fetched ${sectors.length} sectors`);
+        res.json(sectors);
+    } catch (err) {
+        console.error('Error fetching sectors:', err);
+        res.status(500).json({ error: 'Failed to fetch sectors' });
+    }
+});
 
-    if (!question_text || !category_id || !classification_type || !answer_type) {
-        return res.status(400).json({ error: "Missing required fields" });
+// 4. Add a New Question
+// Note: For multiple_choice questions, mcq_options should be a JSON string
+router.post('/questions', auth, async (req, res) => {
+    const { question_text, classification_type, sector_id, category_id, answer_type, mcq_options } = req.body;
+
+    // Validate required fields
+    if (!question_text || !classification_type || !category_id || !answer_type) {
+        console.error('Missing required fields:', req.body);
+        return res.status(400).json({ error: 'Missing required fields' });
+    }
+    if (classification_type === 'Sector-Specific' && !sector_id) {
+        console.error('Sector-Specific questions require a sector_id');
+        return res.status(400).json({ error: 'Sector-Specific questions require a sector_id' });
     }
 
     try {
-        await db.query(
-            `INSERT INTO questions (Question_Text, Category_ID, Classification_Type, Answer_Type, Sector_ID)
-             VALUES (?, ?, ?, ?, ?)`,
-            [question_text, category_id, classification_type, answer_type, sector_id || null]
+        const [result] = await db.query(
+            `INSERT INTO questions 
+             (Question_Text, Classification_Type, Sector_ID, Category_ID, Answer_Type, MCQ_Options)
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [
+                question_text,
+                classification_type,
+                classification_type === 'Sector-Specific' ? sector_id : null,
+                category_id,
+                answer_type,
+                answer_type === 'multiple_choice' ? mcq_options : null
+            ]
         );
-        res.json({ message: "Question added successfully!" });
+        console.log(`New question added with ID ${result.insertId}`);
+        res.status(201).json({ message: 'Question added successfully', question_id: result.insertId });
     } catch (err) {
         console.error('Error adding question:', err);
         res.status(500).json({ error: 'Failed to add question' });
     }
 });
 
-// 3️⃣ Edit an existing question
-router.put('/questions/:id', async (req, res) => {
-    const { question_text, category_id, classification_type, answer_type, sector_id } = req.body;
+// 5. Update an Existing Question
+router.put('/questions/:id', auth, async (req, res) => {
+    const { question_text, classification_type, sector_id, category_id, answer_type, mcq_options } = req.body;
     const { id } = req.params;
 
-    if (!question_text || !category_id || !classification_type || !answer_type) {
-        return res.status(400).json({ error: "Missing required fields" });
+    // Validate required fields
+    if (!question_text || !classification_type || !category_id || !answer_type) {
+        console.error('Missing required fields for update:', req.body);
+        return res.status(400).json({ error: 'Missing required fields' });
     }
 
     try {
-        await db.query(
+        const [result] = await db.query(
             `UPDATE questions 
-             SET Question_Text=?, Category_ID=?, Classification_Type=?, Answer_Type=?, Sector_ID=?
-             WHERE Question_ID=?`,
-            [question_text, category_id, classification_type, answer_type, sector_id || null, id]
+             SET Question_Text = ?, Classification_Type = ?, Sector_ID = ?, Category_ID = ?, Answer_Type = ?, MCQ_Options = ?
+             WHERE Question_ID = ?`,
+            [
+                question_text,
+                classification_type,
+                classification_type === 'Sector-Specific' ? sector_id : null,
+                category_id,
+                answer_type,
+                answer_type === 'multiple_choice' ? mcq_options : null,
+                id
+            ]
         );
-        res.json({ message: "Question updated successfully!" });
+        console.log(`Question ID ${id} updated`);
+        res.json({ message: 'Question updated successfully' });
     } catch (err) {
         console.error('Error updating question:', err);
         res.status(500).json({ error: 'Failed to update question' });
     }
 });
 
-// 4️⃣ Delete a question
-router.delete('/questions/:id', async (req, res) => {
+// 6. Delete a Question
+router.delete('/questions/:id', auth, async (req, res) => {
     const { id } = req.params;
-
     try {
-        await db.query("DELETE FROM questions WHERE Question_ID=?", [id]);
-        res.json({ message: "Question deleted successfully!" });
+        const [result] = await db.query(
+            `DELETE FROM questions WHERE Question_ID = ?`,
+            [id]
+        );
+        if (result.affectedRows === 0) {
+            console.warn(`No question found with ID ${id} for deletion`);
+            return res.status(404).json({ error: 'Question not found' });
+        }
+        console.log(`Question ID ${id} deleted`);
+        res.json({ message: 'Question deleted successfully', deletedId: id });
     } catch (err) {
         console.error('Error deleting question:', err);
         res.status(500).json({ error: 'Failed to delete question' });
