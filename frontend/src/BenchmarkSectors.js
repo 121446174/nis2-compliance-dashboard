@@ -19,7 +19,6 @@ import 'chart.js/auto';
 function BenchmarkSectors() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  // We'll store the comparison data in one object:
   const [comparison, setComparison] = useState(null);
 
   const token = localStorage.getItem('token');
@@ -110,7 +109,11 @@ function BenchmarkSectors() {
       },
       {
         label: 'Your Risk Score',
-        data: [userRiskScore.Normalized_Score], // Assuming normalized score (0-100)
+        data: [
+          userRiskScore.Normalized_Score,
+          userRiskScore.Normalized_Score,
+          userRiskScore.Normalized_Score
+        ],
         backgroundColor: ['#e91e63'],
       }
     ]
@@ -128,20 +131,26 @@ function BenchmarkSectors() {
 
       <TableContainer component={Paper} sx={{ mb: 3 }}>
         <Table>
-          <TableHead>
+        <TableHead>
             <TableRow>
               <TableCell><strong>Sector</strong></TableCell>
               <TableCell><strong>Internal Avg</strong></TableCell>
+              <TableCell><strong>Your Risk Score (Internal)</strong></TableCell>
               <TableCell><strong>External Score</strong></TableCell>
+              <TableCell><strong>Your Risk Score (External)</strong></TableCell>
               <TableCell><strong>Blended Score</strong></TableCell>
+              <TableCell><strong>Your Risk Score (Blended)</strong></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            <TableRow key={benchmark.sectorId || benchmark.benchmark_id}>
+            <TableRow key={benchmark.sector_id}>
               <TableCell>{benchmark.Sector_Name}</TableCell>
               <TableCell>{benchmark.internal_avg.toFixed(2)}</TableCell>
+              <TableCell>{userRiskScore.Normalized_Score.toFixed(2)}</TableCell>
               <TableCell>{benchmark.external_score.toFixed(2)}</TableCell>
+              <TableCell>{userRiskScore.Normalized_Score.toFixed(2)}</TableCell>
               <TableCell>{benchmark.blended_score.toFixed(2)}</TableCell>
+              <TableCell>{userRiskScore.Normalized_Score.toFixed(2)}</TableCell>
             </TableRow>
           </TableBody>
         </Table>
@@ -172,6 +181,3 @@ function BenchmarkSectors() {
 }
 
 export default BenchmarkSectors;
-
-
-

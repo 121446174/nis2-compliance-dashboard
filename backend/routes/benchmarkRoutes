@@ -127,51 +127,54 @@ router.post('/calculate', auth, async (req, res) => {
 });
 
 // 🔹 GET: Fetch User Risk Score & Sector Benchmark
+// 🔹 GET: Fetch User Risk Score & Sector Benchmark
 router.get('/comparison/:userId', auth, async (req, res) => {
     const { userId } = req.params;
     try {
-        // ✅ Fetch Latest User Risk Score
-        const [riskRows] = await pool.query(
-            `SELECT Score_Value, Normalized_Score, Risk_Level
-             FROM risk_score 
-             WHERE User_ID = ?
-             ORDER BY Score_ID DESC LIMIT 1`,
-            [userId]
-        );
-
-        if (!riskRows.length) {
-            return res.status(404).json({ error: 'User risk score not found' });
-        }
-        const userRiskScore = riskRows[0];
-
-        // ✅ Get User's Sector
-        const [userRows] = await pool.query('SELECT Sector_ID FROM user WHERE User_ID = ?', [userId]);
-        if (!userRows.length) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-        const sectorId = userRows[0].Sector_ID;
-
-        // ✅ Fetch Sector Benchmark
-        const [benchmarkRows] = await pool.query(
-            `SELECT * FROM sector_benchmark
-             WHERE sector_id = ?
-             ORDER BY updated_at DESC LIMIT 1`,
-            [sectorId]
-        );
-
-        if (!benchmarkRows.length) {
-            return res.status(404).json({ error: 'Benchmark for sector not found' });
-        }
-
-        const benchmark = benchmarkRows[0];
-
-        res.json({ userRiskScore, benchmark });
-
+      // ✅ Fetch Latest User Risk Score
+      const [riskRows] = await pool.query(
+        `SELECT Score_Value, Normalized_Score, Risk_Level
+         FROM risk_score 
+         WHERE User_ID = ?
+         ORDER BY Score_ID DESC LIMIT 1`,
+        [userId]
+      );
+  
+      if (!riskRows.length) {
+        return res.status(404).json({ error: 'User risk score not found' });
+      }
+      const userRiskScore = riskRows[0];
+  
+      // ✅ Get User's Sector
+      const [userRows] = await pool.query('SELECT Sector_ID FROM user WHERE User_ID = ?', [userId]);
+      if (!userRows.length) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      const sectorId = userRows[0].Sector_ID;
+  
+      // ✅ Fetch Sector Benchmark joined with the sector table to get Sector_Name
+      const [benchmarkRows] = await pool.query(
+        `SELECT sb.*, s.Sector_Name
+         FROM sector_benchmark sb
+         JOIN sector s ON sb.sector_id = s.Sector_ID
+         WHERE sb.sector_id = ?
+         ORDER BY sb.updated_at DESC LIMIT 1`,
+        [sectorId]
+      );
+  
+      if (!benchmarkRows.length) {
+        return res.status(404).json({ error: 'Benchmark for sector not found' });
+      }
+  
+      const benchmark = benchmarkRows[0];
+  
+      res.json({ userRiskScore, benchmark });
     } catch (err) {
-        console.error('Error fetching comparison data:', err);
-        res.status(500).json({ error: 'Failed to fetch comparison data' });
+      console.error('Error fetching comparison data:', err);
+      res.status(500).json({ error: 'Failed to fetch comparison data' });
     }
-});
+  });
+  
 
 // 🔹 GET: Fetch Only User’s Sector Benchmark
 router.get('/:userId', auth, async (req, res) => {
