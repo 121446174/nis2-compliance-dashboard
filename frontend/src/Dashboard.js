@@ -21,6 +21,7 @@ import {
 } from '@mui/material';
 import { Bar } from 'react-chartjs-2';
 import RiskChart from './RiskChart'; // Import the RiskChart component
+import BenchmarkChart from './BenchmarkChart'; 
 
 function Dashboard() {
     const navigate = useNavigate();
@@ -385,8 +386,7 @@ const getRiskChartData = () => {
   </Card>
 </Grid>
 
-          
-
+        
 <Grid item xs={12} md={6}>
   <Card>
     <CardContent>
@@ -408,6 +408,17 @@ const getRiskChartData = () => {
 </Grid>
 
           </Grid>
+          {/* Example: Add a new Grid row for the Benchmark Chart */}
+      <Grid container spacing={3} sx={{ mt: 2 }}>
+        <Grid item xs={12}>
+          <Card>
+            <CardContent>
+              {/* The BenchmarkChart component will fetch and render its own data */}
+              <BenchmarkChart />
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
 
           {/* Help Dialog */}
           <Dialog open={helpOpen} onClose={handleHelpClose}>

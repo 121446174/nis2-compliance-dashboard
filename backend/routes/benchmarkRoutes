@@ -127,7 +127,6 @@ router.post('/calculate', auth, async (req, res) => {
 });
 
 // 🔹 GET: Fetch User Risk Score & Sector Benchmark
-// 🔹 GET: Fetch User Risk Score & Sector Benchmark
 router.get('/comparison/:userId', auth, async (req, res) => {
     const { userId } = req.params;
     try {
