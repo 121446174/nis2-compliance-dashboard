@@ -65,7 +65,8 @@ function Navbar() {
     { text: "Login", path: "/login", icon: <LoginIcon /> },
     { text: "Dashboard", path: "/dashboard", icon: <DashboardIcon /> }, // Logout will be in dashboard
     { text: "Admin Panel", path: "/admin", icon: <AdminPanelSettingsIcon /> },
-    { text: "Admin Recommendations", path: "/admin/recommendations", icon: <AssessmentIcon /> } // ✅ Always visible for admins
+    { text: "Admin Recommendations", path: "/admin/recommendations", icon: <AssessmentIcon /> }, 
+    { text: "Admin Benchmarking", path: "/admin/benchmark", icon: <AssessmentIcon /> }
   ];
 
   console.log("📌 Current Admin Status:", isAdmin);

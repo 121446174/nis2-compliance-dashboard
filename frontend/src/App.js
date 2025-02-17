@@ -17,6 +17,7 @@ import IncidentDashboard from './IncidentDashboard';
 import AdminPanel from './AdminPanel'; 
 import BenchmarkSectors from './BenchmarkSectors';
 import AdminRecommendations from './AdminRecommendations';
+import AdminBenchmarkPanel from './AdminBenchmarkPanel';
 
 
 function App() {
@@ -43,6 +44,7 @@ function App() {
               <Route path="/admin" element={<AdminPanel />} />
               <Route path="/admin/recommendations" element={<AdminRecommendations />} />
               <Route path="/benchmarks" element={<BenchmarkSectors />} />
+              <Route path="/admin/benchmark" element={<AdminBenchmarkPanel />} />
             </Routes>
           </Box>
         </Box>

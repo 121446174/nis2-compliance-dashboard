@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; 
 import {
   Typography,
   Box,
@@ -11,7 +11,8 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Button
+  Button,
+  Link
 } from '@mui/material';
 import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
@@ -30,9 +31,12 @@ function BenchmarkSectors() {
       setLoading(true);
       setError(null);
 
-      const res = await fetch(`http://localhost:5000/api/benchmark/comparison/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await fetch(
+        `http://localhost:5000/api/benchmark/comparison/${userId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
 
       if (!res.ok) {
         const errData = await res.json().catch(() => {});
@@ -104,8 +108,12 @@ function BenchmarkSectors() {
     datasets: [
       {
         label: 'Sector Benchmark',
-        data: [benchmark.internal_avg, benchmark.external_score, benchmark.blended_score],
-        backgroundColor: ['#1976d2', '#ff9800', '#4caf50'],
+        data: [
+          benchmark.internal_avg,
+          benchmark.external_score,
+          benchmark.blended_score
+        ],
+        backgroundColor: ['#1976d2', '#ff9800', '#4caf50']
       },
       {
         label: 'Your Risk Score',
@@ -114,7 +122,7 @@ function BenchmarkSectors() {
           userRiskScore.Normalized_Score,
           userRiskScore.Normalized_Score
         ],
-        backgroundColor: ['#e91e63'],
+        backgroundColor: ['#e91e63']
       }
     ]
   };
@@ -122,7 +130,7 @@ function BenchmarkSectors() {
   return (
     <Box sx={{ maxWidth: 800, mx: 'auto', mt: 2 }}>
       <Typography variant="h4" sx={{ mb: 2 }}>
-        Sector Benchmark Analysis & Your Risk Score
+        Sector Benchmark Analysis &amp; Your Risk Score
       </Typography>
 
       <Button variant="contained" color="primary" onClick={handleRecalc} sx={{ mb: 3 }}>
@@ -131,15 +139,29 @@ function BenchmarkSectors() {
 
       <TableContainer component={Paper} sx={{ mb: 3 }}>
         <Table>
-        <TableHead>
+          <TableHead>
             <TableRow>
-              <TableCell><strong>Sector</strong></TableCell>
-              <TableCell><strong>Internal Avg</strong></TableCell>
-              <TableCell><strong>Your Risk Score (Internal)</strong></TableCell>
-              <TableCell><strong>External Score</strong></TableCell>
-              <TableCell><strong>Your Risk Score (External)</strong></TableCell>
-              <TableCell><strong>Blended Score</strong></TableCell>
-              <TableCell><strong>Your Risk Score (Blended)</strong></TableCell>
+              <TableCell>
+                <strong>Sector</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Internal Avg</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Your Risk Score (Internal)</strong>
+              </TableCell>
+              <TableCell>
+                <strong>External Score</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Your Risk Score (External)</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Blended Score</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Your Risk Score (Blended)</strong>
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -162,7 +184,9 @@ function BenchmarkSectors() {
       <Bar data={chartData} />
 
       <Box sx={{ mt: 3, p: 2, bgcolor: '#f5f5f5', borderRadius: 2 }}>
-        <Typography variant="body1"><strong>What This Means:</strong></Typography>
+        <Typography variant="body1">
+          <strong>What This Means:</strong>
+        </Typography>
         <Typography variant="body2">
           - <strong>Internal Avg</strong>: The average risk score from users in your sector.
         </Typography>
@@ -173,11 +197,34 @@ function BenchmarkSectors() {
           - <strong>Blended Score</strong>: A weighted score combining internal and external values.
         </Typography>
         <Typography variant="body2" sx={{ mt: 1 }}>
-          - Your individual risk score is <strong>{userRiskScore.Normalized_Score.toFixed(2)}</strong>.
+          - Your individual risk score is{' '}
+          <strong>{userRiskScore.Normalized_Score.toFixed(2)}</strong>.
         </Typography>
+
+        {/* Conditionally render the Justification if a user is logged in */}
+        {userId && (
+          <Box sx={{ mt: 3, p: 2, bgcolor: '#e0e0e0', borderRadius: 2 }}>
+            <Typography variant="body2">
+              <strong>Justification:</strong>
+            </Typography>
+            <Typography variant="body2" sx={{ mt: 1 }}>
+              {benchmark.justification}
+            </Typography>
+            <Typography variant="body2" sx={{ mt: 1 }}>
+              <Link
+                href="https://www.enisa.europa.eu/publications/enisa-threat-landscape-2024"
+                target="_blank"
+                rel="noopener"
+              >
+                Source: ENISA Threat Landscape 2024
+              </Link>
+            </Typography>
+          </Box>
+        )}
       </Box>
     </Box>
   );
 }
 
 export default BenchmarkSectors;
+
