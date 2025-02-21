@@ -24,9 +24,10 @@ router.post('/', async (req, res) => {
     const user = userRows[0];
 
 
-    // 🔹 If the user is an admin, bypass classification check
-    if (user.isAdmin) {
-      console.log('Admin login detected:', user.Email);
+    // If the user is an admin, bypass classification check
+    // Node.js and Express Role-Based Access Control (RBAC) https://www.youtube.com/watch?v=fUWkVxCv4IQ
+    if (user.isAdmin) {  
+    console.log('Admin login detected:', user.Email);
       
       const token = jwt.sign(
         { userId: user.User_ID, isAdmin: true },

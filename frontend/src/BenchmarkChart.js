@@ -1,4 +1,4 @@
-// BenchmarkChart.js
+
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, CircularProgress, Alert } from '@mui/material';
 import { Bar } from 'react-chartjs-2';
@@ -11,6 +11,9 @@ function BenchmarkChart() {
   const token = localStorage.getItem('token');
   const userId = token ? JSON.parse(atob(token.split('.')[1])).userId : null;
 
+  // Fetch benchmark comparison data
+  // Reference: Chart.js Integration in React
+  // https://www.chartjs.org/docs/latest/getting-started/integration.html
   const fetchComparisonData = async () => {
     try {
       setLoading(true);
@@ -47,6 +50,8 @@ function BenchmarkChart() {
   const { userRiskScore, benchmark } = comparison;
 
   // Prepare the chart data
+  // Reference: Chart.js Bar Chart - Data Formatting
+  // https://www.chartjs.org/docs/latest/charts/bar.html
   const chartData = {
     labels: ['Internal Avg', 'External Score', 'Blended Score'],
     datasets: [
@@ -71,6 +76,8 @@ function BenchmarkChart() {
     <Box sx={{ width: '100%', height: '400px' }}>
       <Typography variant="h6" sx={{ mb: 1 }}>
         Sector Benchmark Analysis & Your Risk Score
+         {/* Reference: Chart.js Options & Plugin Configurations */}
+      {/* https://www.chartjs.org/docs/latest/configuration/ */}
       </Typography>
       <Bar
         data={chartData}

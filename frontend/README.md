@@ -235,6 +235,156 @@ Purpose: Demonstrates best practices for implementing DELETE routes in Express, 
 URL: https://stackoverflow.com/questions/72342532/how-to-modularize-a-delete-route-with-params-in-express
 
 
+# benchmarkRoutes.js
+
+Source: MDN's "Express Routing" guide Purpose: Explains Express.js routing best practices. URL: https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Server-side/Express_Nodejs/routes
+
+Source: MySQL 8.0 Documentation: SELECT Query Purpose: Details SQL SELECT statement usage. URL: https://dev.mysql.com/doc/refman/8.0/en/select.html
+
+Source: Express Routing Purpose: Guides handling routes in Express.js. URL: https://expressjs.com/en/guide/routing.html
+
+Source: MDN Web Docs - If-Else Statement Purpose: Demonstrates JavaScript if-else logic. URL: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/if...else
+
+Source: GitHub - Using transaction with promise connection Purpose: Shows how to use MySQL transactions in Node.js. URL: https://github.com/sidorares/node-mysql2/issues/384
+
+Source: MDN Web Docs - For...of Loop Purpose: Describes JavaScript for...of loop for iterating over arrays. URL: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...of
+
+Source: Programiz - SQL JOIN With AS Alias Purpose: Explains SQL JOIN operations with table aliases. URL: https://www.programiz.com/sql/join
+
+Source: JavaScript parseFloat() Method Purpose: Converts strings to floating-point numbers in JavaScript. URL: https://flexiple.com/javascript/parsefloat-method
+
+Source: MySQL Docs - INSERT ... ON DUPLICATE KEY UPDATE Purpose: Prevents duplicate entries while updating existing records. URL: https://dev.mysql.com/doc/refman/8.0/en/insert-on-duplicate.html
+
+Source: MySQL Tutorial - CURRENT_TIMESTAMP Purpose: Ensures accurate timestamp updates in MySQL. URL: https://dev.mysql.com/doc/refman/8.4/en/date-and-time-functions.html
+
+
+# questionnaireRoute.js
+
+Inspired Source: Mozilla Developer Network (MDN)
+Route to fetch questions and categorires.
+Purpose: Inspired by MDN's tutorial on routes in Express. Handles fetching data from a database based on query parameters.This route fetches categories based on the classification type and handles database interactions effectively.
+URL: https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs/routes
+
+
+Route to submit answers
+Purpose: Based on a combination of custom Node.js/Express practices and form handling for questionnaire submission. This route handles multiple response types and saves answers into a database.
+Source: ChatGPT - Node.js/Express Questionnaire Submission Route
+Prompt: 
+"I need a Node.js/Express route that handles questionnaire submissions. It should:
+Accept userId, an array of answers, and categoryId in the request body.
+Validate answers dynamically based on the Answer_Type of each question (yes_no, text, multiple_choice, numeric).
+Include helper logic for scoring multiple-choice answers and handle database inserts accordingly."
+
+
+Purpose: Uses JavaScript’s map() method to process multiple choice answers into numerical scores based on predefined values.
+URL: Array.map() - MDN (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)
+
+
+Source: Forum Discussion on Node.js async/await and MySQL query issues.  
+Purpose: Helped implement the `async/await` pattern for fetching scoring rules with parameterized queries in Node.js.  
+URL: [https://forum.freecodecamp.org/t/nodejs-async-await-mysql-query-select-problem/410085/2](https://forum.freecodecamp.org/t/nodejs-async-await-mysql-query-select-problem/410085/2)
+
+Source: MySQL Documentation - ON DUPLICATE KEY UPDATE.  
+Purpose: Used to update existing records or insert new ones when handling text-based responses.  
+URL: [https://dev.mysql.com/doc/refman/8.0/en/insert-on-duplicate.html](https://dev.mysql.com/doc/refman/8.0/en/insert-on-duplicate.html)
+
+# specificsectorRoute.js 
+
+**Code inspired by sources from questionnaireRoute*
+
+# adminRoute.js 
+
+Mozilla Developer Network (MDN) - Express Routing
+URL: https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs/routes
+Purpose: Explains how the router.get() method handles HTTP GET requests in Express.js and how routes are structured.
+
+Honeybadger Blog - Executing MySQL Queries in JavaScript
+URL: https://www.honeybadger.io/blog/using-sql-databases-in-javascript/
+Purpose: Provides best practices for efficiently executing MySQL queries in JavaScript, ensuring performance and security.
+
+W3Schools - MySQL SELECT JOIN
+URL: https://www.w3schools.com/nodejs/nodejs_mysql_join.asp
+Purpose: Explains how to use SQL JOIN statements to retrieve related data from multiple tables in a single query, improving efficiency.
+
+Stack Overflow - Checking If a User Exists in MySQL
+URL: https://stackoverflow.com/questions/63591695/check-if-a-user-exists-node-js-mysql
+Purpose: Discusses best practices for querying MySQL to determine if a user exists in a database before performing operations.
+
+MERN Stack Dev - Validating Data in POST Requests
+URL: https://mernstackdev.com/post-routes-in-web-development/#validating-data-in-post-requests
+Purpose: Demonstrates how to validate input data in Express.js before inserting records into a database to prevent invalid or incomplete data.
+
+MySQL Documentation - INSERT Statement
+URL: https://dev.mysql.com/doc/refman/8.0/en/insert.html
+Purpose: Provides official MySQL documentation on how to use the INSERT statement, including best practices and SQL syntax.
+
+MySQL Documentation - Storing JSON Data
+URL: https://dev.mysql.com/doc/refman/5.7/en/json.html
+Purpose: Explains how MySQL handles JSON data types, allowing structured data to be stored and queried efficiently in a database.
+
+GitHub - MySQLJS Library for Node.js
+URL: https://github.com/mysqljs/mysql
+Purpose: Provides guidance on using the MySQL package in Node.js applications for executing queries, handling connections, and using transactions.
+
+Programiz - SQL UPDATE Query
+URL: https://www.programiz.com/sql/update
+Purpose: Explains the SQL UPDATE statement, detailing how to modify existing records in a database while ensuring data integrity.
+
+Stack Overflow - Modularizing DELETE Routes in Express.js
+URL: https://stackoverflow.com/questions/72342532/how-to-modularize-a-delete-route-with-params-in-express
+Purpose: Discusses how to structure and modularize DELETE routes in Express.js to improve maintainability and security.
+
+MySQL Documentation - DELETE Statement
+URL: https://dev.mysql.com/doc/refman/8.0/en/delete.html
+Purpose: Official MySQL documentation on using the DELETE statement, including considerations for safely removing records from a database.
+
+# adminBenchmarkRoutes.js
+
+Mozilla Developer Network (MDN) Express Routing Guide
+https://developer.mozilla.org/en-US/docs/Learn/web_development/Extensions/Server-side/Express_Nodejs/routes
+
+Explains best practices for executing MySQL queries in JavaScript.
+Honeybadger Blog
+https://www.honeybadger.io/blog/using-sql-databases-in-javascript/
+
+Provides details on using MySQL UPDATE with subqueries to modify records dynamically.
+MySQL Official Documentation
+https://dev.mysql.com/doc/refman/8.0/en/update.html
+
+Covers how MySQL ORDER BY ... LIMIT ensures retrieval of the most recent row.
+MySQL Official Documentation
+https://dev.mysql.com/doc/refman/8.0/en/select.html
+
+Explains how to use JOIN operations in MySQL for combining data from multiple tables.
+MySQL Official Documentation
+https://dev.mysql.com/doc/refman/8.0/en/join.html
+
+Illustrates best practices for using UPDATE ... JOIN in MySQL to update data efficiently.
+MySQL Official Documentation
+https://dev.mysql.com/doc/refman/8.0/en/update.html
+
+Explains the importance of parameterized queries in MySQL to prevent SQL injection attacks.
+MySQLJS GitHub Documentation
+https://github.com/mysqljs/mysql#performing-queries
+
+Discusses JavaScript's nullish coalescing operator (??) for handling default values properly.
+Mozilla Developer Network (MDN) Web Docs
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing
+
+Explains how to update MySQL data using Node.js applications efficiently.
+MySQL Tutorial
+https://www.mysqltutorial.org/mysql-nodejs/update/
+
+Covers MySQL query optimizations for ORDER BY LIMIT queries to improve performance.
+Percona MySQL Performance Blog
+https://www.percona.com/blog/2019/07/02/how-to-optimize-mysql-order-by-limit-queries/
+
+Discusses safe SQL query practices in Node.js, including escaping and placeholders.
+Stack Overflow Discussion
+https://stackoverflow.com/questions/8263371/how-can-i-prevent-sql-injection-in-node-js
+
+*********** FRONTEND **************
+
 Core Components
 
 # App.js: 
@@ -296,43 +446,6 @@ URL: https://plainenglish.io/blog/embedding-google-forms-in-react-apps
 const sortedTop5 = allRecommendations
   .sort((a, b) => (riskLevelsOrder[b.risk_level] - riskLevelsOrder[a.risk_level])) // Sorting attempt
   .filter((rec, index) => index < 5);' 
-
-
-# questionnaireRoute.js
-
-Inspired Source: Mozilla Developer Network (MDN)
-Route to fetch questions and categorires.
-Purpose: Inspired by MDN's tutorial on routes in Express. Handles fetching data from a database based on query parameters.This route fetches categories based on the classification type and handles database interactions effectively.
-URL: https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs/routes
-
-
-Route to submit answers
-Purpose: Based on a combination of custom Node.js/Express practices and form handling for questionnaire submission. This route handles multiple response types and saves answers into a database.
-Source: ChatGPT - Node.js/Express Questionnaire Submission Route
-Prompt: 
-"I need a Node.js/Express route that handles questionnaire submissions. It should:
-Accept userId, an array of answers, and categoryId in the request body.
-Validate answers dynamically based on the Answer_Type of each question (yes_no, text, multiple_choice, numeric).
-Include helper logic for scoring multiple-choice answers and handle database inserts accordingly."
-
-
-Purpose: Uses JavaScript’s map() method to process multiple choice answers into numerical scores based on predefined values.
-URL: Array.map() - MDN (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)
-
-
-Source: Forum Discussion on Node.js async/await and MySQL query issues.  
-Purpose: Helped implement the `async/await` pattern for fetching scoring rules with parameterized queries in Node.js.  
-URL: [https://forum.freecodecamp.org/t/nodejs-async-await-mysql-query-select-problem/410085/2](https://forum.freecodecamp.org/t/nodejs-async-await-mysql-query-select-problem/410085/2)
-
-Source: MySQL Documentation - ON DUPLICATE KEY UPDATE.  
-Purpose: Used to update existing records or insert new ones when handling text-based responses.  
-URL: [https://dev.mysql.com/doc/refman/8.0/en/insert-on-duplicate.html](https://dev.mysql.com/doc/refman/8.0/en/insert-on-duplicate.html)
-
-# specificsectorRoute.js 
-
-**Code inspired by sources from questionnaireRoute*
-
-*********** FRONTEND **************
 
 # Login.js: 
 Manages user login and authentication.
@@ -573,6 +686,207 @@ Incident Table
 Source: React Material UI Tutorial - 33 - Table (YouTube)
 Purpose: Creating and structuring tables in React using Material UI components.
 URL: https://www.youtube.com/watch?v=qk2oY7W3fuY
+
+# BenchmarkSectors.js 
+
+Source: MDN Web Docs, Fetch API
+Purpose: Fetch recommendations for the current user using an API request.
+URL: https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch#checking_response_status
+
+Source: React Docs
+Purpose: Use the useEffect hook for fetching data on component mount.
+URL: https://react.dev/reference/react/useEffect
+
+Source: MUI Docs
+Purpose: Implement CircularProgress and Alert for handling loading and error states.
+URL: https://mui.com/material-ui/react-progress/ and https://mui.com/material-ui/react-alert/
+
+Source: W3Schools Chart.js
+Purpose: Format data properly for a bar chart in Chart.js.
+URL: https://www.w3schools.com/js/js_graphics_chartjs.asp
+
+Source: MUI Button API
+Purpose: Use MUI Button for user interactions and actions.
+URL: https://mui.com/material-ui/react-button/
+
+Source: MUI Table API
+Purpose: Structure and display tabular data using MUI Table.
+URL: https://mui.com/material-ui/react-table/
+
+Source: Chart.js Docs
+Purpose: Format data for visualization using Chart.js.
+URL: https://www.chartjs.org/docs/latest/getting-started/
+
+Source: MUI Box API
+Purpose: Use the Box component for layout and spacing in MUI.
+URL: https://mui.com/material-ui/api/box/
+
+# BenchmarkChart.js
+
+Source: MDN Web Docs - localStorage
+Purpose: Retrieve authentication token stored in localStorage for user session handling.
+URL: https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage
+
+Source: MDN Web Docs - fetch() API
+Purpose: Handle API requests and responses asynchronously using fetch().
+URL: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+
+Source: React Docs - useEffect()
+Purpose: Execute a function when dependencies change or when the component mounts.
+URL: https://react.dev/reference/react/useEffect
+
+Source: Chart.js Docs - Bar Chart Configuration
+Purpose: Format data for a bar chart visualization in Chart.js.
+URL: https://www.chartjs.org/docs/latest/charts/bar.html
+
+Source: Chart.js Docs - Chart Options & Plugin Configurations
+Purpose: Customize chart responsiveness, layout, axis scaling, and legend positioning.
+URL: https://www.chartjs.org/docs/latest/configuration/
+
+Source: Material-UI Docs - Box Component
+Purpose: Structure layout and control spacing using MUI’s Box component.
+URL: https://mui.com/material-ui/api/box/
+
+Source: Material-UI Docs - Typography Component
+Purpose: Apply structured text styles using MUI’s Typography component.
+URL: https://mui.com/material-ui/api/typography/
+
+
+
+# AdminPanel.js 
+
+Source: Fetch API for retrieving questions, categories, and sectors
+Purpose: To retrieve data from the backend API using fetch for rendering in the component
+URL: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+
+Source: React Docs - Handling Forms
+Purpose: To handle multiple form inputs dynamically and update state accordingly
+URL: https://legacy.reactjs.org/docs/forms.html#handling-multiple-inputs
+
+Source: String.prototype.split()
+Purpose: To process multiple-choice options by splitting a comma-separated string into an array
+URL: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split
+
+Source: JavaScript Conditional (Ternary) Operator
+Purpose: To conditionally assign values based on the answer type selected
+URL: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Conditional_operator
+
+Source: Fetch API - Making HTTP Requests
+Purpose: To send data to the server using fetch for adding or updating questions
+URL: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+
+Source: window.location.reload() - Reload the current document
+Purpose: To refresh the page and reflect changes after updating or deleting a question
+URL: https://www.w3schools.com/jsref/met_loc_reload.asp
+
+Source: React Forms Handling
+Purpose: To populate form fields when editing a question
+URL: https://legacy.reactjs.org/docs/forms.html
+
+Source: Logical OR (||) Operator
+Purpose: To assign default values for sector_id when null
+URL: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_OR
+
+Source: Material-UI Box for layout structure
+Purpose: To provide responsive and structured layout
+URL: https://mui.com/material-ui/react-box/
+
+Source: Material-UI Typography for headings
+Purpose: To format text elements such as section titles
+URL: https://mui.com/material-ui/react-typography/
+
+Source: Material-UI Table for structured data display
+Purpose: To create a tabular format for displaying questions
+URL: https://mui.com/material-ui/react-table/
+
+Source: Material-UI Button for interactions
+Purpose: To create interactive elements for adding, editing, and deleting questions
+URL: https://mui.com/material-ui/react-button/
+
+Source: Material-UI FormControl, InputLabel, and Select Components
+Purpose: To create structured and accessible dropdowns for form selections
+URL: https://mui.com/material-ui/react-select/
+
+CHATGPT PROPMT: 'I have a React admin panel where users can add, edit, and delete questionnaire questions. When clicking "Edit" on a question, I want the form fields to be pre-filled with the existing question's data.
+
+Data Structure:
+Question_ID
+Question_Text
+Classification_Type
+Sector_ID
+Category_ID
+Answer_Type
+MCQ_Options (stored as a JSON string)
+What I need:
+
+A function that updates the form state when a question is selected for editing.
+It should parse MCQ_Options from a JSON string back into a readable format.
+If MCQ_Options is null, it should set an empty string instead of breaking.
+The function should integrate with useState.
+The form should update automatically when a new question is selected.'
+
+
+# AdminBenchmarkPanel.js 
+Source: MDN Web Docs  
+Purpose: Fetch API for making HTTP requests  
+URL: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch  
+
+Source: MDN Web Docs  
+Purpose: JSON.stringify() for formatting request bodies  
+URL: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify  
+
+Source: React Docs  
+Purpose: useEffect Hook for fetching data on component mount  
+URL: https://react.dev/reference/react/useEffect  
+
+Source: React Docs  
+Purpose: Managing component state using useState Hook  
+URL: https://legacy.reactjs.org/docs/hooks-state.html  
+
+Source: YouTube - React Forms Tutorial  
+Purpose: Handling form state in React  
+URL: https://www.youtube.com/watch?v=PqAaHf7JKls  
+
+Source: React Docs  
+Purpose: Conditional Rendering (Showing Edit Form Only When Editing)  
+URL: https://react.dev/learn/conditional-rendering  
+
+Source: MDN Web Docs  
+Purpose: Using Array.prototype.map() for rendering lists dynamically  
+URL: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map  
+
+Source: React Docs  
+Purpose: Handling user interactions with event listeners (onClick for Edit & Save)  
+URL: https://react.dev/learn/responding-to-events  
+
+Source: Material-UI Docs  
+Purpose: Box component for layout structure  
+URL: https://mui.com/material-ui/react-box/  
+
+Source: Material-UI Docs  
+Purpose: Typography component for text styling  
+URL: https://mui.com/material-ui/react-typography/  
+
+Source: Material-UI Docs  
+Purpose: Paper component for section containers  
+URL: https://mui.com/material-ui/react-paper/  
+
+Source: Material-UI Docs  
+Purpose: Table component for displaying structured data  
+URL: https://mui.com/material-ui/react-table/  
+
+Source: Material-UI Docs  
+Purpose: TextField component for user input  
+URL: https://mui.com/material-ui/react-text-field/  
+
+Source: Material-UI Docs  
+Purpose: Button component for handling user interactions  
+URL: https://mui.com/material-ui/react-button/  
+
+Source: Material-UI Docs  
+Purpose: Alert component for error handling and notifications  
+URL: https://mui.com/material-ui/react-alert/
+
 # Database
 
 I created the database using my own knowledge and query guidance using MySQL's provdied tutorials 

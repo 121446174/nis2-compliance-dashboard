@@ -35,6 +35,8 @@ const AdminPanel = () => {
     const token = localStorage.getItem('token');
 
     // 1. Fetch Questions, Categories, and Sectors on component mount
+     // Reference: Fetch API for retrieving questions, categories, and sectors
+    // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -62,6 +64,7 @@ const AdminPanel = () => {
     }, [token]);
 
     // 2. Handle form field changes
+    // React Docs - Handling Forms https://legacy.reactjs.org/docs/forms.html#handling-multiple-inputs
     const handleChange = (field, value) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
@@ -79,7 +82,9 @@ const AdminPanel = () => {
         }
         setError('');
         
-        // For multiple_choice answer type, process mcq_options (comma separated) into JSON string
+        /// Process multiple choice options by splitting a comma-separated string into an array
+        // Reference: String.prototype.split() - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split
+        // Reference: JavaScript Conditional (Ternary) Operator - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Conditional_operator
         const payload = {
             question_text: formData.question_text,
             classification_type: formData.classification_type,
@@ -90,7 +95,9 @@ const AdminPanel = () => {
                 ? JSON.stringify(formData.mcq_options.split(',').map(opt => opt.trim()))
                 : null
         };
-
+      // Send data to the server using the Fetch API
+// Reference: Fetch API - Making HTTP Requests
+// https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
         try {
             let response;
             if (editingId) {
@@ -118,7 +125,9 @@ const AdminPanel = () => {
                 const errData = await response.json();
                 throw new Error(errData.error || 'Failed to save question');
             }
-            // Refresh the page data (you may update state instead of reloading)
+    // Refresh the page to reflect changes
+    // Reference: window.location.reload() - Reload the current document
+    // https://www.w3schools.com/jsref/met_loc_reload.asp
             window.location.reload();
         } catch (err) {
             console.error('Error saving question:', err);
@@ -127,6 +136,9 @@ const AdminPanel = () => {
     };
 
     // 4. Handle edit: populate form with selected question's data
+    // ChatGPT Assisted - Used for structuring the pre-filling logic for form fields (Prompt in READMEFILE)
+    //https://legacy.reactjs.org/docs/forms.html
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Logical_OR
     const handleEdit = (question) => {
         setEditingId(question.Question_ID);
         setFormData({
@@ -140,6 +152,8 @@ const AdminPanel = () => {
     };
 
     // 5. Handle delete question
+    // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+    // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
     const handleDelete = async (id) => {
         if (!window.confirm('Are you sure you want to delete this question?')) return;
         try {
@@ -154,7 +168,15 @@ const AdminPanel = () => {
             setError('Failed to delete question');
         }
     };
-
+// MUI Compents used - Typography, Alert, Paper, 
+// Reference: Material-UI Box for layout structure
+// https://mui.com/material-ui/react-box/
+// Reference: Material-UI Typography for headings
+// https://mui.com/material-ui/react-typography/
+// Reference: Material-UI Table for structured data display
+// https://mui.com/material-ui/react-table/
+// Reference: Material-UI Button for interactions
+// https://mui.com/material-ui/react-button/
     return (
         <Box sx={{ maxWidth: 1200, mx: 'auto', p: 3 }}>
             <Typography variant="h4" sx={{ textAlign: 'center', mb: 3, fontWeight: 'bold' }}>
@@ -173,6 +195,7 @@ const AdminPanel = () => {
                     onChange={(e) => handleChange('question_text', e.target.value)}
                     sx={{ mb: 2 }}
                 />
+                 {/* FormControl, InputLabel, and Select Components */}
                 <FormControl fullWidth sx={{ mb: 2 }}>
                     <InputLabel>Category</InputLabel>
                     <Select

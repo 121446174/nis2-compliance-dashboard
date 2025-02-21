@@ -17,16 +17,13 @@ function AdminBenchmarkPanel() {
   const token = localStorage.getItem("token");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  // Global benchmark settings: internal & external weights
+  // Benchmark settings: internal & external weights
   const [benchmarkSettings, setBenchmarkSettings] = useState({
     internal_weight: "",
     external_weight: "",
   });
-
   // List of sector benchmarks
   const [sectorBenchmarks, setSectorBenchmarks] = useState([]);
-
   // Editing state for a sector's external benchmark
   const [editingSectorId, setEditingSectorId] = useState(null);
   const [editedExternalScore, setEditedExternalScore] = useState("");
@@ -34,6 +31,7 @@ function AdminBenchmarkPanel() {
   const [editedJustification, setEditedJustification] = useState("");
 
   // Fetch benchmark settings
+  // Reference: Fetch API  https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
   const fetchBenchmarkSettings = async () => {
     try {
       setLoading(true);
@@ -51,6 +49,7 @@ function AdminBenchmarkPanel() {
   };
 
   // Fetch sector benchmarks list
+  // Reference: Fetch API  https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
   const fetchSectorBenchmarks = async () => {
     try {
       setLoading(true);
@@ -66,13 +65,16 @@ function AdminBenchmarkPanel() {
       setLoading(false);
     }
   };
-
+ // Reference: useEffect Hook - Fetching data on component mount
+  // https://react.dev/reference/react/useEffect
   useEffect(() => {
     fetchBenchmarkSettings();
     fetchSectorBenchmarks();
   }, []);
 
   // Update benchmark settings
+  // Reference: Fetch API  https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+  // JSON.stringify() https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify
   const handleSettingsUpdate = async () => {
     try {
       setLoading(true);
@@ -93,6 +95,8 @@ function AdminBenchmarkPanel() {
   };
 
   // When a user clicks Edit, populate the edit form
+  // Reference: React State Handling - https://legacy.reactjs.org/docs/hooks-state.html
+  // https://www.youtube.com/watch?v=PqAaHf7JKls
   const handleEditExternal = (sector) => {
     setEditingSectorId(sector.sector_id);
     setEditedExternalScore(sector.external_score);
@@ -101,6 +105,8 @@ function AdminBenchmarkPanel() {
   };
 
   // Save the updated external benchmark values
+  // Reference: Fetch API  https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+  // JSON.stringify() - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify
   const handleSaveExternal = async (sectorId) => {
     try {
       setLoading(true);
@@ -124,7 +130,15 @@ function AdminBenchmarkPanel() {
       setLoading(false);
     }
   };
-
+// MUI Compents used - Typography, Alert, Paper, 
+// Reference: Material-UI Box for layout structure
+// https://mui.com/material-ui/react-box/
+// Reference: Material-UI Typography for headings
+// https://mui.com/material-ui/react-typography/
+// Reference: Material-UI Table for structured data display
+// https://mui.com/material-ui/react-table/
+// Reference: Material-UI Button for interactions
+// https://mui.com/material-ui/react-button/
   return (
     <Box sx={{ maxWidth: 1200, mx: "auto", p: 3 }}>
       <Typography variant="h4" sx={{ mb: 2, textAlign: "center" }}>
@@ -172,6 +186,7 @@ function AdminBenchmarkPanel() {
       </Paper>
 
       {/* Edit External Benchmark Form (shown when editing) */}
+       {/* Conditional Rendering https://react.dev/learn/conditional-rendering */}
       {editingSectorId && (
         <Paper sx={{ p: 2, mb: 3 }}>
           <Typography variant="h6" sx={{ mb: 2 }}>
@@ -211,7 +226,8 @@ function AdminBenchmarkPanel() {
         </Paper>
       )}
 
-      {/* Sector Benchmarks Table */}
+      {/* Sector Benchmarks Table - Array.prototype.map() https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map */}
+       {/* Handling Events (Click Events for Edit & Save) - https://react.dev/learn/responding-to-events */}
       <Paper sx={{ p: 2 }}>
         <Typography variant="h6" sx={{ mb: 2 }}>
           Sector Benchmarks

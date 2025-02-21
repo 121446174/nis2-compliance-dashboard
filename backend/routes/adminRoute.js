@@ -4,7 +4,8 @@ const auth = require('../middleware/auth');
 const router = express.Router();
 
 // 1. Fetch All Questions (with Category & Sector information)
-// Inspired by MDN and your incident routes
+// Mozilla Developer Network (MDN) inspired source "The router.get() method responds to HTTP GET requests at a specific path."
+// Execurting query - https://www.honeybadger.io/blog/using-sql-databases-in-javascript/
 router.get('/questions', auth, async (req, res) => {
     try {
         // SQL query: join questions with categories and sectors for display
@@ -33,6 +34,8 @@ router.get('/questions', auth, async (req, res) => {
 });
 
 // 2. Fetch All Categories
+// Inspired by MySQL SELECT JOIN (https://www.w3schools.com/nodejs/nodejs_mysql_join.asp)
+// Querying MySQL Efficiently - Stack Overflow (https://stackoverflow.com/questions/63591695/check-if-a-user-exists-node-js-mysql)
 router.get('/categories', auth, async (req, res) => {
     try {
         const [categories] = await db.query(
@@ -47,6 +50,7 @@ router.get('/categories', auth, async (req, res) => {
 });
 
 // 3. Fetch All Sectors
+// Reference: Efficient MySQL Queries (https://www.w3schools.com/nodejs/nodejs_mysql_join.asp)
 router.get('/sectors', auth, async (req, res) => {
     try {
         const [sectors] = await db.query(
@@ -61,7 +65,9 @@ router.get('/sectors', auth, async (req, res) => {
 });
 
 // 4. Add a New Question
-// Note: For multiple_choice questions, mcq_options should be a JSON string
+// Inspired by Incident Logging (https://mernstackdev.com/post-routes-in-web-development/#validating-data-in-post-requests)
+// MySQL Insert Statement Reference (https://dev.mysql.com/doc/refman/8.0/en/insert.html)
+// Storing MCQ as a JSON - https://dev.mysql.com/doc/refman/5.7/en/json.html
 router.post('/questions', auth, async (req, res) => {
     const { question_text, classification_type, sector_id, category_id, answer_type, mcq_options } = req.body;
 
@@ -97,7 +103,9 @@ router.post('/questions', auth, async (req, res) => {
     }
 });
 
-// 5. Update an Existing Question
+// 5. Update an Existing Question https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Server-side/Express_Nodejs/routes
+// Inspired by Risk Score Updates (https://github.com/mysqljs/mysql)
+// SQL UPDATE Query Reference (https://www.programiz.com/sql/update)
 router.put('/questions/:id', auth, async (req, res) => {
     const { question_text, classification_type, sector_id, category_id, answer_type, mcq_options } = req.body;
     const { id } = req.params;
@@ -132,6 +140,8 @@ router.put('/questions/:id', auth, async (req, res) => {
 });
 
 // 6. Delete a Question
+// Inspired by Incident Deletion (https://stackoverflow.com/questions/72342532/how-to-modularize-a-delete-route-with-params-in-express)
+// MySQL DELETE Reference (https://dev.mysql.com/doc/refman/8.0/en/delete.html)
 router.delete('/questions/:id', auth, async (req, res) => {
     const { id } = req.params;
     try {

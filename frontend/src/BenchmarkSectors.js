@@ -21,16 +21,17 @@ function BenchmarkSectors() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [comparison, setComparison] = useState(null);
-
+// Inspired by: Auth0 Community discussion on decoding tokens
+// Purpose: Retrieve the userId from the stored JWT token in localStorage https://community.auth0.com/t/decoding-token-atob-fails-if-i-include-users-picture/151202
   const token = localStorage.getItem('token');
-  // Decode the user ID from the token (assuming it’s in the payload as "userId")
   const userId = token ? JSON.parse(atob(token.split('.')[1])).userId : null;
 
+  // Inspired Source: MDN Web Docs, "fetch() API" 
+  // Purpose: Fetch recommendations for the current user using an API request. https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch#checking_response_status
   const fetchComparisonData = async () => {
     try {
       setLoading(true);
       setError(null);
-
       const res = await fetch(
         `http://localhost:5000/api/benchmark/comparison/${userId}`,
         {
@@ -54,13 +55,16 @@ function BenchmarkSectors() {
     }
   };
 
+  // Handle recalculation of benchmarks
+  // Reference: MDN Fetch API - POST Requests
+  // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
   const handleRecalc = async () => {
     try {
       setLoading(true);
       setError(null);
 
       const reqBody = {
-        internalWeight: 30, // These values are now in the DB, but you could allow overrides
+        internalWeight: 30, 
         externalWeight: 70
       };
 
@@ -88,6 +92,9 @@ function BenchmarkSectors() {
     }
   };
 
+// Automatically fetch data when userId changes
+ // Reference: React Docs - useEffect Hook for Fetching Data
+  // https://react.dev/reference/react/useEffect
   useEffect(() => {
     if (userId) {
       fetchComparisonData();
@@ -96,6 +103,8 @@ function BenchmarkSectors() {
     }
   }, [userId]);
 
+   // Handle Loading and Errors - Show relevant UI elements
+   // Reference: Material-UI CircularProgress and Alert component - https://mui.com/material-ui/react-progress/ and https://mui.com/material-ui/react-alert/
   if (loading) return <CircularProgress />;
   if (error) return <Alert severity="error">{error}</Alert>;
   if (!comparison) return null;
@@ -103,6 +112,7 @@ function BenchmarkSectors() {
   const { userRiskScore, benchmark } = comparison;
 
   // Prepare data for the bar chart (Internal, External, Blended)
+  // W3schools Bar Chart - https://www.w3schools.com/js/js_graphics_chartjs.asp
   const chartData = {
     labels: ['Internal Avg', 'External Score', 'Blended Score'],
     datasets: [
@@ -128,15 +138,16 @@ function BenchmarkSectors() {
   };
 
   return (
+
     <Box sx={{ maxWidth: 800, mx: 'auto', mt: 2 }}>
       <Typography variant="h4" sx={{ mb: 2 }}>
         Sector Benchmark Analysis &amp; Your Risk Score
       </Typography>
-
+{/* Recalculate Button Reference: MUI Button API - https://mui.com/material-ui/react-button/ */}
       <Button variant="contained" color="primary" onClick={handleRecalc} sx={{ mb: 3 }}>
         Recalculate Benchmarks
       </Button>
-
+      {/* Recommendations Table 'React Material UI Tutorial - 33 - Table' https://www.youtube.com/watch?v=qk2oY7W3fuY*/}
       <TableContainer component={Paper} sx={{ mb: 3 }}>
         <Table>
           <TableHead>
@@ -177,12 +188,12 @@ function BenchmarkSectors() {
           </TableBody>
         </Table>
       </TableContainer>
-
+  {/* Reference: Chart.js Data Formatting - https://www.chartjs.org/docs/latest/getting-started/ */}
       <Typography variant="h6" sx={{ mb: 2 }}>
         Benchmark Score Breakdown
       </Typography>
       <Bar data={chartData} />
-
+  {/* Informational Box - Breakdown of Benchmark Scores  - Reference: MUI Box API - https://mui.com/material-ui/api/box/ */}
       <Box sx={{ mt: 3, p: 2, bgcolor: '#f5f5f5', borderRadius: 2 }}>
         <Typography variant="body1">
           <strong>What This Means:</strong>
@@ -201,7 +212,7 @@ function BenchmarkSectors() {
           <strong>{userRiskScore.Normalized_Score.toFixed(2)}</strong>.
         </Typography>
 
-        {/* Conditionally render the Justification if a user is logged in */}
+        {/* Conditionally Render the Justification Box If User is Logged In Reference: React Conditional Rendering - https://react.dev/learn/conditional-rendering */}
         {userId && (
           <Box sx={{ mt: 3, p: 2, bgcolor: '#e0e0e0', borderRadius: 2 }}>
             <Typography variant="body2">

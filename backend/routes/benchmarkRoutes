@@ -114,7 +114,7 @@ router.post('/calculate', auth, async (req, res) => {
 
             // 7. Store Calculated Benchmark in `sector_benchmark`
             // Inspired Reference: MySQL Docs - INSERT ... ON DUPLICATE KEY UPDATE
-        // https://dev.mysql.com/doc/refman/8.0/en/insert-on-duplicate.html
+        // https://dev.mysql.com/doc/refman/8.0/en/insert-on-duplicate.html and https://stackoverflow.com/questions/44004418/node-js-async-await-using-with-mysql
         // Inspired Reference: MySQL Tutorial - CURRENT_TIMESTAMP
        //https://dev.mysql.com/doc/refman/8.4/en/date-and-time-functions.html
             await connection.query(
@@ -153,6 +153,8 @@ router.post('/calculate', auth, async (req, res) => {
 });
 
 // 8. Fetch User Risk Score & Sector Benchmark (with Justification)
+// Inspired Reference: MDN's "Express Routing" guide from Mozilla Developer Network (MDN) https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Server-side/Express_Nodejs/routes
+// MySQL 8.0 Documentation: SELECT Query https://dev.mysql.com/doc/refman/8.0/en/select.html
 router.get('/comparison/:userId', auth, async (req, res) => {
     const { userId } = req.params;
     console.log(`[GET /comparison/${userId}] Request received.`);
@@ -213,37 +215,6 @@ router.get('/comparison/:userId', auth, async (req, res) => {
     } catch (err) {
         console.error('Error fetching comparison data:', err);
         res.status(500).json({ error: 'Failed to fetch comparison data' });
-    }
-});
-
-// 9. Fetch Only User’s Sector Benchmark
-router.get('/:userId', auth, async (req, res) => {
-    const { userId } = req.params;
-    console.log(`[GET /${userId}] Request received for user's sector benchmark.`);
-    try {
-        // Get User's Sector
-        const [userRows] = await pool.query('SELECT Sector_ID FROM user WHERE User_ID = ?', [userId]);
-        if (!userRows.length) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-        const sectorId = userRows[0].Sector_ID;
-      
-
-        // Fetch Benchmark for User’s Sector
-        const [benchmarks] = await pool.query(
-            `SELECT sb.*, s.Sector_Name
-             FROM sector_benchmark sb
-             JOIN sector s ON sb.sector_id = s.Sector_ID
-             WHERE sb.sector_id = ?
-             ORDER BY sb.updated_at DESC`,
-            [sectorId]
-        );
-        console.log(`[GET /${userId}] Retrieved benchmarks:`, benchmarks);
-        return res.json(benchmarks);
-
-    } catch (err) {
-        console.error('Error fetching sector benchmarks:', err);
-        return res.status(500).json({ error: 'Failed to fetch sector benchmarks' });
     }
 });
 
