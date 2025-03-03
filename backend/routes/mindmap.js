@@ -1,57 +1,57 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('../db'); // ✅ MySQL connection (same as your other routes)
-const auth = require('../middleware/auth'); // ✅ Use your authentication middleware
+const pool = require('../db'); 
+const auth = require('../middleware/auth'); 
 
 // 🔹 Fetch MindMap Data for the Logged-in User
 router.get('/mindmap', auth, async (req, res) => {
     try {
-        const userId = req.user.userId; // ✅ Extract user ID from the JWT token
-
+        const userId = req.user.userId; // Extract user ID from the JWT token
         console.log(`🔍 Fetching mind map for user ID: ${userId}`);
 
         // 🔹 Step 1: Fetch User Data
         const [user] = await pool.query(`
-            SELECT name, organisation, role, sector 
+            SELECT name, organisation, role, sector, sector_id
             FROM user 
-            WHERE User_ID = ?`, 
+            WHERE user_id = ?`, 
             [userId]
         );
-        console.log(`✅ User Data:`, user);
-
-        if (!user.length) {
-            console.warn(`⚠️ User ID ${userId} not found.`);
+        if (user.length === 0) {
+            console.log("User not found.");
             return res.status(404).json({ error: "User not found" });
         }
-
         const userData = user[0];
+        const sectorId = userData.sector_id; // Get sector ID from user data
 
         // 🔹 Step 2: Fetch Risk Score
         const [riskData] = await pool.query(`
             SELECT Normalized_Score 
             FROM risk_score 
-            WHERE User_ID = ?`, 
+            WHERE user_id = ?`, 
             [userId]
         );
-        console.log(`✅ Risk Score:`, riskData);
         const riskScore = riskData.length ? riskData[0].Normalized_Score : "No risk score available";
 
-       // 🔹 Fetch User's Top 5 Recommendations (Based on Sector & Risk Level)
-console.log(`🔹 Fetching recommendations for user ID: ${userId}`);
-const [recommendations] = await pool.query(`
-    SELECT r.category_id, r.recommendation_text
-    FROM recommendations r
-    JOIN user u ON u.Sector_ID = r.sector_id
-    JOIN risk_score rs ON rs.User_ID = u.User_ID
-    WHERE u.User_ID = ?
-    AND rs.Risk_Level = r.risk_level
-    ORDER BY r.risk_level ASC
-    LIMIT 5;
-`, [userId]);
+        // 🔹 Step 3: Fetch **Sector-Specific Recommendations**
+        if (!sectorId) {
+            console.log("No sector ID found for user.");
+            return res.status(404).json({ error: "User has no associated sector." });
+        }
 
-console.log(`✅ Retrieved ${recommendations.length} recommendations`);
+        const [recommendations] = await pool.query(`
+            SELECT r.recommendation_text, 'Sector-Specific' AS category_name, r.risk_level 
+            FROM recommendations r
+            WHERE r.sector_id = ?
+            ORDER BY FIELD(r.risk_level, 'Critical', 'Very High', 'High', 'Medium', 'Low')
+            LIMIT 5;
+        `, [sectorId]);
 
-        // 🔹 Step 4: Convert to Markdown for Markmap
+        if (recommendations.length === 0) {
+            console.log("No sector-specific recommendations found.");
+            return res.status(404).json({ error: "No recommendations available for this sector." });
+        }
+
+        // 🔹 Step 4: Convert to Markdown for MindMap
         let mindmapMarkdown = `# User Overview\n`;
         mindmapMarkdown += `- **Name:** ${userData.name}\n`;
         mindmapMarkdown += `- **Organisation:** ${userData.organisation}\n`;
@@ -61,12 +61,12 @@ console.log(`✅ Retrieved ${recommendations.length} recommendations`);
         mindmapMarkdown += `# Risk Score\n`;
         mindmapMarkdown += `- **Score:** ${riskScore}\n\n`;
 
-        mindmapMarkdown += `# Top 5 Recommendations\n`;
-        recommendations.forEach((rec, index) => {
-            mindmapMarkdown += `- **${rec.category_name}**: ${rec.recommendation_text}\n`;
+        mindmapMarkdown += `# Top 5 Sector-Specific Recommendations\n`;
+        recommendations.forEach((rec) => { 
+            mindmapMarkdown += `- **${rec.category_name}**: ${rec.recommendation_text} (**${rec.risk_level}**)\n`;
         });
 
-        console.log("✅ MindMap Data Generated Successfully!");
+        console.log("MindMap Data Generated Successfully!");
         res.json({ success: true, markdown: mindmapMarkdown });
 
     } catch (error) {

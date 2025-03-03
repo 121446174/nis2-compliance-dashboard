@@ -57,7 +57,7 @@ function Navbar() {
     { text: "Recommendations", path: "/recommendations", icon: <AssessmentIcon /> },
     { text: "Benchmarking", path: "/benchmarks", icon: <AssessmentIcon /> },
     { text: "Incident Reports", path: "/incidents", icon: <ReportIcon /> },
-    { text: "Mind Map", path: "/mindmap", icon: <AssessmentIcon /> },
+    { text: "Summary", path: "/mindmap", icon: <AssessmentIcon /> },
   ];
 
   // 🔹 Admin Menu (Restricted Access)
