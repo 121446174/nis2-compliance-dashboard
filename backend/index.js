@@ -21,6 +21,7 @@ const adminRoutes = require('./routes/adminRoute');
 const benchmarkRoutes = require('./routes/benchmarkRoutes');
 const adminRecommendations = require('./routes/adminRecommendations');
 const adminBenchmarkRoutes = require('./routes/adminBenchmarkRoutes');
+const mindmapRoutes = require('./routes/mindmap');  
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -54,6 +55,7 @@ app.use('/admin', adminRoutes);
 app.use('/api/benchmark', benchmarkRoutes);
 app.use('/admin', adminRecommendations);
 app.use('/admin/benchmark', adminBenchmarkRoutes);
+app.use('/api', mindmapRoutes); 
 
 // Start the server - verify server running
 app.listen(port, () => {

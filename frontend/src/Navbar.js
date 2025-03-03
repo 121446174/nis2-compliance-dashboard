@@ -32,17 +32,17 @@ function Navbar() {
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
 
-    console.log("🔍 DEBUG: Fetched user from localStorage:", user);
+    console.log("DEBUG: Fetched user from localStorage:", user);
 
     if (user) {
-      console.log("✅ User found:", user);
-      console.log("🔍 Checking if user is an admin:", user.isAdmin);
+      console.log("User found:", user);
+      console.log("Checking if user is an admin:", user.isAdmin);
       setIsAdmin(user.isAdmin || false);
     } else {
-      console.log("❌ No user found in localStorage. Setting isAdmin to false.");
+      console.log("No user found in localStorage. Setting isAdmin to false.");
       setIsAdmin(false);
     }
-  }, [location.pathname]); // 🔥 Runs every time the page changes
+  }, [location.pathname]); // Runs every time the page changes
 
   const toggleDrawer = () => {
     setDrawerOpen(!drawerOpen);
@@ -57,6 +57,7 @@ function Navbar() {
     { text: "Recommendations", path: "/recommendations", icon: <AssessmentIcon /> },
     { text: "Benchmarking", path: "/benchmarks", icon: <AssessmentIcon /> },
     { text: "Incident Reports", path: "/incidents", icon: <ReportIcon /> },
+    { text: "Mind Map", path: "/mindmap", icon: <AssessmentIcon /> },
   ];
 
   // 🔹 Admin Menu (Restricted Access)
@@ -69,8 +70,8 @@ function Navbar() {
     { text: "Admin Benchmarking", path: "/admin/benchmark", icon: <AssessmentIcon /> }
   ];
 
-  console.log("📌 Current Admin Status:", isAdmin);
-  console.log("📌 Menu Being Rendered:", isAdmin ? "Admin Menu" : "User Menu");
+  console.log("Current Admin Status:", isAdmin);
+  console.log("Menu Being Rendered:", isAdmin ? "Admin Menu" : "User Menu");
 
   return (
     <Box sx={{ display: "flex" }}>

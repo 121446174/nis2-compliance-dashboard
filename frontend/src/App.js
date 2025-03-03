@@ -18,6 +18,7 @@ import AdminPanel from './AdminPanel';
 import BenchmarkSectors from './BenchmarkSectors';
 import AdminRecommendations from './AdminRecommendations';
 import AdminBenchmarkPanel from './AdminBenchmarkPanel';
+import MindMap from './MindMap';
 
 
 function App() {
@@ -45,6 +46,7 @@ function App() {
               <Route path="/admin/recommendations" element={<AdminRecommendations />} />
               <Route path="/benchmarks" element={<BenchmarkSectors />} />
               <Route path="/admin/benchmark" element={<AdminBenchmarkPanel />} />
+              <Route path="/mindmap" element={<MindMap />} />
             </Routes>
           </Box>
         </Box>
