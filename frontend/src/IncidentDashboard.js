@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import {
     Typography, Box, Table, TableBody, TableCell, TableContainer,
     TableHead, TableRow, Paper, Button, Dialog, DialogTitle, DialogContent, DialogActions,
-    TextField, MenuItem, Select, InputLabel, FormControl
+    TextField, MenuItem, Select, InputLabel, FormControl, CircularProgress, Alert
 } from '@mui/material';
 
 Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -14,6 +14,11 @@ const IncidentDashboard = () => {
     const [open, setOpen] = useState(false); 
     const [formData, setFormData] = useState({ description: '', severity: '', date_time: '', indicators: '', impacted_services: '' });
     const token = localStorage.getItem('token');
+
+      // Help Dialog State
+      const [helpOpen, setHelpOpen] = useState(false);
+      const handleHelpOpen = () => setHelpOpen(true);
+      const handleHelpClose = () => setHelpOpen(false);
 
     // 1. Fetch Incidents
     // Inspired Reference: MDN "fetch() method" - Handling API Requests
@@ -125,6 +130,28 @@ const IncidentDashboard = () => {
             <Typography variant="h4" sx={{ textAlign: 'center', mb: 3, fontWeight: 'bold' }}>
                 Cybersecurity Incident Tracker
             </Typography>
+
+{/*Help Button Added Here  */}
+<Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+                <Button variant="outlined" color="primary" onClick={handleHelpOpen}>
+                    Help
+                </Button>
+            </Box>
+
+            {/*  Help Dialog  */}
+            <Dialog open={helpOpen} onClose={handleHelpClose}>
+                <DialogTitle>How to Use the Incident Dashboard</DialogTitle>
+                <DialogContent>
+                    <Typography variant="body1">🔹 Click "Report an Incident" to log a new incident.</Typography>
+                    <Typography variant="body1">🔹 Use the severity filter to view specific incidents.</Typography>
+                    <Typography variant="body1">🔹 The table displays reported incidents with their details.</Typography>
+                    <Typography variant="body1">🔹 The chart visualizes incident severity levels.</Typography>
+                    <Typography variant="body1">🔹 Click "Delete" to remove an incident from the list.</Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleHelpClose} color="primary">Got it!</Button>
+                </DialogActions>
+            </Dialog>
 
             {/* Report Incident Button MUI Button API and Customisation https://mui.com/material-ui/customization/how-to-customize/ */}
             <Button

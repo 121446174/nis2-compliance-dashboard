@@ -12,7 +12,11 @@ import {
   TableRow,
   Paper,
   Button,
-  Link
+  Link,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
 import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
@@ -26,6 +30,11 @@ function BenchmarkSectors() {
   const token = localStorage.getItem('token');
   const userId = token ? JSON.parse(atob(token.split('.')[1])).userId : null;
 
+   // Help Dialog State
+   const [helpOpen, setHelpOpen] = useState(false);
+   const handleHelpOpen = () => setHelpOpen(true);
+   const handleHelpClose = () => setHelpOpen(false);
+ 
   // Inspired Source: MDN Web Docs, "fetch() API" 
   // Purpose: Fetch recommendations for the current user using an API request. https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch#checking_response_status
   const fetchComparisonData = async () => {
@@ -143,6 +152,28 @@ function BenchmarkSectors() {
       <Typography variant="h4" sx={{ mb: 2 }}>
         Sector Benchmark Analysis &amp; Your Risk Score
       </Typography>
+
+ {/* Help Button Added Here  */}
+ <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+        <Button variant="outlined" color="primary" onClick={handleHelpOpen}>
+          Help
+        </Button>
+      </Box>
+
+      {/* Help Dialog */}
+      <Dialog open={helpOpen} onClose={handleHelpClose}>
+        <DialogTitle>How to Use the Benchmark Page</DialogTitle>
+        <DialogContent>
+          <Typography variant="body1">🔹 The table shows a comparison of your risk score against sector benchmarks.</Typography>
+          <Typography variant="body1">🔹 Click "Recalculate Benchmarks" to update the scores.</Typography>
+          <Typography variant="body1">🔹 The bar chart visualizes the differences between internal, external, and blended scores.</Typography>
+          <Typography variant="body1">🔹 Use this data to understand your cybersecurity position in your sector.</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleHelpClose} color="primary">Got it!</Button>
+        </DialogActions>
+      </Dialog>
+
 {/* Recalculate Button Reference: MUI Button API - https://mui.com/material-ui/react-button/ */}
       <Button variant="contained" color="primary" onClick={handleRecalc} sx={{ mb: 3 }}>
         Recalculate Benchmarks

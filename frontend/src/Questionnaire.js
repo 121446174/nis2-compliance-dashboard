@@ -24,6 +24,11 @@ import {
     FormControlLabel,
     TextField,
     Radio,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Snackbar,
 } from '@mui/material';
 import { UserContext } from './UserContext';
 import {jwtDecode } from 'jwt-decode';
@@ -43,6 +48,17 @@ function Questionnaire() {
     const [showSectorSpecific, setShowSectorSpecific] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [helpOpen, setHelpOpen] = useState(false);
+
+    const handleHelpOpen = () => setHelpOpen(true);
+    const handleHelpClose = () => setHelpOpen(false); 
+
+      // ✅ Snackbar State for Success Message
+      const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+      const handleSnackbarClose = () => {
+          setSnackbarOpen(false);
+      };
 
     useEffect(() => {
         if (!classificationType || !userSectorId) {
@@ -168,7 +184,7 @@ function Questionnaire() {
                 throw new Error(errorData.error || 'Failed to save responses');
             }
 
-            alert('Category responses saved successfully');
+            setSnackbarOpen(true);
 
             setCompletedCategories((prev) => {
                 const updated = new Set(prev);
@@ -251,6 +267,26 @@ function Questionnaire() {
     // Material-UI React Box API etc (https://mui.com/material-ui/react-box/)
     return (
         <Box className="questionnaire-container">
+                 {/* ADDED HELP BUTTON AT THE TOP  */}
+                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+                <Button variant="outlined" color="primary" onClick={handleHelpOpen}>
+                    Help
+                </Button>
+            </Box>
+
+            {/*  HELP DIALOG */}
+            <Dialog open={helpOpen} onClose={handleHelpClose}>
+                <DialogTitle>How to Use the Questionnaire</DialogTitle>
+                <DialogContent>
+                    <Typography variant="body1">🔹 Select a category from the dropdown.</Typography>
+                    <Typography variant="body1">🔹Answer all questions carefully.</Typography>
+                    <Typography variant="body1">🔹 Click "Submit Category" when done.</Typography>
+                    <Typography variant="body1">🔹Once all categories are completed, sector-specific questions will appear.</Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleHelpClose} color="primary">Got it!</Button>
+                </DialogActions>
+            </Dialog>
             <Stepper activeStep={categories.findIndex((c) => c.Category_ID === categoryId)} alternativeLabel>
                 {categories.map((category) => (
                     <Step key={category.Category_ID}>
@@ -295,7 +331,16 @@ function Questionnaire() {
             >
                 Submit Category
             </Button>
+            {/* ✅ Snackbar for Success Notification ✅ */}
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={3000}
+                onClose={handleSnackbarClose}
+                message="Category responses saved successfully"
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            />
         </Box>
+        
     );
 }
 

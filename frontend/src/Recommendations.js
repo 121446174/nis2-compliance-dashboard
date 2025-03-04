@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
     Typography, Box, CircularProgress, Alert, Table, TableBody, TableCell,
-    TableContainer, TableHead, TableRow, Paper, TextField, MenuItem, Select, InputLabel, FormControl
+    TableContainer, TableHead, TableRow, Paper, TextField, MenuItem, Select, InputLabel, FormControl,  Button, Dialog, DialogTitle, DialogContent, DialogActions,
 } from '@mui/material';
 
 
@@ -31,6 +31,10 @@ function Recommendations() {
 // Purpose: Retrieve the userId from the stored JWT token in localStorage https://community.auth0.com/t/decoding-token-atob-fails-if-i-include-users-picture/151202
     const token = localStorage.getItem('token');
     const userId = token ? JSON.parse(atob(token.split('.')[1])).userId : null;
+
+    const [helpOpen, setHelpOpen] = useState(false);
+    const handleHelpOpen = () => setHelpOpen(true);
+    const handleHelpClose = () => setHelpOpen(false)
 
 // Inspired Source: MDN Web Docs, "fetch() API" 
 // Purpose: Fetch recommendations for the current user using an API request. https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch#checking_response_status
@@ -87,6 +91,27 @@ function Recommendations() {
                     <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', textAlign: 'center' }}>
                         Your Personalised Cybersecurity Recommendations
                     </Typography>
+
+                     {/* Help Button Added Here  */}
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+                <Button variant="outlined" color="primary" onClick={handleHelpOpen}>
+                    Help
+                </Button>
+            </Box>
+
+            {/* Help Dialog  */}
+            <Dialog open={helpOpen} onClose={handleHelpClose}>
+                <DialogTitle>How to Use the Recommendations Page</DialogTitle>
+                <DialogContent>
+                    <Typography variant="body1">🔹 Use the search bar to find specific recommendations.</Typography>
+                    <Typography variant="body1">🔹 Filter recommendations by risk level or category.</Typography>
+                    <Typography variant="body1">🔹 Sort recommendations by highest or lowest risk.</Typography>
+                    <Typography variant="body1">🔹 Read through the recommendations to understand potential risks and actions.</Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleHelpClose} color="primary">Got it!</Button>
+                </DialogActions>
+            </Dialog>
         
                     {/* Search & Filter Options - 'Search Filter in React JS' https://www.youtube.com/watch?v=xAqCEBFGdYk */}
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
