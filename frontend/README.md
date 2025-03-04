@@ -383,6 +383,78 @@ Discusses safe SQL query practices in Node.js, including escaping and placeholde
 Stack Overflow Discussion
 https://stackoverflow.com/questions/8263371/how-can-i-prevent-sql-injection-in-node-js
 
+
+# adminRecommendations.js 
+
+Source: Mozilla Developer Network (MDN)
+Purpose: The router.get() method responds to HTTP GET requests at a specific path.
+URL: https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs/routes
+
+Source: Honeybadger.io
+Purpose: Executing SQL queries efficiently in JavaScript.
+URL: https://www.honeybadger.io/blog/using-sql-databases-in-javascript/
+
+Source: MERNStackDev
+Purpose: Validating data in POST requests.
+URL: https://mernstackdev.com/post-routes-in-web-development/#validating-data-in-post-requests
+
+Source: MySQL Documentation
+Purpose: Reference for the MySQL INSERT statement.
+URL: https://dev.mysql.com/doc/refman/8.0/en/insert.html
+
+Source: Mozilla Developer Network (MDN)
+Purpose: Express.js Routing for handling PUT requests.
+URL: https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs/routes
+
+Source: Programiz
+Purpose: SQL UPDATE query best practices.
+URL: https://www.programiz.com/sql/update
+
+Source: Stack Overflow
+Purpose: Modularizing a DELETE route with params in Express.
+URL: https://stackoverflow.com/questions/72342532/how-to-modularize-a-delete-route-with-params-in-express
+
+Source: MySQL Documentation
+Purpose: Reference for the MySQL DELETE statement.
+URL: https://dev.mysql.com/doc/refman/8.0/en/delete.html
+
+# mindmap.js 
+
+Source: Express.js Guide - Writing & Using Middleware
+Purpose: Explains middleware functions in Express.js, including authentication handling before route execution.
+URL: https://expressjs.com/en/guide/writing-middleware.html
+
+Source: MySQL 8.0 Reference Manual – SELECT Statement
+Purpose: Documents how to retrieve data from a MySQL database using SELECT, filtering with WHERE, and joining tables.
+URL: https://dev.mysql.com/doc/refman/8.0/en/select.html
+
+Source: MySQL 8.0 Reference Manual – FIELD() Function (String Functions)
+Purpose: Details MySQL’s FIELD() function, which allows custom sorting within an ORDER BY clause.
+URL: https://dev.mysql.com/doc/refman/8.0/en/string-functions.html#function_field
+
+Source: MySQL 8.0 Reference Manual – AVG Aggregate Function
+Purpose: Explains how the AVG() function calculates the average of column values, commonly used with GROUP BY.
+URL: https://dev.mysql.com/doc/refman/8.0/en/aggregate-functions.html
+
+Source: Markdown Guide – Basic Syntax
+Purpose: Covers how to format text using Markdown, including headings, lists, and bold text for structuring mind maps.
+URL: https://www.markdownguide.org/basic-syntax/#alternate-syntax
+
+Source: MDN Web Docs – Array.prototype.forEach()
+Purpose: Explains how .forEach() loops through arrays, which is used to build the mindmapMarkdown dynamically.
+URL: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
+
+Source: MDN Web Docs – Number.prototype.toFixed()
+Purpose: Documents .toFixed(n), which ensures numerical values are formatted to a fixed decimal place (e.g., percentages).
+URL: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number/toFixed
+
+"I have JavaScript code that retrieves recommendations and category scores from a database. It currently uses .forEach() to loop through these arrays and format the data as a standard text output. I need help adapting this structure into Markdown format so that it can be used in a mind map visualization with Markmap.js. Specifically, I need:
+
+Recommendations formatted as bullet points, including the category and risk level.
+Category scores formatted as bullet points, ensuring numerical values are properly rounded (e.g., using .toFixed(2)).
+The output should be structured so that it can be rendered correctly as a Markmap mind map.
+Can you help me modify my .forEach() loops to correctly generate the Markdown output for this purpose?"
+
 *********** FRONTEND **************
 
 Core Components
@@ -886,6 +958,107 @@ URL: https://mui.com/material-ui/react-button/
 Source: Material-UI Docs  
 Purpose: Alert component for error handling and notifications  
 URL: https://mui.com/material-ui/react-alert/
+
+# AdminRecommendations.js
+
+Source: Mozilla Developer Network (MDN)
+Purpose: Fetch API for retrieving recommendations, categories, and sectors.
+URL: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+
+Source: React Documentation
+Purpose: Handling forms in React.
+URL: https://legacy.reactjs.org/docs/forms.html#handling-multiple-inputs
+
+Source: Mozilla Developer Network (MDN)
+Purpose: Fetch API for making HTTP requests (POST and PUT).
+URL: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+
+Source: W3Schools
+Purpose: Using window.location.reload() to refresh the page.
+URL: https://www.w3schools.com/jsref/met_loc_reload.asp
+
+Source: Mozilla Developer Network (MDN)
+Purpose: Fetch API for DELETE requests.
+URL: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+
+Source: React Documentation
+Purpose: Conditional rendering for showing the edit form when editing.
+URL: https://react.dev/learn/conditional-rendering
+
+Source: Mozilla Developer Network (MDN)
+Purpose: Using Array.prototype.map() to render recommendations.
+URL: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
+
+Source: React Documentation
+Purpose: Handling click events for Edit and Delete buttons.
+URL: https://react.dev/learn/responding-to-events
+
+Source: Material-UI Documentation
+Purpose: Material-UI Box for layout structure.
+URL: https://mui.com/material-ui/react-box/
+
+Source: Material-UI Documentation
+Purpose: Material-UI Typography for headings.
+URL: https://mui.com/material-ui/react-typography/
+
+Source: Material-UI Documentation
+Purpose: Material-UI Table for structured data display.
+URL: https://mui.com/material-ui/react-table/
+
+Source: Material-UI Documentation
+Purpose: Material-UI Button for interactions.
+URL: https://mui.com/material-ui/react-button/
+
+
+# MindMap.js 
+
+Markmap Documentation - View
+Purpose: Explains how to use markmap-view for rendering Markdown-based mind maps in an SVG format.
+URL: https://markmap.js.org/docs/packages--markmap-view
+
+Markmap Documentation - Lib
+Purpose: Describes markmap-lib, which converts Markdown into structured data for visualizing mind maps.
+URL: https://markmap.js.org/docs/packages--markmap-lib
+
+MDN Web Docs - Fetch API
+Purpose: Covers how to use fetch for making HTTP requests, including handling headers and JSON responses.
+URL: https://developer.mozilla.org/docs/Web/API/Fetch_API
+
+MDN Web Docs - Response.json()
+Purpose: Describes how response.json() converts API responses into usable JavaScript objects.
+URL: https://developer.mozilla.org/docs/Web/API/Response/json
+
+Markmap Documentation - Transformation with markmap-lib
+Purpose: Explains how Transformer converts Markdown into a structured format for Markmap visualizations.
+URL: https://markmap.js.org/docs/packages--markmap-lib#transformation
+
+Markmap Documentation - loadCSS and loadJS
+Purpose: Describes how loadCSS and loadJS dynamically inject necessary styles and scripts for Markmap rendering.
+URL: https://markmap.js.org/api/functions/markmap-common.loadCSS.html
+URL: https://markmap.js.org/api/functions/markmap-common.loadJS.html
+
+Markmap Documentation - Markmap.create()
+Purpose: Explains how Markmap.create() initializes and updates a mind map visualization.
+URL: https://markmap.js.org/docs/packages--markmap-view
+
+MDN Web Docs - Element.innerHTML
+Purpose: Covers how innerHTML modifies an element’s contents and best practices for updating the DOM.
+URL: https://developer.mozilla.org/en-US/docs/Web/API/Element/innerHTML
+
+Markmap GitHub - SVG Structure
+Purpose: Provides reference for handling SVG structure in Markmap-based visualizations.
+URL: https://github.com/cwybruce/markmap-1/commit/afc173abb52e6e4052e228d223e0edfcdb6abe6a
+ 
+ 
+'I am using Markmap in React to visualize a mind map from Markdown. I understand that Transformer is used to process Markdown into a structured format, but I can’t find clear documentation on how transformer.transform(markdown) actually works.
+
+I want to properly implement this inside a useEffect() so that it:
+
+Converts Markdown when it updates.
+Loads any required styles/scripts using loadCSS() and loadJS().
+Clears the previous visualization before rendering a new one to avoid duplication.
+How do I correctly structure useEffect() so that it updates when markdown changes with Transformer?
+How do I ensure loadCSS() and loadJS() only run when necessary?'
 
 # Database
 

@@ -1,4 +1,3 @@
-// AdminRecommendations.js
 import React, { useEffect, useState } from 'react';
 import {
   Box,
@@ -18,6 +17,7 @@ import {
   Alert
 } from '@mui/material';
 
+// Component for Admin Panel - Manage Recommendations
 const AdminRecommendations = () => {
   const [recommendations, setRecommendations] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -35,6 +35,9 @@ const AdminRecommendations = () => {
   const token = localStorage.getItem('token');
 
   // 1. Fetch Recommendations, Categories, and Sectors on mount
+  // Uses Fetch to send GET requests to backend then parses JSON and updates state 
+   // Reference: Fetch API for retrieving recommendations, categories, and sectors
+  // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -62,11 +65,15 @@ const AdminRecommendations = () => {
   }, [token]);
 
   // 2. Handle form field changes
+  // Handling Forms https://legacy.reactjs.org/docs/forms.html#handling-multiple-inputs
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   // 3. Handle form submission (add or update recommendation)
+  // Validates fields and sends POST or PUT request to backend - whether adding or editing
+ // Reference: Fetch API - Making HTTP Requests
+// URL: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
   const handleSubmit = async () => {
     if (!formData.category_id || !formData.risk_level || !formData.recommendation_text || !formData.impact) {
       setError('Please fill in all required fields.');
@@ -76,7 +83,10 @@ const AdminRecommendations = () => {
     try {
       let response;
       if (editingId) {
+       
         // Update recommendation
+        // Reference: Fetch API - Making HTTP Requests
+// https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
         response = await fetch(`http://localhost:5000/admin/recommendations/${editingId}`, {
           method: 'PUT',
           headers: {
@@ -100,7 +110,8 @@ const AdminRecommendations = () => {
         const errData = await response.json();
         throw new Error(errData.error || 'Failed to save recommendation');
       }
-      // Refresh data (or update state accordingly)
+      // Refresh data = Reference: window.location.reload() - Reload the current document
+      // https://www.w3schools.com/jsref/met_loc_reload.asp
       window.location.reload();
     } catch (err) {
       console.error('Error saving recommendation:', err);
@@ -109,6 +120,8 @@ const AdminRecommendations = () => {
   };
 
   // 4. Handle edit: populate form with recommendation data
+  // Reference: Fetch API for DELETE requests
+//developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
   const handleEdit = (rec) => {
     setEditingId(rec.id);
     setFormData({
@@ -122,6 +135,9 @@ const AdminRecommendations = () => {
   };
 
   // 5. Handle delete recommendation
+// - Confirms deletion before sending a DELETE request to the backend.
+// - Refreshes the page after deletion. 
+//  // Fetch API for delete - https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this recommendation?')) return;
     try {
@@ -137,13 +153,26 @@ const AdminRecommendations = () => {
     }
   };
 
+// MUI Compents used - Typography, Alert, Paper, 
+// Reference: Material-UI Box for layout structure
+// https://mui.com/material-ui/react-box/
+// Reference: Material-UI Typography for headings
+// https://mui.com/material-ui/react-typography/
+// Reference: Material-UI Table for structured data display
+// https://mui.com/material-ui/react-table/
+// Reference: Material-UI Button for interactions
+// https://mui.com/material-ui/react-button/
+
   return (
     <Box sx={{ maxWidth: 1200, mx: 'auto', p: 3 }}>
       <Typography variant="h4" sx={{ textAlign: 'center', mb: 3, fontWeight: 'bold' }}>
         Admin Panel - Manage Recommendations
       </Typography>
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+
       {/* Form for Add/Edit Recommendation */}
+      {/* Conditional Rendering: Show Edit Form only when editing */}
+    {/* Reference: https://react.dev/learn/conditional-rendering */}
       <Paper sx={{ p: 2, mb: 3, boxShadow: '2px 2px 10px rgba(0,0,0,0.1)' }}>
         <Typography variant="h6" sx={{ mb: 2 }}>
           {editingId ? 'Edit Recommendation' : 'Add New Recommendation'}
@@ -235,7 +264,11 @@ const AdminRecommendations = () => {
           )}
         </Box>
       </Paper>
+
       {/* Table Displaying Recommendations */}
+       {/* Mapping over recommendations to render the table */}
+    {/* Reference: Array.prototype.map() */}
+    {/* URL: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map */}
       <Paper sx={{ p: 2, boxShadow: '2px 2px 10px rgba(0,0,0,0.1)' }}>
         <Table>
           <TableHead>

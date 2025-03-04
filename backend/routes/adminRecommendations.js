@@ -1,10 +1,11 @@
-// adminRecommendations.js
 const express = require('express');
 const db = require('../db');
 const auth = require('../middleware/auth');
 const router = express.Router();
 
-// GET: Fetch All Recommendations (with Category & Sector info)
+// GET: Fetch All Recommendations
+// Mozilla Developer Network (MDN) inspired source "The router.get() method responds to HTTP GET requests at a specific path."
+// Execurting query - https://www.honeybadger.io/blog/using-sql-databases-in-javascript/
 router.get('/recommendations', auth, async (req, res) => {
   try {
     const [rows] = await db.query(
@@ -32,6 +33,8 @@ router.get('/recommendations', auth, async (req, res) => {
 });
 
 // POST: Add a New Recommendation
+// Inspired by Incident Logging (https://mernstackdev.com/post-routes-in-web-development/#validating-data-in-post-requests)
+// MySQL Insert Statement Reference (https://dev.mysql.com/doc/refman/8.0/en/insert.html)
 router.post('/recommendations', auth, async (req, res) => {
   const { category_id, question_id, sector_id, risk_level, recommendation_text, impact } = req.body;
 
@@ -56,7 +59,9 @@ router.post('/recommendations', auth, async (req, res) => {
   }
 });
 
-// PUT: Update an Existing Recommendation
+// PUT: Update an Existing Recommendation 
+// Express.js Routing for Handling Requests: https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs/routes
+// SQL Update: https://www.programiz.com/sql/update
 router.put('/recommendations/:id', auth, async (req, res) => {
   const { id } = req.params;
   const { category_id, question_id, sector_id, risk_level, recommendation_text, impact } = req.body;
@@ -82,6 +87,8 @@ router.put('/recommendations/:id', auth, async (req, res) => {
 });
 
 // DELETE: Remove a Recommendation
+// Inspired by Incident Deletion (https://stackoverflow.com/questions/72342532/how-to-modularize-a-delete-route-with-params-in-express)
+// MySQL DELETE Reference (https://dev.mysql.com/doc/refman/8.0/en/delete.html)
 router.delete('/recommendations/:id', auth, async (req, res) => {
   const { id } = req.params;
   try {
