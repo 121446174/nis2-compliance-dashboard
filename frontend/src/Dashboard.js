@@ -264,97 +264,97 @@ const getRiskChartData = () => {
   // Dashboard layout
   // Reference: MUI Website
   return (
-    <Box sx={{ maxWidth: 900, margin: 'auto', padding: 3 }}>
+    <Box sx={{ maxWidth: 1200, mx: 'auto', p: 3, bgcolor: '#f8f9fa', minHeight: '100vh' }}>
       {loading ? (
         <CircularProgress />
       ) : error ? (
         <Alert severity="error">{error}</Alert>
       ) : userData ? (
         <>
-          {/* Header Buttons */}
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-            <Button variant="outlined" color="primary" onClick={handleHelpOpen} sx={{ mr: 1 }}>
-              Help
-            </Button>
-            <Button
-              variant="outlined"
-              color="secondary"
-              href="https://docs.google.com/forms"
-              target="_blank"
-              rel="noopener noreferrer"
-              sx={{ mr: 1 }}
-            >
-              Give Feedback
-            </Button>
-            <Button variant="contained" color="secondary" onClick={handleLogout}>
-              Logout
-            </Button>
-          </Box>
-  
+            {/* Header Buttons */}
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+                        <Button variant="outlined" color="primary" onClick={handleHelpOpen} sx={{ mr: 1 }}>
+                            Help
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            sx={{
+                                color: '#1976d2',
+                                borderColor: '#1976d2',
+                                '&:hover': { bgcolor: '#1976d2', color: 'white' },
+                                mr: 1
+                            }}
+                            href="https://docs.google.com/forms"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            Give Feedback
+                        </Button>
+                        <Button
+                            variant="contained"
+                            sx={{
+                                bgcolor: '#003366',
+                                '&:hover': { bgcolor: '#002244' }
+                            }}
+                            onClick={handleLogout}
+                        >
+                            Logout
+                        </Button>
+                    </Box>
+
           {/* Welcome Message */}
-          <Typography variant="h4" gutterBottom>
+          <Typography variant="h4" gutterBottom fontWeight="bold">
             Welcome, {userData.name || 'User'}
           </Typography>
-  
+
           {/* User Information */}
-          <Grid container spacing={3} sx={{ mt: 2 }}>
-            <Grid item xs={12}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6">User Information</Typography>
-                  <Typography>Email: {userData.email}</Typography>
-                  <Typography>Organisation: {userData.organisation}</Typography>
-                  <Typography>Role: {userData.role}</Typography>
-                  <Typography>Sector: {userData.sector}</Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
-  
-          {/* Category Breakdown and Risk Assessment (Side by Side) */}
-          <Grid container spacing={3} sx={{ mt: 2 }}>
-            {/* Category Breakdown */}
+          <Card sx={{ mb: 3, p: 2, boxShadow: 3, borderRadius: 3 }}>
+            <Typography variant="h6">User Information</Typography>
+            <Typography>Email: {userData.email}</Typography>
+            <Typography>Organisation: {userData.organisation}</Typography>
+            <Typography>Role: {userData.role}</Typography>
+            <Typography>Sector: {userData.sector}</Typography>
+          </Card>
+
+          {/* Main Dashboard Grid */}
+          <Grid container spacing={3}>
+            {/* Compliance Overview */}
             <Grid item xs={12} md={6}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6">Category Compliance Overview</Typography>
-                  {categoryScores.length > 0 ? (
-                    <div>
-                      {categoryScores.map((category) => (
-                        <div key={category.category} style={{ marginBottom: '10px' }}>
-                          <Typography variant="subtitle2">{category.category}</Typography>
-                          <Box
-                            sx={{
-                              height: 10,
-                              background: '#E0E0E0',
-                              borderRadius: 5,
-                              overflow: 'hidden',
-                              mt: 1,
-                            }}
-                          >
-                            <Box
-                              sx={{
-                                height: '100%',
-                                width: `${category.percentage}%`,
-                                background: '#6C63FF',
-                              }}
-                            ></Box>
-                          </Box>
-                          <Typography variant="caption" sx={{ display: 'block', mt: 1 }}>
-                            {Math.round(category.percentage)}% compliance
-                          </Typography>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <Typography color="textSecondary">
-                      No data available. Complete the questionnaire to see results!
-                    </Typography>
-                  )}
-                </CardContent>
+              <Card sx={{ p: 2, boxShadow: 3, borderRadius: 3 }}>
+                <Typography variant="h6">Category Compliance Overview</Typography>
+                {categoryScores.length > 0 ? (
+                  categoryScores.map((category) => (
+                    <Box key={category.category} sx={{ mt: 2 }}>
+                      <Typography variant="subtitle2">{category.category}</Typography>
+                      <Box
+                        sx={{
+                          height: 10,
+                          width: '100%',
+                          background: '#ddd',
+                          borderRadius: 5,
+                          position: 'relative',
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            height: '100%',
+                            width: `${category.percentage}%`,
+                            background: '#6C63FF',
+                            borderRadius: 5,
+                          }}
+                        />
+                      </Box>
+                      <Typography variant="caption" color="textSecondary">
+                        {Math.round(category.percentage)}% compliance
+                      </Typography>
+                    </Box>
+                  ))
+                ) : (
+                  <Typography color="textSecondary">No data available</Typography>
+                )}
               </Card>
             </Grid>
-  
+
             {/* Risk Assessment */}
             <Grid item xs={12} md={6}>
               <Card>
@@ -377,6 +377,8 @@ const getRiskChartData = () => {
             </Grid>
           </Grid>
           <Grid container spacing={3} sx={{ mt: 2 }}>
+
+             {/* Risk Level  */}
           <Grid item xs={12} md={6}>
   <Card>
     <CardContent>
@@ -385,30 +387,25 @@ const getRiskChartData = () => {
     </CardContent>
   </Card>
 </Grid>
-
-        
-<Grid item xs={12} md={6}>
-  <Card>
-    <CardContent>
-      <Typography variant="h6">⭐ Top 5 Risk-Based Recommendations</Typography>
-      {topRecommendations.length > 0 ? (
-  <ul>
-    {topRecommendations.map((rec, index) => (
-
-            <li key={index}>
-              <strong>{rec.category_name} ({rec.risk_level} Risk):</strong> {rec.recommendation_text}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <Typography>No recommendations available.</Typography>
-      )}
-    </CardContent>
-  </Card>
-</Grid>
-
+            {/* Top 5 Recommendations */}
+            <Grid item xs={12} md={6}>
+              <Card sx={{ p: 2, boxShadow: 3, borderRadius: 3 }}>
+                <Typography variant="h6">Top 5 Risk-Based Recommendations</Typography>
+                {topRecommendations.length > 0 ? (
+                  <ul>
+                    {topRecommendations.map((rec, index) => (
+                      <li key={index}>
+                        <strong>{rec.category_name} ({rec.risk_level} Risk):</strong> {rec.recommendation_text}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <Typography>No recommendations available.</Typography>
+                )}
+              </Card>
+            </Grid>
           </Grid>
-          {/* Example: Add a new Grid row for the Benchmark Chart */}
+           {/* Example: Add a new Grid row for the Benchmark Chart */}
       <Grid container spacing={3} sx={{ mt: 2 }}>
         <Grid item xs={12}>
           <Card>
@@ -441,6 +438,5 @@ const getRiskChartData = () => {
     </Box>
   );
 }
-
 
 export default Dashboard;

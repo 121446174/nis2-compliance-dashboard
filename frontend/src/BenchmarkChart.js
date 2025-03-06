@@ -49,7 +49,7 @@ function BenchmarkChart() {
 
   const { userRiskScore, benchmark } = comparison;
 
-  // Prepare the chart data
+ // Prepare the chart data
   // Reference: Chart.js Bar Chart - Data Formatting
   // https://www.chartjs.org/docs/latest/charts/bar.html
   const chartData = {

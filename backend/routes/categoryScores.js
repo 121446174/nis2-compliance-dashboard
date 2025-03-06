@@ -51,7 +51,7 @@ router.get('/category-scores', auth, async (req, res) => {
 
              // 5) Determine risk level dynamically from `risk_levels` table
             // Inspired Reference: "JavaScript for...of Loop - MDN Web Docs = https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...of
-            let riskLevel = 'Unknown';
+            let riskLevel = 'low'; 
             for (const level of riskLevels) {
                 if (percentage >= level.Min_Score && percentage <= level.Max_Score) {
                     riskLevel = level.Risk_Level;

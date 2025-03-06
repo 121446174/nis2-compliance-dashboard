@@ -20,12 +20,12 @@ const RiskChart = ({ totalScore = 0, maxPossibleScore = 100, riskLevel }) => {
         }
 
         const normalizedScore = (totalScore / maxPossibleScore) * 100;
-        const colors = ['#6C63FF', '#FFC300']; 
+        const colors = ['#6C63FF', '#B0C4DE'];
 
         chartInstance.current = new Chart(ctx, {
             type: 'doughnut',
             data: {
-                labels: ['Your Score', 'Remaining'],
+                labels: ['Your Score', 'Potential Risk'],
                 datasets: [
                     {
                         label: 'Risk Assessment',
@@ -83,9 +83,9 @@ const RiskChart = ({ totalScore = 0, maxPossibleScore = 100, riskLevel }) => {
             <div>
                 <canvas ref={chartRef}></canvas>
                 <p style={{ marginTop: '10px', fontSize: '18px', fontWeight: 'bold' }}>
-                    Risk Score: {totalScore.toFixed(2)} / {maxPossibleScore.toFixed(2)} (
-                    {((totalScore / maxPossibleScore) * 100).toFixed(2)}%)
-                </p>
+    Risk Score: {((totalScore / maxPossibleScore) * 100).toFixed(2)}%
+</p>
+
                 <p
                     style={{
                         fontSize: '16px',

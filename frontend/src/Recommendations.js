@@ -114,31 +114,40 @@ function Recommendations() {
             </Dialog>
         
                     {/* Search & Filter Options - 'Search Filter in React JS' https://www.youtube.com/watch?v=xAqCEBFGdYk */}
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-                        <TextField 
-                            label="Search Recommendations" 
-                            variant="outlined"
-                            size="small"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            sx={{ width: '30%' }}
-                        />
-        
+                    <Box 
+    sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        flexWrap: 'wrap', 
+        gap: 2, 
+        mb: 3 
+    }}
+>
+    <TextField 
+        label="Search Recommendations" 
+        variant="outlined"
+        size="small"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        sx={{ width: '30%' }} 
+    />
+
                         {/* Filter by Risk MUI Select Component - https://mui.com/material-ui/react-select/?srsltid=AfmBOorW3g0r41s-LsuhZNfhHw1346l9BTC7jX3s9pMg9Zf7-8wtAGrS*/}
-                        <FormControl sx={{ minWidth: 150 }}>
-                            <InputLabel>Filter by Risk</InputLabel>
-                            <Select
-                                value={filterRisk}
-                                onChange={(e) => setFilterRisk(e.target.value)}
-                            >
-                                <MenuItem value="">All</MenuItem>
-                                <MenuItem value="Critical">Critical</MenuItem>
-                                <MenuItem value="Very High">Very High</MenuItem>
-                                <MenuItem value="High">High</MenuItem>
-                                <MenuItem value="Medium">Medium</MenuItem>
-                                <MenuItem value="Low">Low</MenuItem>
-                            </Select>
-                        </FormControl>
+                        <FormControl sx={{ minWidth: 200 }}>
+        <InputLabel>Filter by Risk</InputLabel>
+        <Select
+            value={filterRisk}
+            onChange={(e) => setFilterRisk(e.target.value)}
+        >
+            <MenuItem value="">All</MenuItem>
+            <MenuItem value="Critical">Critical</MenuItem>
+            <MenuItem value="Very High">Very High</MenuItem>
+            <MenuItem value="High">High</MenuItem>
+            <MenuItem value="Medium">Medium</MenuItem>
+            <MenuItem value="Low">Low</MenuItem>
+        </Select>
+    </FormControl>
         
                         {/* Filter by Category Reference: React Creating Dynamic Select and Option Elements with Material-UI - Stack Overflow - https://stackoverflow.com/questions/65927056/react-creating-dynamic-select-and-option-elements-with-material-ui*/}
                         <FormControl sx={{ minWidth: 150 }}>
@@ -154,16 +163,16 @@ function Recommendations() {
                         </FormControl>
         
                         {/* Sort by Risk Level MUI Select Component - https://mui.com/material-ui/react-select/?srsltid=AfmBOorW3g0r41s-LsuhZNfhHw1346l9BTC7jX3s9pMg9Zf7-8wtAGrS*/}
-                        <FormControl sx={{ minWidth: 150 }}>
-                        <InputLabel>Sort by Risk</InputLabel>
-                     <Select
-                      value={sortOrder}
-                      onChange={(e) => setSortOrder(e.target.value)}
-                      >
-                    <MenuItem value="desc">Highest Risk First</MenuItem> 
-                  <MenuItem value="asc">Lowest Risk First</MenuItem> 
-              </Select>
-           </FormControl>
+                        <FormControl sx={{ minWidth: 200 }}>
+        <InputLabel>Sort by Risk</InputLabel>
+        <Select
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
+        >
+            <MenuItem value="desc">Highest Risk First</MenuItem> 
+            <MenuItem value="asc">Lowest Risk First</MenuItem> 
+        </Select>
+    </FormControl>
          </Box>
         
  {/* Recommendations Table 'React Material UI Tutorial - 33 - Table' https://www.youtube.com/watch?v=qk2oY7W3fuY*/}
